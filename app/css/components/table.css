@@ -1,0 +1,308 @@
+.main{
+    min-height: 80vh; /* Temporal */
+    container-type: inline-size;
+    container-name: main;
+}
+
+.main__group{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.main__actions{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.main__action{
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #fff;
+    transition: .3s ease-in-out width, .3s ease-in-out scale;
+}
+
+.main__action:hover{
+    scale: 1.03;
+}
+
+.main__action:first-child{
+    background-color: var(--blue);
+}
+
+.main__action:last-child{
+    background-color: var(--primary);
+}
+
+.main__action i{
+    font-size: 20px;
+}
+
+.main__action span{
+    width: 0%;
+    overflow: hidden;
+    text-wrap: nowrap;
+    font-size: 0.9375em;
+}
+
+/* Datatables */
+
+#table tr td:last-child{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#table tr td ul li:last-child span:last-child{
+    display: flex;
+    margin-top: 8px;
+    gap: 8px;
+}
+.table__medico {
+  width: min-content;
+  padding: 4px 2vw;
+  border: 1px solid var(--medico-border-color);
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: var(--medico-bg-color);
+  color: var(--medico-border-color);
+  transition: background-color .2s, transform .2s;
+}
+
+.table__medico:hover{
+  /*background-color: var(--medico-border-color);
+  color: var(--medico-hover-text-color);*/
+  transform: scale(1.03);
+  outline: none;
+}
+
+.table__status{
+    width: min-content;
+    padding: 4px 12px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+
+}
+.table__status:hover{
+    transform: scale(1.03);
+    outline: none;
+}
+
+.table__status--cancelada{
+    border-color: var(--red);
+    color: var(--red);
+    background-color: var(--light-red-status);
+}
+
+.table__status--pendiente{
+    border-color: var(--orange-status);
+    color: var(--orange-status-text-color);
+    background-color: var(--light-orange-status);
+}
+
+.table__status--confirmada{
+    border-color: var(--blue);
+    color: var(--blue);
+    background-color: var(--light-blue-status);
+}
+
+.table__status--completada{
+    border-color: var(--green-status);
+    color: var(--green-status);
+    background-color: var(--light-green-status);
+}
+
+.table__btn{
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 1.125em;
+    color: #fff;
+}
+
+.table__btn--edit{
+    background-color: var(--blue);
+}
+
+.table__btn--delete{    
+    background-color: var(--red);
+}
+.table__btn--extra{
+    background-color: var(--light-primary);
+}
+.table__btn--treatments{
+    background-color: var(--light-primary);
+}
+.table__btn--print{
+    background-color: var(--light-primary);
+}
+
+/* Spinner */
+
+.main__loading, .main__empty{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.main__loading.hide{
+    display: none;
+}
+
+.sk-chase {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    animation: sk-chase 2.5s infinite linear both;
+}
+
+.sk-chase-dot {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0; 
+    animation: sk-chase-dot 2.0s infinite ease-in-out both; 
+}
+
+.sk-chase-dot:before {
+    content: '';
+    display: block;
+    width: 25%;
+    height: 25%;
+    background-color: var(--blue);
+    border-radius: 100%;
+    animation: sk-chase-dot-before 2.0s infinite ease-in-out both; 
+}
+
+.sk-chase-dot:nth-child(1) { animation-delay: -1.1s; }
+.sk-chase-dot:nth-child(2) { animation-delay: -1.0s; }
+.sk-chase-dot:nth-child(3) { animation-delay: -0.9s; }
+.sk-chase-dot:nth-child(4) { animation-delay: -0.8s; }
+.sk-chase-dot:nth-child(5) { animation-delay: -0.7s; }
+.sk-chase-dot:nth-child(6) { animation-delay: -0.6s; }
+.sk-chase-dot:nth-child(1):before { animation-delay: -1.1s; }
+.sk-chase-dot:nth-child(2):before { animation-delay: -1.0s; }
+.sk-chase-dot:nth-child(3):before { animation-delay: -0.9s; }
+.sk-chase-dot:nth-child(4):before { animation-delay: -0.8s; }
+.sk-chase-dot:nth-child(5):before { animation-delay: -0.7s; }
+.sk-chase-dot:nth-child(6):before { animation-delay: -0.6s; }
+
+@keyframes sk-chase {
+    100% { transform: rotate(360deg); } 
+}
+
+@keyframes sk-chase-dot {
+    80%, 100% { transform: rotate(360deg); } 
+}
+
+@keyframes sk-chase-dot-before {
+    50% {
+        transform: scale(0.4); 
+    } 100%, 0% {
+        transform: scale(1.0); 
+    } 
+}
+
+.loading__message, .empty__message{
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Empty */
+
+.main__empty{
+    display: none;
+    gap: 16px;
+}
+
+.main__empty.show{
+    display: flex;
+}
+
+.main__empty img{
+    width: 200px;
+}
+
+/* Modal Form */
+
+.form__group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form__label{
+    font-weight: 500;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+}
+
+.form__input{
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #FDFCFC;
+    border: 1px solid #B6B6B6;
+    border-radius: 4px;
+    font-size: 0.875em;
+    font-weight: 300;
+    transition: .3s ease-in-out border-color;
+}
+
+.form__input--select{
+    appearance: none;
+    background-image: url('../../assets/svg/chevron-down.svg');
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+}
+
+.form__input:focus-visible{
+    outline: none;
+    border-color: var(--primary);
+}
+
+@container main (min-width: 400px){
+    .main__action:hover{
+        width: 150px;
+        padding: 0 8px;
+        gap: 8px;
+    }
+
+    .main__action:hover span{
+        width: auto;
+    }    
+}
+
+@container main (min-width: 600px){
+    .main__action{
+        width: 150px;
+        padding: 0 8px;
+        gap: 8px;
+    }
+
+    .main__action span{
+        width: auto;
+    }
+
+    .loading__message, .empty__message{
+        font-size: 1.125em;
+    }
+}

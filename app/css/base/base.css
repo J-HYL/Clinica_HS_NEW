@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root{
+    --primary: #2b80f7;
+    --dark-primary: #191fbe;
+    --light-primary: #839cff;
+    --pale-primary: #e8f7ff;
+    --blue: #2381ED;
+    --orange: #FF947A;
+    --dark-orange: #E7690F;
+    --pale-orange: #FFF4DE;
+    --pink: #FA5A7D;
+    --pale-pink: #FFE2E5;
+    --green: #3CD856;
+    --pale-green: #DCFCE7;
+    --yellow: #FED600;
+    --red: #DE5753;
+    --purple: #955cff;
+
+    --green-status: #008767;
+    --orange-status: #F78E2B;
+    --orange-status-text-color: #D07621;
+    --light-green-status: rgba(22, 192, 152, 0.38);
+    --light-orange-status: rgba(247, 142, 43, 0.38);
+    --light-blue-status: rgba(35, 129, 237, 0.38);
+    --light-red-status: rgba(222, 87, 83, 0.38);
+
+    --background: #FAFBFF;
+    --dark-gray: #1D242E;
+    --light-gray: #6D6D6D;
+    --pale-gray: #9197B3;
+
+    --calendar-gradient: linear-gradient(to bottom, #839cff, #839cff);
+    --calendar--appointment-text-color: #836942;
+    --calendar-green-status: #DEFFD2;
+    --calendar-blue-status: #EEECFD;
+    --calendar-orange-status: #FCEEDF;
+    --calendar-red-status: #FCDFDF;
+
+
+    --medico-border-color: #6a98ee;
+    --medico-hover-text-color : #ffffff;
+    --medico-bg-color: #e8f7ff;
+}
+
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background-color: var(--background);
+    font-family: "Figtree", Arial, sans-serif;
+}
+
+input, label, button, select{
+    font-family: "Figtree", Arial, sans-serif;
+}
+
+.wrapper{
+    padding: 35px 30px;
+    grid-column: 2;
+}
+
+.container{
+    margin-top: 18px;
+    background-color: #fff;
+    border-radius: 30px;
+    padding: 25px;
+    box-shadow: 0 10px 60px rgba(252, 225, 255, 0.5);
+}
+
+.container__heading{
+    display: flex;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 1.125em;
+    color: var(--dark-gray);
+}
+
+/* Responsive */
+
+@media screen and (min-width: 744px) {
+    body{
+       display: grid;
+       grid-template-columns: 100px 1fr;
+       transition: .3s ease-in-out grid-template-columns;
+    }
+
+    .wrapper{
+       padding: 35px 40px;
+   }
+
+   .container{
+        margin-top: 28px;
+   }
+
+   .container__heading{
+       font-size: 1.375em;
+   }
+}
+
+@media screen and (min-width: 964px) {
+    .container{
+        margin-top: 40px;
+    }
+
+    .container__heading{
+        font-size: 1.5em;   
+    }
+}
+
+@media screen and (min-width: 1280px) {
+    .wrapper{
+       padding: 35px 50px;
+   }
+
+   .container{
+        padding: 35px 40px;
+    }
+}
