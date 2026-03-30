@@ -2,3 +2,5 @@
 
 /app/uploads/
 /app/uploads/**
+
+**/logs/**
