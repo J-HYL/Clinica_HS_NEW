@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <title>Factura - ${escapeHtml(numeroFactura)}</title>
+    <style>
+      body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; margin: 0; font-size: 13px; }
+      .factura { width: 94%; margin: 0 auto; padding: 10px 0; }
+      header { display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #222; padding-bottom:10px; margin-bottom:15px; }
+      .logo { width:120px; height:60px; display:flex; align-items:center; justify-content:center; }
+      .logo img{ max-width:135px; max-height:60px; }
+      .emisor { flex:1; margin-left:15px; }
+      .emisor h2 { margin:0; font-size:18px; }
+      .emisor p{ margin: 0; }
+      .datos-factura { text-align:right; }
+      section{ margin-bottom:20px; }
+      h3{ font-size:14px; border-bottom:1px solid #ccc; padding-bottom:3px; margin-bottom:6px; }
+      table{ width:100%; border-collapse:collapse; margin-bottom:15px; font-size:13px; }
+      th, td { border:1px solid #ccc; padding:6px; }
+      th{ background:#f4f4f4; text-align:left; }
+      td { font-size:13px; }
+      td:last-child, th:last-child { text-align:right; }
+      .totales{ width:40%; float:right; border-collapse:collapse; margin-top:10px; }
+      .totales td{ border:1px solid #ccc; padding:5px; font-size:13px; }
+      .totales tr:last-child td{ font-weight:700; background:#f4f4f4; }
+      .info-cobro{ clear:both; margin-top:25px; }
+      footer{ border-top:1.5px solid #222; margin-top:25px; padding-top:8px; font-size:12px; line-height:1.3; }
+    </style>
+  </head>
+  <body>
+    <div class="factura">
+      <header>
+        <div class="logo">
+          <img src="../../../assets/images/logoCompleto.jpg" alt="logo">
+        </div>
+        <div class="emisor">
+          <h2>${escapeHtml(clinic.name)}</h2>
+          <p>NIF: ${escapeHtml(clinic.nif)}</p>
+          <p>${escapeHtml(clinic.address)}</p>
+          <p>Tel: ${escapeHtml(clinic.phone)} | Email: ${escapeHtml(clinic.email)}</p>
+        </div>
+        <div class="datos-factura">
+          <p><strong>Factura Nº:</strong> HSD-${numeroFactura}</p>
+          <p><strong>Fecha de expedición:</strong> ${fechaExp}</p>
+        </div>
+      </header>
+
+      <section class="receptor">
+        <h3>Datos del paciente</h3>
+        <p><strong>Nombre:</strong> ${escapeHtml(patientName)}</p>
+        ${patientDNI ? `<p><strong>DNI/NIF:</strong> ${escapeHtml(patientDNI)}</p>` : ""}
+        ${patientPhone ? `<p><strong>Teléfono:</strong> ${escapeHtml(patientPhone)}</p>` : ""}
+        ${patientAddress ? `<p><strong>Domicilio:</strong> ${escapeHtml(patientAddress)}</p>` : ""}
+        ${observations ? `<p><strong>Observaciones:</strong> ${escapeHtml(observations)}</p>` : ""}
+      </section>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10%">Cant.</th>
+            <th style="width:60%">Descripción del servicio</th>
+            <th style="width:15%">Precio unitario (€)</th>
+            <th style="width:15%">Importe (€)</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+
+      <table class="totales">
+        <tr><td>Base imponible</td><td>€${subTotal.toFixed(2)}</td></tr>
+        ${descuentoHtml}
+        <tr><td>Total a pagar</td><td>€${totalFinal.toFixed(2)}</td></tr>
+      </table>
+
+      <section class="info-cobro">
+        <h3>Información de cobro</h3>
+        <p><strong>Forma de pago:</strong> ${escapeHtml(paymentMethod)}</p>
+      </section>
+
+      <footer>
+        <p><strong>Operación exenta de IVA (art. 20.Uno.3 Ley 37/1992).</strong></p>
+        <p>Factura conforme al Real Decreto 1619/2012.</p>
+        <p><em>Gracias por confiar en ${escapeHtml(clinic.name)}.</em></p>
+      </footer>
+    </div>
+  </body>
+  </html>

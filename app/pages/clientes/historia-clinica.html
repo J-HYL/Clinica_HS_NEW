@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HS Dental - Agregar Nuevo Cliente</title>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/pages/agregar.css">
+    <link rel="stylesheet" href="/css/pages/control.css">
+    <link rel="stylesheet" href="/css/lib/datatables.min.css" />
+    <link rel="stylesheet" href="../../css/components/modal.css">
+
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Skedify" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+    <style>
+    @media (max-width: 768px) {
+        .modal__container {
+        width: 95vw;
+        padding: 1rem;
+        box-sizing: border-box;
+        }
+
+        .form__group {
+        width: 100%;
+        }
+
+        .form__input {
+        width: 100%;
+        }
+
+        .odontograma-row {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    .modal__container {
+        max-width: 500px; /* ajusta según tu diseño */
+        width: 90vw;
+        margin: 0 auto;
+    }
+
+    /* Ya tienes esto pero por si acaso */
+    .odontograma {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        font-family: sans-serif;
+        width: 100%;
+    }
+
+    /* Contenedor scroll para cada fila */
+    .odontograma-scroll {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Aquí van las filas con flex para los checkboxes */
+    .odontograma-row {
+        display: flex;
+        gap: 4px;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        min-width: max-content; /* importante para que el scroll detecte el ancho real */
+    }
+
+    /* Dientes */
+    .tooth {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0; /* que no se reduzcan */
+    }
+
+    /* El input con los estilos que pusiste */
+    .tooth input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        background-color: #f0f0f0;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+        text-align: center;
+        transition: 0.2s;
+    }
+
+    .tooth input[type="checkbox"]::before {
+        content: attr(data-num);
+        display: block;
+        text-align: center;
+        line-height: 28px;
+        color: #333;
+    }
+
+    .tooth input[type="checkbox"]:checked {
+        background-color: #70b3fa;
+        color: white;
+        border-color: #70b3fa;
+    }
+    .modal__card{
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+    .paciente-info h2 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .datos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        font-size: 1rem;
+    }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
+            <i class="ri-close-large-fill"></i>
+        </button>
+        <div class="sidebar__content">
+            <div class="sidebar__logo">
+                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
+                <div class="item__hide item__hide--logo">
+                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
+
+                </div>
+            </div>
+            <ul class="sidebar__links">
+                <li class="sidebar__item">
+                    <a href="/index.html" aria-label="Ir al Principal">
+                        <i class="ri-dashboard-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Principal</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
+                        <i class="ri-calendar-schedule-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Citas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item sidebar__item--selected">
+                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
+                        <i class="ri-group-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Pacientes</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
+                        <i class="ri-briefcase-4-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Servicios</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
+                        <i class="ri-file-text-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Presupuestos</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
+                        <i class="ri-receipt-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Facturas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
+                        <i class="ri-admin-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Admin</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>Pacientes</span></h1>
+            </div>
+        </header>
+        <section class="container sections">
+            <div class="card__content">
+                <div class="paciente-info">
+                    <h2>Paciente: <span id="nombre-paciente"></span></h2>
+                    <div class="datos-grid">
+                        <div><strong>Email:</strong> <span id="email-paciente"></span></div>
+                        <div><strong>Teléfono:</strong> <span id="telefono-paciente"></span></div>
+                        <div><strong>Deuda:</strong> <span id="deuda-paciente">0.00 €</span></div>
+                        <div><strong>Fecha de alta:</strong> <span id="fecha-alta-paciente"></span></div>
+                        <div><strong>Alergias:</strong><span id="alergias"></span></div>
+                        <div><strong>Edad:</strong><span id="edad"></span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+            
+        <main class="container">
+            <div class="main__group">
+                <h3 class="container__heading">Tratamientos del paciente</h3>
+                <div class="main__actions">
+                    <a href="#" class="main__action" id="crear-tratamiento"><span>Crear tratamiento</span> <i class="ri-add-line"></i></a>
+                </div>
+            </div>
+            <div class="main__loading">
+                <div class="sk-chase">
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                </div>
+                <p class="loading__message">Obteniendo los registros...</p>
+            </div>
+            <div class="main__empty">
+                <img src="/assets/svg/empty-illustration.svg" alt="Not Found Records Illustration">
+                <p class="empty__message">No se encontraron registros para esta sección...</p>
+            </div>
+            <table class="main__table" id="table"></table>
+            <!--MODAL PARA ANADIR UN TRATAMIENTO-->
+            <dialog class="modal" id="edit-modal" role="dialog"
+            aria-labelledby="Crear Tratamiento"
+            aria-describedby="Modal para Crear Tratamiento">
+            <div class="modal__container">
+                <section class="modal__card">
+                <header class="modal__header">
+                    <h3 class="modal__heading">Crear Tratamiento</h3>
+                    <button type="button" class="modal__close" aria-label="Cerrar Modal">
+                    <i class="ri-close-line"></i>
+                    </button>
+                </header>
+
+                <form action="#" class="form">
+                    <div class="form__group">
+                        <label for="diagnostico" class="form__label">Tratamiento</label>
+                        <select name="diagnostico" id="diagnostico" class="form__input form__input--select" required>
+                            <option value="Extracción">Extracción</option>
+                            <option value="Empaste simple">Empaste simple</option>
+                            <option value="Empaste compuesto">Empaste compuesto</option>
+                            <option value="Reconstrucciones">Reconstrucciones</option>
+                            <option value="Endodoncia unirradicular">Endodoncia unirradiculares</option>
+                            <option value="Endodoncia multirradicular">Endodoncia multirradiculares</option>
+                            <option value="Perno de fibra">Perno de fibra</option>
+                            <option value="Limpieza">Limpieza</option>
+                            <option value="Fundas">Fundas</option>
+                            <option value="Implantes">Implantes</option>
+                            <option value="Prótesis">Prótesis</option>
+                            <option value="otro">Otro...</option>
+                        </select>
+                    </div>
+                    <div id="customTreatmentWrapper" class="form__label" style="display: none; margin-top: 10px;">
+                        <label for="customTreatmentInput">tratamiento</label>
+                        <input type="text" id="customTreatmentInput" class="form__input" placeholder="Especifica el tratamiento" />
+                    </div>
+
+                    <div class="form__group">
+                    <label for="observaciones" class="form__label">Observaciones</label>
+                    <input type="text" name="observaciones" id="observaciones" class="form__input" placeholder="observaciones" />
+                    </div>
+
+                    <div class="form__group">
+                    <label for="monto_total" class="form__label">Monto total</label>
+                    <input type="number" id="monto_total" name="monto_total" class="form__input" data-required="true" />
+                    </div>
+
+                    <div class="form__group">
+                    <label for="monto_pagado" class="form__label">Abonado</label>
+                    <input type="number" id="monto_pagado" name="monto_pagado" class="form__input" data-required="true" />
+                    </div>
+
+                    <div class="form__group">
+                    <label class="form__label">Piezas afectadas</label>
+                    <div class="tooth"><input type="checkbox" name="piezas[]" value="general" data-num="  General  " style="width: fit-content;"></div>
+                    <div class="odontograma">
+                        <div class="odontograma-label">Piezas superiores</div>
+                            <div class="odontograma-scroll">
+                                <div class="odontograma-row">
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="18" data-num="18"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="17" data-num="17"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="16" data-num="16"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="15" data-num="15"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="14" data-num="14"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="13" data-num="13"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="12" data-num="12"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="11" data-num="11"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="21" data-num="21"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="22" data-num="22"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="23" data-num="23"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="24" data-num="24"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="25" data-num="25"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="26" data-num="26"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="27" data-num="27"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="28" data-num="28"></div>
+                                </div>
+                            </div>
+
+                            <div class="odontograma-label">Piezas inferiores</div>
+                            <div class="odontograma-scroll">
+                                <div class="odontograma-row">
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="48" data-num="48"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="47" data-num="47"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="46" data-num="46"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="45" data-num="45"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="44" data-num="44"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="43" data-num="43"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="42" data-num="42"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="41" data-num="41"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="31" data-num="31"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="32" data-num="32"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="33" data-num="33"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="34" data-num="34"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="35" data-num="35"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="36" data-num="36"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="37" data-num="37"></div>
+                                <div class="tooth"><input type="checkbox" name="piezas[]" value="38" data-num="38"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <footer class="modal__footer">
+                    <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
+                    <button type="button" class="modal__button modal__button--primary" id="guardar-tratamiento">Guardar Cambios</button>
+                </footer>
+                </section>
+            </div>
+            </dialog>
+
+        </main> 
+
+       
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/lib/datatables.min.js"></script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/clientes/historia-clinica.js" type="module"></script>
+
+</body>
+</html>
