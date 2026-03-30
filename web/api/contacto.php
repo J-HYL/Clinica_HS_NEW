@@ -1,170 +1,125 @@
 <?php
-/**
- * HSDental · contacto.php
- * Endpoint para recibir formularios de contacto
- * Sin sesiones - Todo público
- */
-
+ob_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Manejar preflight CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    ob_end_clean(); http_response_code(200); exit;
 }
-
-// Solo aceptar POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Método no permitido']);
-    exit;
+    ob_end_clean(); echo json_encode(['error' => 'Metodo no permitido']); exit;
 }
 
-// Incluir conexión a base de datos
-require_once __DIR__ . '/db_connect_public.php';
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode(['error' => "PHP[$errno]: $errstr en linea $errline"]);
+    exit;
+});
+register_shutdown_function(function() {
+    $e = error_get_last();
+    if ($e && in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        ob_end_clean();
+        http_response_code(500);
+        echo json_encode(['error' => 'Fatal: ' . $e['message'] . ' linea ' . $e['line']]);
+    }
+});
 
-// Incluir PHPMailer
+require_once __DIR__ . '/db_connect_public.php';
 require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 require_once __DIR__ . '/PHPMailer/src/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-// Función para enviar correo
-function sendEmail($to, $subject, $body, $isHtml = false) {
+function sendEmail($to, $subject, $body) {
     $mail = new PHPMailer(true);
-
     try {
-        // Configuración SMTP IONOS
         $mail->isSMTP();
         $mail->Host       = 'smtp.ionos.es';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'avisos@hsdental.es';
-        $mail->Password   = 'Jjbinks1999$'; // Placeholder - reemplazar con contraseña real
+        $mail->Password   = 'Jjbinks1999$';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         $mail->CharSet    = 'UTF-8';
-
-        // Remitente
         $mail->setFrom('avisos@hsdental.es', 'HSDental');
-
-        // Destinatario
         $mail->addAddress($to);
-
-        // Contenido
-        $mail->isHTML($isHtml);
+        $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = $body;
-
+        $mail->AltBody = strip_tags($body);
         $mail->send();
         return true;
     } catch (Exception $e) {
-        error_log("Error al enviar correo: " . $e->getMessage());
-        return false;
+        return $e->getMessage();
     }
 }
 
-// Leer JSON del body
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
+$raw  = file_get_contents('php://input');
+$data = json_decode($raw, true);
 
-// Verificar que se recibió JSON válido
 if (json_last_error() !== JSON_ERROR_NONE) {
-    http_response_code(400);
-    echo json_encode(['error' => 'JSON inválido']);
+    ob_end_clean();
+    echo json_encode(['error' => 'JSON invalido']);
     exit;
 }
 
-// Extraer datos del formulario
-$name    = isset($data['name']) ? trim($data['name']) : '';
-$email   = isset($data['email']) ? trim($data['email']) : '';
-$phone   = isset($data['phone']) ? trim($data['phone']) : '';
-$clinic  = isset($data['clinic']) ? trim($data['clinic']) : '';
-$service = isset($data['service']) ? trim($data['service']) : '';
-$message = isset($data['message']) ? trim($data['message']) : '';
+$name    = trim($data['name']    ?? '');
+$email   = trim($data['email']   ?? '');
+$phone   = trim($data['phone']   ?? '');
+$clinic  = trim($data['clinic']  ?? '');
+$service = trim($data['service'] ?? '');
+$message = trim($data['message'] ?? '');
 
-// Validar campos requeridos
-if (empty($name) || empty($email) || empty($clinic)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Faltan campos requeridos']);
+if (!$name || !$email || !$clinic) {
+    ob_end_clean();
+    echo json_encode(['error' => 'Faltan campos', 'name' => $name, 'email' => $email, 'clinic' => $clinic]);
     exit;
 }
 
-// Validar email
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Email inválido']);
+    ob_end_clean();
+    echo json_encode(['error' => 'Email invalido: ' . $email]);
     exit;
 }
 
-// Conectar a la base de datos según la clínica
 $conn = getConnectionByClinic($clinic);
-
 if (!$conn) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error de conexión a la base de datos']);
+    ob_end_clean();
+    echo json_encode(['error' => 'Clinica no reconocida: ' . $clinic]);
     exit;
 }
 
-// Insertar en la tabla contactos
-$stmt = $conn->prepare("INSERT INTO contactos (nombre, email, telefono, clinica, servicio, mensaje, fecha) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-
+$stmt = $conn->prepare(
+    'INSERT INTO contactos (nombre, email, telefono, clinic, mensaje) VALUES (?, ?, ?, ?, ?)'
+);
 if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error al preparar la consulta']);
-    $conn->close();
-    exit;
+    ob_end_clean();
+    echo json_encode(['error' => 'Prepare failed: ' . $conn->error]);
+    $conn->close(); exit;
 }
-
-$stmt->bind_param('ssssss', $name, $email, $phone, $clinic, $service, $message);
-
+$stmt->bind_param('sssss', $name, $email, $phone, $clinic, $message);
 if (!$stmt->execute()) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error al guardar el contacto']);
-    $stmt->close();
-    $conn->close();
-    exit;
+    ob_end_clean();
+    echo json_encode(['error' => 'Execute failed: ' . $stmt->error]);
+    $stmt->close(); $conn->close(); exit;
 }
-
 $stmt->close();
 $conn->close();
 
-// Enviar correos electrónicos
-$adminSubject = 'Nuevo contacto desde la web - ' . ucfirst($clinic);
-$adminBody = "
-    <h2>Nuevo formulario de contacto</h2>
-    <p><strong>Nombre:</strong> {$name}</p>
-    <p><strong>Email:</strong> {$email}</p>
-    <p><strong>Teléfono:</strong> {$phone}</p>
-    <p><strong>Clínica:</strong> " . ucfirst($clinic) . "</p>
-    <p><strong>Servicio:</strong> {$service}</p>
-    <p><strong>Mensaje:</strong></p>
-    <p>{$message}</p>
-";
+$adminBody = "<h2>Nuevo contacto</h2><p><b>Nombre:</b> $name</p><p><b>Email:</b> $email</p><p><b>Telefono:</b> $phone</p><p><b>Clinica:</b> $clinic</p><p><b>Servicio:</b> $service</p><p><b>Mensaje:</b> $message</p>";
+$userBody  = "<h2>Gracias por contactar con HSDental</h2><p>Hola $name, hemos recibido tu mensaje y nos pondremos en contacto contigo lo antes posible.</p><p><b>Servicio:</b> $service</p><p><b>Mensaje:</b> $message</p><br><p>El equipo de HSDental</p>";
 
-// Enviar al admin
-sendEmail('hsdental00@gmail.com', $adminSubject, $adminBody, true);
+$r1 = sendEmail('hsdental00@gmail.com', 'Nuevo contacto - ' . $clinic, $adminBody);
+$r2 = sendEmail($email, 'Confirmacion de contacto - HSDental', $userBody);
 
-// Enviar confirmación al usuario
-$userSubject = 'Confirmación de contacto - HSDental';
-$userBody = "
-    <h2>Gracias por contactar con HSDental</h2>
-    <p>Hola <strong>{$name}</strong>,</p>
-    <p>Hemos recibido tu mensaje y nos pondremos en contacto contigo lo antes posible.</p>
-    <p><strong>Resumen de tu consulta:</strong></p>
-    <p><strong>Servicio:</strong> {$service}</p>
-    <p><strong>Mensaje:</strong> {$message}</p>
-    <br>
-    <p>Atentamente,<br>El equipo de HSDental</p>
-";
+$errors = [];
+if ($r1 !== true) $errors['admin']   = $r1;
+if ($r2 !== true) $errors['usuario'] = $r2;
 
-sendEmail($email, $userSubject, $userBody, true);
-
-// Responder éxito
-http_response_code(200);
-echo json_encode(['success' => true]);
+ob_end_clean();
+echo json_encode(empty($errors) ? ['success' => true] : ['success' => false, 'guardado_bd' => true, 'email_errors' => $errors]);

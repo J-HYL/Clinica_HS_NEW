@@ -375,38 +375,53 @@ const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
     /* Recoge los datos del formulario */
     const formData = {
-      nombre:   $('#name')?.value.trim(),
-      email:    $('#email')?.value.trim(),
-      telefono: $('#phone')?.value.trim(),
-      servicio: $('#service')?.value,
-      mensaje:  $('#message')?.value.trim(),
-      timestamp: new Date().toISOString(),
+      name:    $('#name')?.value.trim(),
+      email:   $('#email')?.value.trim(),
+      phone:   $('#phone')?.value.trim(),
+      clinic:  $('#clinic')?.value,
+      service: $('#service')?.value,
+      message: $('#message')?.value.trim(),
     };
-
-    /* --- SIMULACIÓN DE ENVÍO --- */
-    /* En producción, aquí harías un fetch() a tu API / backend */
-    console.log('📬 HSDental · Formulario enviado:', formData);
 
     /* Estado de carga en el botón */
     submitBtn.disabled = true;
     const btnText = submitBtn.querySelector('.btn__text');
     if (btnText) btnText.textContent = 'Enviando…';
 
-    /* Simula latencia de red (800ms) */
-    await new Promise(resolve => setTimeout(resolve, 800));
+    /* Envío al backend */
+    try {
+      const response = await fetch('/api/contacto.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    /* Muestra mensaje de éxito */
-    form.reset();
-    fields.forEach(f => f.classList.remove('is-invalid'));
-    successMsg.removeAttribute('hidden');
-    successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const result = await response.json();
+      console.log('Respuesta servidor:', result);
+
+      if (result.success || result.guardado_bd) {
+        /* Muestra mensaje de éxito */
+        form.reset();
+        fields.forEach(f => f.classList.remove('is-invalid'));
+        successMsg.removeAttribute('hidden');
+        successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        /* Oculta el mensaje de éxito tras 6 segundos */
+        setTimeout(() => successMsg.setAttribute('hidden', ''), 6000);
+
+        if (result.email_errors) {
+          console.error('Correos fallaron:', result.email_errors);
+        }
+      } else {
+        console.error('Error del servidor:', result.error || result);
+      }
+    } catch (err) {
+      console.error('Error de red:', err);
+    }
 
     /* Restaura el botón */
     submitBtn.disabled = false;
     if (btnText) btnText.textContent = 'Enviar solicitud';
-
-    /* Oculta el mensaje de éxito tras 6 segundos */
-    setTimeout(() => successMsg.setAttribute('hidden', ''), 6000);
   });
 })();
 

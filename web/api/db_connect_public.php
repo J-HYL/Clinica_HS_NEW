@@ -22,8 +22,13 @@ function getConnectionByClinic($clinic) {
         ]
     ];
 
-    // Normalizar el nombre de la clínica
+    // Normalizar el nombre de la clínica (minúsculas + quitar tildes)
     $clinic = strtolower(trim($clinic));
+    $clinic = str_replace(
+        ['á','é','í','ó','ú','ü','ñ'],
+        ['a','e','i','o','u','u','n'],
+        $clinic
+    );
 
     // Verificar si la clínica existe
     if (!isset($clinics[$clinic])) {
