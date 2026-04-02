@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Cookies - HSDental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* VARIABLES & BASE */
+        :root {
+            --clr-bg:           #f6f9f9;
+            --clr-text:         #272626;
+            --clr-text-sec:     #949494;
+            --clr-border:       #c4c4c4;
+            --clr-border-blue:  #c3d0f8;
+            --clr-accent:       #5671eb;
+            --clr-accent-dark:  #3f57cc;
+            --clr-accent-light: #dde4fb;
+            --clr-blue-2:       #6c8cdc;
+            --clr-blue-3:       #91a0e4;
+            --clr-blue-4:       #747ccc;
+            --clr-blue-5:       #b6bce7;
+            --clr-white:        #ffffff;
+            --clr-surface:      #f0f4ff;
+            --font-sans:   'Montserrat', sans-serif;
+            --font-serif:  'DM Serif Display', serif;
+            --space-xs:   0.5rem;
+            --space-sm:   0.875rem;
+            --space-md:   1.5rem;
+            --space-lg:   2.5rem;
+            --space-xl:   4rem;
+            --space-xxl:  7rem;
+            --radius-sm:  0.5rem;
+            --radius-md:  1rem;
+            --radius-lg:  1.5rem;
+            --radius-xl:  2rem;
+            --radius-pill: 9999px;
+            --shadow-sm:  0 2px 8px rgba(86,113,235,.08);
+            --shadow-md:  0 6px 24px rgba(86,113,235,.12);
+            --shadow-lg:  0 16px 48px rgba(86,113,235,.16);
+            --transition: 0.28s ease;
+            --container: 1240px;
+            --container-pad: 1.5rem;
+            --navbar-h: 72px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-sans); background-color: var(--clr-bg); color: var(--clr-text); line-height: 1.65; }
+        a { color: inherit; text-decoration: none; transition: color var(--transition); }
+        .container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--container-pad); }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3, h4 { line-height: 1.18; font-weight: 700; }
+        h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: var(--space-md); }
+        h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: var(--space-sm); color: var(--clr-accent); }
+        h3 { font-size: clamp(1.1rem, 2vw, 1.25rem); margin-bottom: var(--space-xs); }
+        p { margin-bottom: var(--space-sm); max-width: 75ch; }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; inset-block-start: 0; inset-inline: 0; z-index: 1000;
+            height: var(--navbar-h); background: rgba(246,249,249,.88);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .navbar__inner { display: flex; align-items: center; height: 100%; gap: var(--space-md); }
+        .navbar__logo img { height: 52px; width: auto; }
+        .navbar__nav { margin-inline-start: auto; }
+        .navbar__list { display: flex; gap: 0.25rem; list-style: none; list-style: none;}
+        .navbar__link {
+            display: block; padding: 0.45em 0.9em; border-radius: var(--radius-pill);
+            font-size: 0.9rem; font-weight: 500; color: var(--clr-text);
+            transition: background var(--transition), color var(--transition);
+        }
+        .navbar__link:hover { background: var(--clr-accent-light); color: var(--clr-accent); }
+        .navbar__toggle {
+            display: none; flex-direction: column; gap: 5px; padding: 6px;
+            border-radius: var(--radius-sm); margin-inline-start: auto;
+        }
+        .navbar__toggle-line {
+            display: block; width: 24px; height: 2px; background: var(--clr-text);
+            border-radius: 2px; transition: transform var(--transition), opacity var(--transition);
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-blue-4) 100%);
+            padding-block: calc(var(--space-xxl) + var(--navbar-h)) var(--space-xxl);
+            margin-block-start: var(--navbar-h);
+            text-align: center;
+        }
+        .page-header__badge {
+            display: inline-block; background: rgba(255,255,255,.25); color: var(--clr-white);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; padding: 0.3em 1em; border-radius: var(--radius-pill);
+            margin-bottom: var(--space-sm);
+        }
+        .page-header__title { color: var(--clr-white); font-family: var(--font-serif); }
+
+        /* CONTENT SECTION */
+        .content-section { padding-block: var(--space-xxl); background: var(--clr-white); }
+        .content-section--gray { background: var(--clr-bg); }
+        .content-block { margin-bottom: var(--space-lg); }
+        .content-block:last-child { margin-bottom: 0; }
+
+        /* LISTS */
+        .info-list { list-style: none; }
+        .info-list li {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--clr-border-blue);
+            display: flex; gap: var(--space-sm);
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-list li::before {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free';
+            font-weight: 900; color: var(--clr-accent); flex-shrink: 0;
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%; border-collapse: collapse;
+            background: var(--clr-white); border-radius: var(--radius-md);
+            overflow: hidden; box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-md);
+        }
+        .data-table th, .data-table td {
+            padding: var(--space-sm) var(--space-md);
+            text-align: left; border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .data-table th {
+            background: var(--clr-accent-light); color: var(--clr-accent);
+            font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover { background: var(--clr-surface); }
+
+        /* CONTACT CARD */
+        .contact-card {
+            background: var(--clr-surface); border-left: 4px solid var(--clr-accent);
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin-top: var(--space-md);
+        }
+        .contact-card__title {
+            font-size: 1rem; font-weight: 700; color: var(--clr-accent);
+            margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 0.5rem;
+        }
+        .contact-card p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .contact-card a { color: var(--clr-accent); font-weight: 600; }
+
+        /* ALERT BOX */
+        .alert-box {
+            background: #e7f3ff; border-left: 4px solid var(--clr-accent);
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin: var(--space-md) 0;
+        }
+        .alert-box__title {
+            font-size: 0.95rem; font-weight: 700; color: var(--clr-accent-dark);
+            margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .alert-box p { margin-bottom: 0; font-size: 0.9rem; color: var(--clr-accent-dark); }
+
+        /* CTA BUTTON */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: var(--font-sans); font-weight: 600; font-size: 0.94rem;
+            padding: 0.72em 1.6em; border-radius: var(--radius-pill);
+            cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+            border: 2px solid transparent; text-decoration: none;
+        }
+        .btn--primary {
+            background: var(--clr-accent); color: var(--clr-white);
+            box-shadow: 0 4px 18px rgba(86,113,235,.35);
+        }
+        .btn--primary:hover {
+            background: var(--clr-accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(86,113,235,.42);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--clr-text); color: rgba(255,255,255,.7);
+            padding-block-start: var(--space-xl);
+        }
+        .footer__inner {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--space-lg); padding-bottom: var(--space-xl);
+        }
+        .footer__brand { max-width: 280px; }
+        .footer__brand img { margin-bottom: var(--space-sm); }
+        .footer__tagline { font-size: 0.88rem; line-height: 1.65; margin-bottom: var(--space-md); }
+        .footer__social { display: flex; gap: 0.6rem; }
+        .footer__social-link {
+            width: 38px; height: 38px; background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-sm);
+            display: grid; place-items: center; color: rgba(255,255,255,.7);
+            transition: background var(--transition), transform var(--transition);
+        }
+        .footer__social-link:hover {
+            background: var(--clr-accent); color: var(--clr-white);
+            transform: translateY(-2px); border-color: var(--clr-accent);
+        }
+        .footer__col-title {
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--clr-white); margin-bottom: var(--space-md);
+        }
+        .footer__list { display: flex; flex-direction: column; gap: 0.5rem; list-style: none; }
+        .footer__link { font-size: 0.88rem; transition: color var(--transition); }
+        .footer__link:hover { color: var(--clr-white); }
+        .footer__bottom {
+            border-top: 1px solid rgba(255,255,255,.08); padding-block: var(--space-md);
+        }
+        .footer__bottom-inner {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: var(--space-sm); font-size: 0.8rem; color: rgba(255,255,255,.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .footer__inner { grid-template-columns: 1fr 1fr; }
+            .footer__brand { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .navbar__nav {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: var(--clr-bg); padding: var(--space-md);
+                transform: translateX(100%); transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+                z-index: 999; overflow-y: auto;
+            }
+            .navbar__nav.is-open { transform: none; }
+            .navbar__list { flex-direction: column; width: 100%; }
+            .navbar__toggle { display: flex; }
+            .navbar__cta { display: none; }
+            .footer__inner { grid-template-columns: 1fr; }
+            .footer__brand { grid-column: auto; }
+            .footer__bottom-inner { flex-direction: column; text-align: center; }
+            .data-table { font-size: 0.85rem; }
+            .data-table th, .data-table td { padding: var(--space-xs); }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container navbar__inner">
+            <a href="../index.html" class="navbar__logo">
+                <img src="../assets/LOGO_HS.png" alt="HSDental Logo">
+            </a>
+            <div class="navbar__nav" id="navbarNav">
+                <ul class="navbar__list">
+                    <li><a href="../index.html" class="navbar__link">Inicio</a></li>
+                    <li><a href="../index.html#servicios" class="navbar__link">Servicios</a></li>
+                    <li><a href="../index.html#contacto" class="navbar__link">Contacto</a></li>
+                </ul>
+            </div>
+            <button class="navbar__toggle" id="navbarToggle" aria-label="Menu" aria-expanded="false">
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+        <div class="container">
+            <span class="page-header__badge">Información Legal</span>
+            <h1 class="page-header__title">Política de Cookies</h1>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- INTRO SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <div class="content-block">
+                    <p>En <strong>HAU YON SALAZAR S.L.</strong> (en adelante, "HSDental"), utilizamos cookies y tecnologías similares para mejorar su experiencia de navegación, analizar el uso de nuestro sitio web y personalizar los contenidos que le mostramos.</p>
+                    <p>Esta Política de Cookies le informa de forma clara y completa sobre qué son las cookies, qué tipos utilizamos, cómo puede gestionarlas y los fines para los que las empleamos, en cumplimiento de la Ley 34/2002 de Servicios de la Sociedad de la Información (LSSI-CE) y el Reglamento General de Protección de Datos (RGPD).</p>
+                </div>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-info-circle"></i>
+                        ¿Qué son las cookies?
+                    </div>
+                    <p style="margin-bottom: 0;">Las cookies son pequeños archivos de texto que los sitios web almacenan en su dispositivo (ordenador, smartphone, tablet) cuando los visita. Permiten recordar sus preferencias y mejorar la funcionalidad del sitio.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TYPES OF COOKIES SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>1. Tipos de Cookies</h2>
+                <p>Las cookies pueden clasificarse según diferentes criterios:</p>
+
+                <h3 style="margin-top: var(--space-md);">Según la entidad que las gestione:</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cookies propias</strong></td>
+                            <td>Son enviadas desde nuestro propio dominio y gestionadas por nosotros.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cookies de terceros</strong></td>
+                            <td>Son enviadas desde un dominio ajeno a nosotros y gestionadas por terceros (Google Maps, Google Analytics, redes sociales, etc.).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: var(--space-md);">Según su duración:</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cookies de sesión</strong></td>
+                            <td>Se activan cuando accede a nuestro sitio y se eliminan cuando cierra el navegador.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cookies persistentes</strong></td>
+                            <td>Permanecen almacenadas en su dispositivo durante un período determinado (días, meses o años).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: var(--space-md);">Según su finalidad:</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>¿Requiere consentimiento?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cookies técnicas</strong></td>
+                            <td>Permiten la navegación y el uso de las funciones básicas del sitio web.</td>
+                            <td><strong>No</strong> (exentas por ley)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cookies de preferencias</strong></td>
+                            <td>Recuerdan información como el idioma o la configuración de visualización.</td>
+                            <td><strong>No</strong> (si son necesarias)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cookies de análisis</strong></td>
+                            <td>Recopilan información sobre cómo los visitantes utilizan el sitio web.</td>
+                            <td><strong>Sí</strong> (requieren consentimiento)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cookies de marketing</strong></td>
+                            <td>Se utilizan para mostrar publicidad relevante y rastrear usuarios.</td>
+                            <td><strong>Sí</strong> (requieren consentimiento)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- COOKIES WE USE SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>2. Cookies que Utilizamos</h2>
+                <p>En HSDental utilizamos las siguientes cookies, clasificadas por categoría:</p>
+
+                <h3 style="margin-top: var(--space-md);">2.1 Cookies Técnicas (Necesarias - No requieren consentimiento)</h3>
+                <p>Estas cookies son esenciales para el funcionamiento del sitio web y no pueden ser desactivadas. Se instalan automáticamente cuando accede al sitio:</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cookie</th>
+                            <th>Proveedor</th>
+                            <th>Duración</th>
+                            <th>Finalidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>cookie_consent</strong></td>
+                            <td>HSDental (propia)</td>
+                            <td>1 año</td>
+                            <td>Recordar su preferencia sobre el uso de cookies. Sin esta cookie, el banner aparecería en cada visita.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>session_id</strong></td>
+                            <td>HSDental (propia)</td>
+                            <td>Sesión</td>
+                            <td>Mantener la sesión del usuario activa durante la navegación y el envío del formulario de contacto.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: var(--space-md);">2.2 Cookies de Análisis (Requieren consentimiento)</h3>
+                <p>Nos ayudan a entender cómo los visitantes interactúan con nuestro sitio web. Solo se instalarán si usted las acepta:</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cookie</th>
+                            <th>Proveedor</th>
+                            <th>Duración</th>
+                            <th>Finalidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>_ga</strong></td>
+                            <td>Google Analytics</td>
+                            <td>2 años</td>
+                            <td>Distinguir usuarios únicos para calcular estadísticas de visita.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>_gid</strong></td>
+                            <td>Google Analytics</td>
+                            <td>24 horas</td>
+                            <td>Distinguir usuarios para análisis de comportamiento.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>_gat</strong></td>
+                            <td>Google Analytics</td>
+                            <td>1 minuto</td>
+                            <td>Limitar el porcentaje de solicitudes para no saturar el servicio.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: var(--space-md);">2.3 Cookies de Google Maps (Terceros - Requieren consentimiento)</h3>
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Importante sobre Google Maps
+                    </div>
+                    <p style="margin-bottom: 0;">Nuestro sitio web incluye mapas interactivos de Google Maps para mostrar la ubicación de nuestras clínicas. Google instala cookies de seguimiento cuando se carga el mapa. <strong>El mapa no se cargará hasta que usted acepte las cookies de terceros.</strong></p>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cookie</th>
+                            <th>Proveedor</th>
+                            <th>Duración</th>
+                            <th>Finalidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>NID</strong></td>
+                            <td>Google Maps</td>
+                            <td>6 meses</td>
+                            <td>Almacenar preferencias del usuario y personalizar los mapas.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ANID</strong></td>
+                            <td>Google Maps</td>
+                            <td>Variable</td>
+                            <td>Identificador único para publicidad y seguimiento entre sitios.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>1P_JAR</strong></td>
+                            <td>Google Maps</td>
+                            <td>1 mes</td>
+                            <td>Recopilar estadísticas de uso y rastrear conversiones.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DV</strong></td>
+                            <td>Google Maps</td>
+                            <td>10 minutos</td>
+                            <td>Recopilar información anónima sobre cómo los visitantes usan el sitio.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: var(--space-md);">2.4 Cookies del Formulario de Contacto</h3>
+                <p>Cuando usted rellena nuestro formulario de contacto, se procesan los siguientes datos personales:</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Dato</th>
+                            <th>Finalidad</th>
+                            <th>Base Legal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Nombre completo</strong></td>
+                            <td>Identificar al paciente y personalizar la comunicación.</td>
+                            <td>Consentimiento explícito (art. 6.1.a RGPD)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email</strong></td>
+                            <td>Enviar confirmación de la solicitud y responder a la consulta.</td>
+                            <td>Consentimiento explícito (art. 6.1.a RGPD)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Teléfono</strong></td>
+                            <td>Contactar al paciente para confirmar cita o resolver dudas.</td>
+                            <td>Consentimiento explícito (art. 6.1.a RGPD)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Servicio de interés</strong></td>
+                            <td>Derivar la consulta al departamento especializado correspondiente.</td>
+                            <td>Consentimiento explícito (art. 6.1.a RGPD)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Síntomas / Mensaje</strong></td>
+                            <td>Evaluar la urgencia y preparar la primera visita.</td>
+                            <td>Consentimiento explícito (art. 9.2.a RGPD - datos de salud)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: var(--space-sm); font-size: 0.9rem; color: var(--clr-text-sec);">Los datos del formulario se almacenan de forma segura en nuestra base de datos y se envían por email cifrado. No compartimos sus datos con terceros salvo obligación legal.</p>
+            </div>
+        </section>
+
+        <!-- HOW TO MANAGE COOKIES SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>3. Cómo Gestionar las Cookies</h2>
+                <p>Usted tiene total libertad para decidir si acepta o rechaza las cookies. Puede configurar su navegador para:</p>
+                <ul class="info-list">
+                    <li><strong>Aceptar todas las cookies</strong> desde nuestro banner de consentimiento.</li>
+                    <li><strong>Rechazar todas las cookies</strong> (solo se instalarán las técnicas necesarias).</li>
+                    <li><strong>Configurar preferencias</strong> y elegir qué categorías acepta.</li>
+                    <li><strong>Retirar el consentimiento</strong> en cualquier momento desde el enlace "Cookies" en el footer.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Gestión desde el navegador:</h3>
+                <p>También puede configurar las cookies directamente en su navegador:</p>
+
+                <h4 style="margin-top: var(--space-sm);">Google Chrome</h4>
+                <ol style="margin-left: var(--space-md); color: var(--clr-text-sec);">
+                    <li>Haga clic en los tres puntos verticales (menú)</li>
+                    <li>Seleccione "Configuración"</li>
+                    <li>Vaya a "Privacidad y seguridad" → "Cookies y otros datos del sitio"</li>
+                    <li>Configure sus preferencias o elimine cookies específicas</li>
+                </ol>
+
+                <h4 style="margin-top: var(--space-sm);">Mozilla Firefox</h4>
+                <ol style="margin-left: var(--space-md); color: var(--clr-text-sec);">
+                    <li>Haga clic en las tres líneas horizontales (menú)</li>
+                    <li>Seleccione "Configuración"</li>
+                    <li>Vaya a "Privacidad y seguridad" → "Cookies y datos del sitio"</li>
+                    <li>Configure sus preferencias o elimine cookies específicas</li>
+                </ol>
+
+                <h4 style="margin-top: var(--space-sm);">Microsoft Edge</h4>
+                <ol style="margin-left: var(--space-md); color: var(--clr-text-sec);">
+                    <li>Haga clic en los tres puntos horizontales (menú)</li>
+                    <li>Seleccione "Configuración"</li>
+                    <li>Vaya a "Cookies y permisos del sitio"</li>
+                    <li>Configure sus preferencias o elimine cookies específicas</li>
+                </ol>
+
+                <h4 style="margin-top: var(--space-sm);">Safari (macOS)</h4>
+                <ol style="margin-left: var(--space-md); color: var(--clr-text-sec);">
+                    <li>Haga clic en "Safari" en la barra de menú</li>
+                    <li>Seleccione "Preferencias"</li>
+                    <li>Vaya a la pestaña "Privacidad"</li>
+                    <li>Configure sus preferencias de cookies o elimine datos</li>
+                </ol>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Importante
+                    </div>
+                    <p style="margin-bottom: 0;">Si desactiva las cookies técnicas, es posible que algunas funcionalidades del sitio web no estén disponibles o no funcionen correctamente. Si rechaza las cookies de Google Maps, el mapa no se cargará pero podrá ver la dirección escrita y usar el botón "Ver en Maps".</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MORE INFORMATION SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>4. Más Información</h2>
+                <p>Para obtener más información sobre las cookies y cómo gestionarlas, puede consultar:</p>
+                <ul class="info-list">
+                    <li><a href="https://www.aboutcookies.org/" target="_blank" rel="noopener">AboutCookies.org</a> - Guía completa sobre cookies</li>
+                    <li><a href="https://www.aepd.es" target="_blank" rel="noopener">Agencia Española de Protección de Datos (AEPD)</a> - Información oficial</li>
+                    <li><a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Configuración de anuncios de Google</a></li>
+                    <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de Privacidad de Google</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>5. Contacto</h2>
+                <p>Si tiene alguna duda o pregunta sobre esta Política de Cookies, puede contactarnos a través de:</p>
+
+                <div class="contact-card">
+                    <div class="contact-card__title">
+                        <i class="fas fa-envelope"></i>
+                        Datos de Contacto
+                    </div>
+                    <p><strong>Email:</strong> <a href="mailto:hsdental00@gmail.com">hsdental00@gmail.com</a></p>
+                    <p><strong>Teléfono:</strong> +34 624 26 48 25</p>
+                    <p><strong>Dirección:</strong> Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</p>
+                    <p style="margin-bottom: 0;"><strong>Horario de atención:</strong> Lunes a Viernes de 9:00 a 20:00</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA SECTION -->
+        <section class="content-section">
+            <div class="container" style="text-align: center;">
+                <h2>¿Listo para visitar nuestras clínicas?</h2>
+                <p style="margin: var(--space-md) auto;">Reserve su cita en HSDental Móstoles o Alcorcón y descubra por qué somos la clínica dental de confianza de miles de pacientes.</p>
+                <a href="./index.html#contacto" class="btn btn--primary">
+                    <i class="fas fa-calendar-alt"></i> Reservar Cita
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__brand">
+                    <img src="./assets/LOGO_HS.png" alt="HSDental" style="height: 50px; background: #fff; border-radius: 8px; padding: 8px;">
+                    <p class="footer__tagline">Su clínica dental de confianza en Móstoles y Alcorcón. Cuidamos de su sonrisa con la mejor tecnología y profesionales.</p>
+                    <div class="footer__social">
+                        <a href="#" class="footer__social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Clínicas</h4>
+                    <ul class="footer__list">
+                        <li><a href="./index.html#clinicas" class="footer__link">Móstoles</a></li>
+                        <li><a href="./index.html#clinicas" class="footer__link">Alcorcón</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Legal</h4>
+                    <ul class="footer__list">
+                        <li><a href="./politica-privacidad.html" class="footer__link">Política de Privacidad</a></li>
+                        <li><a href="./aviso-legal.html" class="footer__link">Aviso Legal</a></li>
+                        <li><a href="./politica-cookies.html" class="footer__link">Política de Cookies</a></li>
+                        <li><a href="./terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Contacto</h4>
+                    <ul class="footer__list">
+                        <li><a href="mailto:hsdental00@gmail.com" class="footer__link">hsdental00@gmail.com</a></li>
+                        <li><a href="tel:+34624264825" class="footer__link">+34 624 26 48 25</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <div class="container footer__bottom-inner">
+                    <span>&copy; 2026 HAU YON SALAZAR S.L. Todos los derechos reservados.</span>
+                    <span class="footer__disclaimer">Nº Registro Sanitario: CS0612</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navbar toggle
+        const toggle = document.getElementById('navbarToggle');
+        const nav = document.getElementById('navbarNav');
+        toggle?.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('is-open');
+        });
+    </script>
+</body>
+</html>

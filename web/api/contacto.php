@@ -111,7 +111,7 @@ if (!$stmt->execute()) {
 $stmt->close();
 $conn->close();
 
-$clinicNombre = (stripos($clinic, 'most') !== false) ? 'Mostoles' : 'Alcorcon';
+$clinicNombre = (stripos($clinic, 'most') !== false) ? 'Móstoles' : 'Alcorcón';
 $clinicTel    = (stripos($clinic, 'most') !== false) ? '+34 678 48 45 39' : '+34 916 18 24 24';
 $hn = htmlspecialchars($name);
 $he = htmlspecialchars($email);
@@ -120,6 +120,8 @@ $hc = htmlspecialchars($clinicNombre);
 $hs = htmlspecialchars($service);
 $hm = nl2br(htmlspecialchars($message));
 $fecha = date('d/m/Y H:i');
+
+// EMAIL PARA EL ADMIN-------------------
 
 $adminBody =
 '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Nuevo contacto</title></head>' .
@@ -150,6 +152,8 @@ $adminBody =
 
 '</table></td></tr></table></body></html>';
 
+// EMAIL PARA EL USUARIO--------------------
+
 $userBody =
 '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>HSDental - Confirmacion</title></head>' .
 '<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">' .
@@ -164,7 +168,7 @@ $userBody =
 
 '<tr><td style="background:#ffffff;padding:36px 40px;">' .
 '<p style="margin:0 0 20px;font-size:15px;color:#374151;">Hola <strong style="color:#111827;">' . $hn . '</strong>,</p>' .
-'<p style="margin:0 0 28px;font-size:15px;color:#374151;line-height:1.6;">Hemos recibido tu consulta en nuestra clinica de <strong>' . $hc . '</strong>. Nuestro equipo la revisara y te contactara en menos de 24 horas.</p>' .
+'<p style="margin:0 0 28px;font-size:15px;color:#374151;line-height:1.6;">Hemos recibido tu consulta en nuestra clínica de <strong>' . $hc . '</strong>. Nuestro equipo la revisará y te contactará en menos de 24 horas.</p>' .
 
 '<div style="background:#f8f9ff;border:1px solid #e0e4ff;border-radius:8px;padding:20px 24px;margin-bottom:28px;">' .
 '<p style="margin:0 0 14px;font-size:11px;font-weight:700;color:#5671EB;text-transform:uppercase;letter-spacing:0.8px;">Resumen de tu consulta</p>' .
@@ -176,12 +180,12 @@ $userBody =
 '</div>' .
 
 '<div style="text-align:center;margin-bottom:24px;"><a href="https://hsdental.es" style="display:inline-block;background:#5671EB;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 32px;border-radius:8px;">Visitar nuestra web</a></div>' .
-'<p style="margin:0;font-size:13px;color:#9ca3af;text-align:center;">Prefieres llamarnos? <a href="tel:' . $clinicTel . '" style="color:#5671EB;text-decoration:none;font-weight:600;">' . $clinicTel . '</a></p>' .
+'<p style="margin:0;font-size:13px;color:#9ca3af;text-align:center;">¿Prefieres llamarnos? <a href="tel:' . $clinicTel . '" style="color:#5671EB;text-decoration:none;font-weight:600;">' . $clinicTel . '</a></p>' .
 '</td></tr>' .
 
 '<tr><td style="background:#1e2a5e;border-radius:0 0 12px 12px;padding:24px 40px;text-align:center;">' .
 '<p style="margin:0 0 6px;color:rgba(255,255,255,0.9);font-size:13px;font-weight:600;">HSDental</p>' .
-'<p style="margin:0;color:rgba(255,255,255,0.45);font-size:12px;">Correo automatico, por favor no respondas a este email.</p>' .
+'<p style="margin:0;color:rgba(255,255,255,0.45);font-size:12px;">Correo automático, por favor no respondas a este email.</p>' .
 '</td></tr>' .
 
 '</table></td></tr></table></body></html>';

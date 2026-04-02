@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad - HSDental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* VARIABLES & BASE */
+        :root {
+            --clr-bg:           #f6f9f9;
+            --clr-text:         #272626;
+            --clr-text-sec:     #949494;
+            --clr-border:       #c4c4c4;
+            --clr-border-blue:  #c3d0f8;
+            --clr-accent:       #5671eb;
+            --clr-accent-dark:  #3f57cc;
+            --clr-accent-light: #dde4fb;
+            --clr-blue-2:       #6c8cdc;
+            --clr-blue-3:       #91a0e4;
+            --clr-blue-4:       #747ccc;
+            --clr-blue-5:       #b6bce7;
+            --clr-white:        #ffffff;
+            --clr-surface:      #f0f4ff;
+            --font-sans:   'Montserrat', sans-serif;
+            --font-serif:  'DM Serif Display', serif;
+            --space-xs:   0.5rem;
+            --space-sm:   0.875rem;
+            --space-md:   1.5rem;
+            --space-lg:   2.5rem;
+            --space-xl:   4rem;
+            --space-xxl:  7rem;
+            --radius-sm:  0.5rem;
+            --radius-md:  1rem;
+            --radius-lg:  1.5rem;
+            --radius-xl:  2rem;
+            --radius-pill: 9999px;
+            --shadow-sm:  0 2px 8px rgba(86,113,235,.08);
+            --shadow-md:  0 6px 24px rgba(86,113,235,.12);
+            --shadow-lg:  0 16px 48px rgba(86,113,235,.16);
+            --transition: 0.28s ease;
+            --container: 1240px;
+            --container-pad: 1.5rem;
+            --navbar-h: 72px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-sans); background-color: var(--clr-bg); color: var(--clr-text); line-height: 1.65; }
+        a { color: inherit; text-decoration: none; transition: color var(--transition); }
+        .container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--container-pad); }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3, h4 { line-height: 1.18; font-weight: 700; }
+        h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: var(--space-md); }
+        h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: var(--space-sm); color: var(--clr-accent); }
+        h3 { font-size: clamp(1.1rem, 2vw, 1.25rem); margin-bottom: var(--space-xs); }
+        p { margin-bottom: var(--space-sm); max-width: 75ch; }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; inset-block-start: 0; inset-inline: 0; z-index: 1000;
+            height: var(--navbar-h); background: rgba(246,249,249,.88);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .navbar__inner { display: flex; align-items: center; height: 100%; gap: var(--space-md); }
+        .navbar__logo img { height: 52px; width: auto; }
+        .navbar__nav { margin-inline-start: auto; }
+        .navbar__list { display: flex; gap: 0.25rem; list-style: none; list-style: none; }
+        .navbar__link {
+            display: block; padding: 0.45em 0.9em; border-radius: var(--radius-pill);
+            font-size: 0.9rem; font-weight: 500; color: var(--clr-text);
+            transition: background var(--transition), color var(--transition);
+        }
+        .navbar__link:hover { background: var(--clr-accent-light); color: var(--clr-accent); }
+        .navbar__toggle {
+            display: none; flex-direction: column; gap: 5px; padding: 6px;
+            border-radius: var(--radius-sm); margin-inline-start: auto;
+        }
+        .navbar__toggle-line {
+            display: block; width: 24px; height: 2px; background: var(--clr-text);
+            border-radius: 2px; transition: transform var(--transition), opacity var(--transition);
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-blue-4) 100%);
+            padding-block: calc(var(--space-xxl) + var(--navbar-h)) var(--space-xxl);
+            margin-block-start: var(--navbar-h);
+            text-align: center;
+        }
+        .page-header__badge {
+            display: inline-block; background: rgba(255,255,255,.25); color: var(--clr-white);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; padding: 0.3em 1em; border-radius: var(--radius-pill);
+            margin-bottom: var(--space-sm);
+        }
+        .page-header__title { color: var(--clr-white); font-family: var(--font-serif); }
+
+        /* CONTENT SECTION */
+        .content-section { padding-block: var(--space-xxl); background: var(--clr-white); }
+        .content-section--gray { background: var(--clr-bg); }
+        .content-block { margin-bottom: var(--space-lg); }
+        .content-block:last-child { margin-bottom: 0; }
+
+        /* LISTS */
+        .info-list { list-style: none; }
+        .info-list li {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--clr-border-blue);
+            display: flex; gap: var(--space-sm);
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-list li::before {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free';
+            font-weight: 900; color: var(--clr-accent); flex-shrink: 0;
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%; border-collapse: collapse;
+            background: var(--clr-white); border-radius: var(--radius-md);
+            overflow: hidden; box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-md);
+        }
+        .data-table th, .data-table td {
+            padding: var(--space-sm) var(--space-md);
+            text-align: left; border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .data-table th {
+            background: var(--clr-accent-light); color: var(--clr-accent);
+            font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover { background: var(--clr-surface); }
+
+        /* CONTACT CARD */
+        .contact-card {
+            background: var(--clr-surface); border-left: 4px solid var(--clr-accent);
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin-top: var(--space-md);
+        }
+        .contact-card__title {
+            font-size: 1rem; font-weight: 700; color: var(--clr-accent);
+            margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 0.5rem;
+        }
+        .contact-card p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .contact-card a { color: var(--clr-accent); font-weight: 600; }
+
+        /* CTA BUTTON */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: var(--font-sans); font-weight: 600; font-size: 0.94rem;
+            padding: 0.72em 1.6em; border-radius: var(--radius-pill);
+            cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+            border: 2px solid transparent; text-decoration: none;
+        }
+        .btn--primary {
+            background: var(--clr-accent); color: var(--clr-white);
+            box-shadow: 0 4px 18px rgba(86,113,235,.35);
+        }
+        .btn--primary:hover {
+            background: var(--clr-accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(86,113,235,.42);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--clr-text); color: rgba(255,255,255,.7);
+            padding-block-start: var(--space-xl);
+        }
+        .footer__inner {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--space-lg); padding-bottom: var(--space-xl);
+        }
+        .footer__brand { max-width: 280px; }
+        .footer__brand img { margin-bottom: var(--space-sm); }
+        .footer__tagline { font-size: 0.88rem; line-height: 1.65; margin-bottom: var(--space-md); }
+        .footer__social { display: flex; gap: 0.6rem; }
+        .footer__social-link {
+            width: 38px; height: 38px; background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-sm);
+            display: grid; place-items: center; color: rgba(255,255,255,.7);
+            transition: background var(--transition), transform var(--transition);
+        }
+        .footer__social-link:hover {
+            background: var(--clr-accent); color: var(--clr-white);
+            transform: translateY(-2px); border-color: var(--clr-accent);
+        }
+        .footer__col-title {
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--clr-white); margin-bottom: var(--space-md);
+        }
+        .footer__list { display: flex; flex-direction: column; gap: 0.5rem; list-style: none; }
+        .footer__link { font-size: 0.88rem; transition: color var(--transition); }
+        .footer__link:hover { color: var(--clr-white); }
+        .footer__bottom {
+            border-top: 1px solid rgba(255,255,255,.08); padding-block: var(--space-md);
+        }
+        .footer__bottom-inner {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: var(--space-sm); font-size: 0.8rem; color: rgba(255,255,255,.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .footer__inner { grid-template-columns: 1fr 1fr; }
+            .footer__brand { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .navbar__nav {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: var(--clr-bg); padding: var(--space-md);
+                transform: translateX(100%); transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+                z-index: 999; overflow-y: auto;
+            }
+            .navbar__nav.is-open { transform: none; }
+            .navbar__list { flex-direction: column; width: 100%; }
+            .navbar__toggle { display: flex; }
+            .navbar__cta { display: none; }
+            .footer__inner { grid-template-columns: 1fr; }
+            .footer__brand { grid-column: auto; }
+            .footer__bottom-inner { flex-direction: column; text-align: center; }
+            .data-table { font-size: 0.85rem; }
+            .data-table th, .data-table td { padding: var(--space-xs); }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container navbar__inner">
+            <a href="../index.html" class="navbar__logo">
+                <img src="../assets/LOGO_HS.png" alt="HSDental Logo">
+            </a>
+            <div class="navbar__nav" id="navbarNav">
+                <ul class="navbar__list">
+                    <li><a href="../index.html" class="navbar__link">Inicio</a></li>
+                    <li><a href="../index.html#servicios" class="navbar__link">Servicios</a></li>
+                    <li><a href="../index.html#contacto" class="navbar__link">Contacto</a></li>
+                </ul>
+            </div>
+            <button class="navbar__toggle" id="navbarToggle" aria-label="Menu" aria-expanded="false">
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+        <div class="container">
+            <span class="page-header__badge">Información Legal</span>
+            <h1 class="page-header__title">Política de Privacidad</h1>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- INTRO SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <div class="content-block">
+                    <p>En <strong>HS DENTAL</strong>, con domicilio social en <strong>Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</strong> y NIF/CIF <strong>B21866850</strong>, nos tomamos muy en serio la protección de sus datos personales.</p>
+                    <p>Esta Política de Privacidad le informa sobre cómo tratamos sus datos personales de conformidad con el Reglamento General de Protección de Datos (RGPD) y la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD).</p>
+                </div>
+
+                <h2>1. Responsable del Tratamiento</h2>
+                <table class="data-table">
+                    <tbody>
+                        <tr>
+                            <th>Denominación Social</th>
+                            <td>Hau Yon Salazar</td>
+                        </tr>
+                        <tr>
+                            <th>NIF/CIF</th>
+                            <td>B21866850</td>
+                        </tr>
+                        <tr>
+                            <th>Domicilio Social</th>
+                            <td>Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</td>
+                        </tr>
+                        <tr>
+                            <th>Teléfono</th>
+                            <td>+34 624 26 48 25</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><a href="mailto:hsdental00@gmail.com">hsdental00@gmail.com</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- DATA COLLECTION SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>2. Datos que Tratamos</h2>
+                <p>Los datos personales que tratamos son aquellos que nos facilita directamente cuando:</p>
+                <ul class="info-list">
+                    <li>Rellena el formulario de contacto en nuestra página web</li>
+                    <li>Solicita información sobre nuestros servicios dentales</li>
+                    <li>Reserva una cita en nuestras clínicas de Móstoles o Alcorcón</li>
+                    <li>Envía cualquier comunicación a través de los canales habilitados</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Categorías de datos:</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Dato</th>
+                            <th>Ejemplos</th>
+                            <th>Obligatoriedad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Datos de identificación</strong></td>
+                            <td>Nombre, apellidos, DNI/NIE</td>
+                            <td>Obligatorio para prestar el servicio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos de contacto</strong></td>
+                            <td>Email, teléfono, dirección postal</td>
+                            <td>Obligatorio para prestar el servicio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos de salud</strong></td>
+                            <td>Historial dental, tratamientos, diagnósticos</td>
+                            <td>Obligatorio para la atención clínica</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos económicos</strong></td>
+                            <td>Información de pago, facturación</td>
+                            <td>Obligatorio para gestión administrativa</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- PURPOSE SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>3. Finalidad del Tratamiento</h2>
+                <p>Tratamos sus datos personales con las siguientes finalidades:</p>
+                <ul class="info-list">
+                    <li><strong>Gestión de la relación clínica:</strong> Prestación de servicios dentales, seguimiento de tratamientos y gestión de citas.</li>
+                    <li><strong>Atención al paciente:</strong> Responder a sus consultas, solicitudes y comunicaciones.</li>
+                    <li><strong>Gestión administrativa:</strong> Facturación, contabilidad y gestión de cobros.</li>
+                    <li><strong>Comunicaciones:</strong> Envío de recordatorios de citas, seguimientos post-tratamiento y comunicaciones relacionadas con su salud dental.</li>
+                    <li><strong>Mejora de servicios:</strong> Análisis de la calidad asistencial y mejora continua de nuestros servicios.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- LEGITIMATION SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>4. Legitimación</h2>
+                <p>El tratamiento de sus datos se basa en las siguientes bases jurídicas:</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Finalidad</th>
+                            <th>Base Jurídica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Atención clínica y dental</strong></td>
+                            <td>Ejecución del contrato de prestación de servicios y consentimiento explícito del interesado (datos de salud, categoría especial según art. 9 RGPD).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gestión administrativa y facturación</strong></td>
+                            <td>Cumplimiento de obligaciones legales y contractuales.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Comunicaciones relacionadas con el tratamiento</strong></td>
+                            <td>Ejecución del contrato y consentimiento cuando sea requerido.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Envío de comunicaciones comerciales</strong></td>
+                            <td>Consentimiento explícito y revocable en cualquier momento.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RECIPIENTS SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>5. Destinatarios</h2>
+                <p>Sus datos personales no serán cedidos a terceros, salvo:</p>
+                <ul class="info-list">
+                    <li><strong>Proveedores de servicios:</strong> Empresas que prestan servicios necesarios para el funcionamiento de nuestra actividad (gestoría, servicios informáticos, mantenimiento de equipos médicos).</li>
+                    <li><strong>Administraciones públicas:</strong> Cuando exista una obligación legal de comunicación (Hacienda, Seguridad Social, autoridades sanitarias).</li>
+                    <li><strong>Compañías de seguros:</strong> Cuando el tratamiento esté cubierto por un seguro dental o médico del paciente.</li>
+                </ul>
+                <p>Todos los destinatarios están sujetos a contratos de tratamiento de datos que garantizan el cumplimiento del RGPD.</p>
+            </div>
+        </section>
+
+        <!-- RIGHTS SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>6. Derechos del Interesado</h2>
+                <p>Usted tiene derecho a:</p>
+                <ul class="info-list">
+                    <li><strong>Acceso:</strong> Solicitar información sobre si estamos tratando sus datos y acceder a los mismos.</li>
+                    <li><strong>Rectificación:</strong> Solicitar la corrección de datos inexactos o incompletos.</li>
+                    <li><strong>Supresión ("derecho al olvido"):</strong> Solicitar la eliminación de sus datos cuando ya no sean necesarios o retire su consentimiento.</li>
+                    <li><strong>Limitación del tratamiento:</strong> Solicitar que solo tratemos sus datos para el ejercicio o defensa de reclamaciones.</li>
+                    <li><strong>Oposición:</strong> Oponerse al tratamiento de sus datos por motivos relacionados con su situación particular.</li>
+                    <li><strong>Portabilidad:</strong> Recibir sus datos en formato estructurado y transmitirlos a otro responsable.</li>
+                    <li><strong>No ser objeto de decisiones automatizadas:</strong> Incluida la elaboración de perfiles.</li>
+                </ul>
+                <p>Para ejercer sus derechos, puede enviarnos una comunicación escrita a <strong>hsdental00@gmail.com</strong> o a la dirección postal <strong>Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</strong>, acompañada de copia de su DNI o documento identificativo equivalente.</p>
+
+            </div>
+        </section>
+
+        <!-- RETENTION SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>7. Conservación de Datos</h2>
+                <p>Sus datos serán conservados durante:</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Dato</th>
+                            <th>Plazo de Conservación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Historial clínico</strong></td>
+                            <td>Mínimo 5 años desde la última intervención (según Ley 41/2002 de Autonomía del Paciente). Recomendado hasta 20 años por responsabilidad profesional.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos administrativos y facturación</strong></td>
+                            <td>5 años desde la última operación (según Código de Comercio y Ley General Tributaria).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos de contacto para comunicaciones</strong></td>
+                            <td>Mientras mantenga la relación contractual o hasta que solicite su supresión.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grabaciones de videovigilancia</strong></td>
+                            <td>Máximo 30 días, salvo puesta a disposición de autoridades judiciales o policiales.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECURITY SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>8. Medidas de Seguridad</h2>
+                <p>Implementamos medidas técnicas y organizativas apropiadas para garantizar la seguridad de sus datos personales, incluyendo:</p>
+                <ul class="info-list">
+                    <li>Cifrado de datos en tránsito y en reposo</li>
+                    <li>Control de accesos mediante autenticación segura</li>
+                    <li>Copias de seguridad periódicas</li>
+                    <li>Protocolos de actuación ante brechas de seguridad</li>
+                    <li>Formación del personal en materia de protección de datos</li>
+                    <li>Contratos de confidencialidad con todos los empleados y colaboradores</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- CTA SECTION -->
+        <section class="content-section">
+            <div class="container" style="text-align: center;">
+                <h2>¿Tiene alguna duda sobre nuestra Política de Privacidad?</h2>
+                <p style="margin: var(--space-md) auto;">Nuestro equipo está disponible para resolver cualquier pregunta sobre el tratamiento de sus datos personales.</p>
+                <a href="../index.html#contacto" class="btn btn--primary">
+                    <i class="fas fa-envelope"></i> Contactar
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__brand">
+                    <img src="../assets/LOGO_HS.png" alt="HSDental" style="height: 50px; background: #fff; border-radius: 8px; padding: 8px;">
+                    <p class="footer__tagline">Su clínica dental de confianza en Móstoles y Alcorcón. Cuidamos de su sonrisa con la mejor tecnología y profesionales.</p>
+                    <div class="footer__social">
+                        <a href="#" class="footer__social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Clínicas</h4>
+                    <ul class="footer__list">
+                        <li><a href="#" class="footer__link">Móstoles</a></li>
+                        <li><a href="#" class="footer__link">Alcorcón</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Legal</h4>
+                    <ul class="footer__list">
+                        <li><a href="./politica-privacidad.html" class="footer__link">Política de Privacidad</a></li>
+                        <li><a href="./aviso-legal.html" class="footer__link">Aviso Legal</a></li>
+                        <li><a href="./politica-cookies.html" class="footer__link">Política de Cookies</a></li>
+                        <li><a href="./terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Contacto</h4>
+                    <ul class="footer__list">
+                        <li><a href="mailto:hsdental00@gmail.com" class="footer__link">hsdental00@gmail.com</a></li>
+                        <li><a href="tel:+34624264825" class="footer__link">+34 624 26 48 25</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <div class="container footer__bottom-inner">
+                    <span>&copy; 2026 HS DENTAL. Todos los derechos reservados.</span>
+                    <span class="footer__disclaimer">Nº Registro Sanitario: CS0612</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navbar toggle
+        const toggle = document.getElementById('navbarToggle');
+        const nav = document.getElementById('navbarNav');
+        toggle?.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('is-open');
+        });
+    </script>
+</body>
+</html>
