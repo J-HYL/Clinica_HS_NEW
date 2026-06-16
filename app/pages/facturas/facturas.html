@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generar Presupuesto</title>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+        integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/pages/agregar.css">
+    <link rel="stylesheet" href="../../css/pages/presupuestos.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest" />
+
+    <style>
+        .layout {
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 1fr 450px 220px;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .card {
+            border: 1px solid #e6e6e6;
+            padding: 12px;
+            border-radius: 6px;
+            background: #fafafa;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .right-side {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        h2 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+        }
+
+        label {
+            display: block;
+            margin: 6px 0 4px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        input[type=text],
+        input[type=number],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .row .col {
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn.secondary {
+            background: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background: #f4f4f4;
+        }
+
+        td.actions {
+            text-align: center;
+        }
+
+        .totalBox {
+            margin-top: 10px;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .form-footer {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .descuentos {
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            background: #fafafa;
+            padding: 12px;
+        }
+
+        @media(max-width: 1100px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sidebar" id="sidebar">
+        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
+            <i class="ri-close-large-fill"></i>
+        </button>
+        <div class="sidebar__content">
+            <div class="sidebar__logo">
+                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
+                <div class="item__hide item__hide--logo">
+                    <h2 class="logo__name">
+                        <img src="../../assets/images/parteB.jpg" alt="logoCompleto"
+                            style="height: 50px; margin-left: 9px; margin-top: 1px;">
+                    </h2>
+                </div>
+            </div>
+            <ul class="sidebar__links">
+                <li class="sidebar__item">
+                    <a href="/index.html" aria-label="Ir al Principal">
+                        <i class="ri-dashboard-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Principal</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
+                        <i class="ri-calendar-schedule-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Citas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item sidebar__item">
+                    <a href="/pages/clientes/control.html" aria-label="Ir a Pacientes">
+                        <i class="ri-group-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Pacientes</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
+                        <i class="ri-briefcase-4-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Servicios</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
+                        <i class="ri-file-text-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Presupuestos</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item sidebar__item--selected">
+                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
+                        <i class="ri-receipt-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Facturas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
+                        <i class="ri-admin-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Admin</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading" style="margin-bottom: 2vh;">HS Dental - <span>Facturas</span></h1>
+            </div>
+        </header>
+
+        <!-- COLUMNAS -->
+        <div class="layout">
+
+            <div>
+                <div class="card">
+                    <h2>Generar factura — datos</h2>
+                    <div class="row" style="align-items:end">
+                        <div class="col">
+                            <label for="clinicSelect">Clínica</label>
+                            <select id="clinicSelect" required>
+                              	<option value="#" disabled selected>Elije una clínica</option>
+                                <option value="mostoles">HS Dental - Móstoles</option>
+                                <option value="alcorcon">HS Dental - Alcorcón</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="paymentMethod">Forma de pago</label>
+                            <select id="paymentMethod">
+                                <option value="Transferencia">Transferencia bancaria</option>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                                <option value="Domiciliacion">Domiciliación</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr style="margin:10px 0">
+
+                    <h3 style="margin:8px 0">Datos del paciente</h3>
+                    <label for="patientName">Nombre completo</label>
+                    <input id="patientName" type="text" placeholder="Nombre del paciente (obligatorio)">
+                    <div class="row">
+                        <div class="col">
+                            <label for="patientDNI">DNI / NIF</label>
+                            <input id="patientDNI" type="text" placeholder="12345678Z (opcional)">
+                        </div>
+                        <div class="col">
+                            <label for="patientPhone">Teléfono</label>
+                            <input id="patientPhone" type="text" placeholder="Teléfono (opcional)">
+                        </div>
+                    </div>
+
+                    <label for="patientAddress">Domicilio</label>
+                    <input id="patientAddress" type="text" placeholder="Calle, nº, CP Ciudad (opcional)">
+                    <label for="observations">Observaciones</label>
+                    <textarea id="observations" rows="2" placeholder="Observaciones (opcional)"></textarea>
+
+                    <hr style="margin:10px 0">
+
+                    <h3 style="margin:8px 0">Añadir servicio</h3>
+                    <div class="row">
+                        <div class="col">
+                            <label for="serviceDesc">Servicio / Descripción</label>
+                            <input id="serviceDesc" type="text" placeholder="Ej: Limpieza dental profesional">
+                        </div>
+                        <div style="width:120px">
+                            <label for="serviceQty">Cant.</label>
+                            <input id="serviceQty" type="number" min="1" value="1">
+                        </div>
+                        <div style="width:140px">
+                            <label for="servicePrice">Precio (€)</label>
+                            <input id="servicePrice" type="number" min="0" step="0.01" value="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-footer">
+                        <button id="btnAdd" class="btn">Añadir tratamiento <i class="ri-add-line"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA PREVIA -->
+            <div class="card">
+                <h2>Vista previa</h2>
+                <table id="servicesTable" aria-label="tabla de servicios">
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th style="width:60px">Cant.</th>
+                            <th style="width:110px">Precio</th>
+                            <th style="width:110px">Total</th>
+                            <th class="actions" style="width:40px"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <p class="totalBox" id="previewTotal">Total: €0.00</p>
+                <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+                    <button id="btnPrint" class="btn">Imprimir factura <i class="ri-printer-line"></i></button>
+                    <button id="btnClear" class="btn secondary">Limpiar</button>
+                </div>
+                <p class="small" style="margin-top:12px">
+                    Nota: la factura generada incluirá la mención legal de exención de IVA (art. 20.Uno.3 Ley 37/1992)
+                    para servicios sanitarios cuando proceda.
+                </p>
+            </div>
+
+            <!-- DESCUENTOS -->
+            <div class="descuentos" style="margin-top: 0vh;">
+                <h3>Tipo de descuento</h3>
+                <input id="noDesc" type="radio" name="desc" value="0" checked>
+                <label for="noDesc">Sin descuento</label>
+                <input id="op1" type="radio" name="desc" value="5">
+                <label for="op1">5%</label>
+                <input id="op2" type="radio" name="desc" value="10">
+                <label for="op2">10%</label>
+                <input id="op3" type="radio" name="desc" value="15">
+                <label for="op3">15%</label>
+                <input id="op4" type="radio" name="desc" value="20">
+                <label for="op4">20%</label>
+                <input id="op5" type="radio" name="desc" value="25">
+                <label for="op5">25%</label>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="../../js/pages/clientes/agregar.js" type="module"></script>
+    <script src="../../js/modules/components/facturas.js"></script>
+</body>
+
+</html>

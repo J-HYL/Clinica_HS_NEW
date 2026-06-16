@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita</title>
+
+    <!-- FullCalendar Scheduler -->
+    <script src="https://unpkg.com/fullcalendar-scheduler@6.1.17/index.global.min.js"></script>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/pages/agregar.css">
+    <link rel="stylesheet" href="/css/components/modal.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+    <style>
+        #calendar {
+            max-width: 100vw !important;
+            max-height: 790px;
+        }
+        .modal__card{
+            padding-right: 1rem;
+            padding-left: 1rem;
+
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
+            <i class="ri-close-large-fill"></i>
+        </button>
+        <div class="sidebar__content">
+            <div class="sidebar__logo">
+                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
+                <div class="item__hide item__hide--logo">
+                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
+                </div>
+            </div>
+            <ul class="sidebar__links">
+                <li class="sidebar__item">
+                    <a href="/index.html" aria-label="Ir al Principal">
+                        <i class="ri-dashboard-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Principal</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item sidebar__item--selected">
+                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
+                        <i class="ri-calendar-schedule-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Citas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
+                        <i class="ri-group-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Pacientes</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
+                        <i class="ri-briefcase-4-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Servicios</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
+                        <i class="ri-file-text-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Presupuestos</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
+                        <i class="ri-receipt-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Facturas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
+                        <i class="ri-admin-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Admin</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+       
+    </nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar" >
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>Citas</span></h1>
+            </div>
+
+        </header>
+
+        <div class="content-layout">
+            <main class="container main">
+                <h3 class="container__heading">Crear Cita</h3>
+                <form id="event-form" class="form">
+                  <!--Cliente-->
+                    <div class="form__group">
+                        <label for="servicio" class="form__label">Paciente</label>
+                        <input
+                          type="text"
+                          name="servicio"
+                          id="servicio"                                
+                          class="form__input"
+                          placeholder="Escribe SOLO el nombre del Cliente"
+                          required
+                        />
+                    </div>
+                    <!--Observaciones-->
+                    <div class="form__group">
+                        <label for="cliente" class="form__label">Observaciones</label>
+                        <input type="text" name="cliente" id="cliente" class="form__input" placeholder="TELEFONO, Servicio, etc..."  />
+                    </div>
+                  
+
+
+                    <div class="form__group">
+                        <label for="fecha" class="form__label">Fecha y Hora</label>
+                        <input type="datetime-local" id="fecha" name="fecha" class="form__input form__input--datetime" data-required="true" min="" required />
+                    </div>
+
+                    <div class="form__group">
+                        <label for="medico" class="form__label">Médico</label>
+                        <select  name="medico" id="medico" class="form__input form__input--select" required>
+                            <option value="med1">GABINETE 1</option>
+                            <option value="med2">GABINETE 2</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form__group form__group--hidden">
+                        <label for="estado">Estado</label>
+                    <select id="estado" name="estado" required>
+                        <option value="Pendiente" selected>Pendiente</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                    </div>
+
+                    <div class="form__buttons">
+                        <button type="submit" class="form__submit" data-action="create">Crear Cita <i class="ri-add-line"></i></button>
+                        <a href="calendario.html" class="form__return">Regresar</a>
+                    </div>
+                </form>
+            </main>
+            <!--Calendario-->
+            <div id="calendar" class="container main"></div>
+
+        </div>
+    </div>
+    <!--Modal de edicion-->
+    <dialog class="modal" id="edit-modal" role="dialog"
+        aria-labelledby="Actualizar Cita"
+        aria-describedby="Modal para una Cita">
+        <div class="modal__container">
+            <section class="modal__card">
+                <header class="modal__header">
+                    <h3 class="modal__heading">Actualizar Cita</h3>
+                    <button type="button" class="modal__close" aria-label="Cerrar Modal">
+                    <i class="ri-close-line"></i>
+                    </button>
+                </header>
+
+                <form action="#" class="form">
+                    <div class="form__group">
+                    <label for="edit-servicio" class="form__label">Paciente</label>
+                    <input
+                        type="text"
+                        name="edit-servicio"
+                        id="edit-servicio"
+                        class="form__input"
+                        placeholder="Escribe SOLO el nombre del Cliente"
+                        required
+                    />
+                    </div>
+
+                    <div class="form__group">
+                    <label for="edit-cliente" class="form__label">Observaciones</label>
+                    <input
+                        type="text"
+                        name="edit-cliente"
+                        id="edit-cliente"
+                        class="form__input"
+                        placeholder="TELEFONO, Servicio, etc..."
+                    />
+                    </div>
+
+                    <div class="form__group">
+                    <label for="edit-fecha" class="form__label">Fecha y Hora</label>
+                    <input
+                        type="datetime-local"
+                        id="edit-fecha"
+                        name="edit-fecha"
+                        class="form__input form__input--datetime"
+                        data-required="true"
+                    />
+                    </div>
+
+                    <div class="form__group">
+                    <label for="edit-medico" class="form__label">Médico</label>
+                    <select name="edit-medico" id="edit-medico" class="form__input form__input--select" required>
+                        <option value="med1">Médico 1</option>
+                        <option value="med2">Médico 2</option>
+                    </select>
+                    </div>
+
+                    <div class="form__group">
+                    <label for="edit-estado" class="form__label">Estado</label>
+                    <select id="edit-estado" name="edit-estado" class="form__input form__input--select" required>
+                        <option value="Pendiente" selected>Pendiente</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                    </div>
+                </form>
+
+                <footer class="modal__footer">
+                    <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
+                    <button type="button" class="modal__button modal__button--primary" id="update-medico">Guardar Cambios</button>
+                </footer>
+            </section>
+        </div>
+    </dialog>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="../../js/pages/citas/vistaDiaria.js"></script>
+</body>
+</html>

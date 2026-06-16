@@ -1,0 +1,203 @@
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: Inicializando PHPMailer...
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: Configurando SMTP...
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: Activando depuración SMTP (nivel 4)...
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: Dirección de destino añadida: jhonrodrigohyl@gmail.com
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: Intentando enviar correo...
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: Connection: opening to smtp.ionos.es:587, timeout=300, options=array()
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: Connection: opened
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "220 smtp.ionos.es ESMTP RZmta (P7 -)"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 220 smtp.ionos.es ESMTP RZmta (P7 -)
+
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: EHLO hsdental.es
+
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-smtp.ionos.es greets 82.165.90.135"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-PIPELINING"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-8BITMIME"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-DELIVERBY"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-SIZE 104857600"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-LIMITS RCPTMAX=1000 MAILMAX=1000"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-STARTTLS"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250 HELP"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 250-smtp.ionos.es greets 82.165.90.135
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-8BITMIME
+250-DELIVERBY
+250-SIZE 104857600
+250-LIMITS RCPTMAX=1000 MAILMAX=1000
+250-STARTTLS
+250 HELP
+
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: STARTTLS
+
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "220 Ready to start TLS"
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 220 Ready to start TLS
+
+[22-May-2026 12:24:48 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:48 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: EHLO hsdental.es
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-smtp.ionos.es greets 82.165.90.135"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-PIPELINING"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-8BITMIME"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-DELIVERBY"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-SIZE 104857600"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-LIMITS RCPTMAX=1000 MAILMAX=1000"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250-AUTH PLAIN LOGIN"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250 HELP"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 250-smtp.ionos.es greets 82.165.90.135
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-8BITMIME
+250-DELIVERBY
+250-SIZE 104857600
+250-LIMITS RCPTMAX=1000 MAILMAX=1000
+250-AUTH PLAIN LOGIN
+250 HELP
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: Auth method requested: UNSPECIFIED
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: Auth methods available on the server: PLAIN,LOGIN
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: Requested auth method not available: 
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: Auth method selected: LOGIN
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: AUTH LOGIN
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "334 VXNlcm5hbWU6"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: YXZpc29zQGhzZGVudGFsLmVz
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: SmpiaW5rczE5OTkk
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "235 Authentication succeeded"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 235 Authentication succeeded
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: MAIL FROM:<avisos@hsdental.es>
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250 Requested mail action okay, completed"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 250 Requested mail action okay, completed
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: RCPT TO:<jhonrodrigohyl@gmail.com>
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250 OK"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 250 OK
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: DATA
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "354 Start mail input; end with <CRLF>.<CRLF>"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 354 Start mail input; end with <CRLF>.<CRLF>
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: Date: Fri, 22 May 2026 12:24:48 +0200
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: To: jhonrodrigohyl@gmail.com
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: From: HSDental Test <avisos@hsdental.es>
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: Subject: Prueba de SMTP - HSDental - 2026-05-22 12:24:48
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: Message-ID: <FVBE7I5UKBSjurPsy6b4d56XynHLJCvGbMFwHEmph8@hsdental.es>
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.2 (https://github.com/PHPMailer/PHPMailer)
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: MIME-Version: 1.0
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: 
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: <h3>Esta es una prueba de envío de correo</h3><p>Si recibes este mensaje, la configuración SMTP funciona correctamente.</p><p><strong>Fecha y hora:</strong> 22/05/2026 12:24:48</p>
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: 
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: .
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "250 Requested mail action okay, completed: id=1MG90u-1wY2YP0tQK-00DGI5"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 250 Requested mail action okay, completed: id=1MG90u-1wY2YP0tQK-00DGI5
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: CLIENT -> SERVER: QUIT
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SMTP INBOUND: "221 kundenserver.de Service closing transmission channel"
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: SERVER -> CLIENT: 221 kundenserver.de Service closing transmission channel
+
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: SMTP DEBUG: Connection: closed
+[22-May-2026 12:24:49 Europe/Berlin] PHP Notice:  ob_flush(): Failed to flush buffer. No buffer to flush in /homepages/33/d4299029497/htdocs/web/api/test_mail.php on line 46
+[22-May-2026 12:24:49 Europe/Berlin] SMTP TEST: <span class='success'>CORREO ENVIADO CORRECTAMENTE!</span>

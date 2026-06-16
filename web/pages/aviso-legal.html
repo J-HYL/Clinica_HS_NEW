@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso Legal - HSDental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* VARIABLES & BASE */
+        :root {
+            --clr-bg:           #f6f9f9;
+            --clr-text:         #272626;
+            --clr-text-sec:     #949494;
+            --clr-border:       #c4c4c4;
+            --clr-border-blue:  #c3d0f8;
+            --clr-accent:       #5671eb;
+            --clr-accent-dark:  #3f57cc;
+            --clr-accent-light: #dde4fb;
+            --clr-blue-2:       #6c8cdc;
+            --clr-blue-3:       #91a0e4;
+            --clr-blue-4:       #747ccc;
+            --clr-blue-5:       #b6bce7;
+            --clr-white:        #ffffff;
+            --clr-surface:      #f0f4ff;
+            --font-sans:   'Montserrat', sans-serif;
+            --font-serif:  'DM Serif Display', serif;
+            --space-xs:   0.5rem;
+            --space-sm:   0.875rem;
+            --space-md:   1.5rem;
+            --space-lg:   2.5rem;
+            --space-xl:   4rem;
+            --space-xxl:  7rem;
+            --radius-sm:  0.5rem;
+            --radius-md:  1rem;
+            --radius-lg:  1.5rem;
+            --radius-xl:  2rem;
+            --radius-pill: 9999px;
+            --shadow-sm:  0 2px 8px rgba(86,113,235,.08);
+            --shadow-md:  0 6px 24px rgba(86,113,235,.12);
+            --shadow-lg:  0 16px 48px rgba(86,113,235,.16);
+            --transition: 0.28s ease;
+            --container: 1240px;
+            --container-pad: 1.5rem;
+            --navbar-h: 72px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-sans); background-color: var(--clr-bg); color: var(--clr-text); line-height: 1.65; }
+        a { color: inherit; text-decoration: none; transition: color var(--transition); }
+        .container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--container-pad); }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3, h4 { line-height: 1.18; font-weight: 700; }
+        h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: var(--space-md); }
+        h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: var(--space-sm); color: var(--clr-accent); }
+        h3 { font-size: clamp(1.1rem, 2vw, 1.25rem); margin-bottom: var(--space-xs); }
+        p { margin-bottom: var(--space-sm); max-width: 75ch; }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; inset-block-start: 0; inset-inline: 0; z-index: 1000;
+            height: var(--navbar-h); background: rgba(246,249,249,.88);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .navbar__inner { display: flex; align-items: center; height: 100%; gap: var(--space-md); }
+        .navbar__logo img { height: 52px; width: auto; }
+        .navbar__nav { margin-inline-start: auto; }
+        .navbar__list { display: flex; gap: 0.25rem; list-style: none; }
+        .navbar__link {
+            display: block; padding: 0.45em 0.9em; border-radius: var(--radius-pill);
+            font-size: 0.9rem; font-weight: 500; color: var(--clr-text);
+            transition: background var(--transition), color var(--transition);
+        }
+        .navbar__link:hover { background: var(--clr-accent-light); color: var(--clr-accent); }
+        .navbar__toggle {
+            display: none; flex-direction: column; gap: 5px; padding: 6px;
+            border-radius: var(--radius-sm); margin-inline-start: auto;
+        }
+        .navbar__toggle-line {
+            display: block; width: 24px; height: 2px; background: var(--clr-text);
+            border-radius: 2px; transition: transform var(--transition), opacity var(--transition);
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-blue-4) 100%);
+            padding-block: calc(var(--space-xxl) + var(--navbar-h)) var(--space-xxl);
+            margin-block-start: var(--navbar-h);
+            text-align: center;
+        }
+        .page-header__badge {
+            display: inline-block; background: rgba(255,255,255,.25); color: var(--clr-white);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; padding: 0.3em 1em; border-radius: var(--radius-pill);
+            margin-bottom: var(--space-sm);
+        }
+        .page-header__title { color: var(--clr-white); font-family: var(--font-serif); }
+
+        /* CONTENT SECTION */
+        .content-section { padding-block: var(--space-xxl); background: var(--clr-white); }
+        .content-section--gray { background: var(--clr-bg); }
+        .content-block { margin-bottom: var(--space-lg); }
+        .content-block:last-child { margin-bottom: 0; }
+
+        /* LISTS */
+        .info-list { list-style: none; }
+        .info-list li {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--clr-border-blue);
+            display: flex; gap: var(--space-sm);
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-list li::before {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free';
+            font-weight: 900; color: var(--clr-accent); flex-shrink: 0;
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%; border-collapse: collapse;
+            background: var(--clr-white); border-radius: var(--radius-md);
+            overflow: hidden; box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-md);
+        }
+        .data-table th, .data-table td {
+            padding: var(--space-sm) var(--space-md);
+            text-align: left; border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .data-table th {
+            background: var(--clr-accent-light); color: var(--clr-accent);
+            font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover { background: var(--clr-surface); }
+
+        /* CONTACT CARD */
+        .contact-card {
+            background: var(--clr-surface); border-left: 4px solid var(--clr-accent);
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin-top: var(--space-md);
+        }
+        .contact-card__title {
+            font-size: 1rem; font-weight: 700; color: var(--clr-accent);
+            margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 0.5rem;
+        }
+        .contact-card p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .contact-card a { color: var(--clr-accent); font-weight: 600; }
+
+        /* ALERT BOX */
+        .alert-box {
+            background: #fff3cd; border-left: 4px solid #ffc107;
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin: var(--space-md) 0;
+        }
+        .alert-box__title {
+            font-size: 0.95rem; font-weight: 700; color: #856404;
+            margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .alert-box p { margin-bottom: 0; font-size: 0.9rem; color: #856404; }
+
+        /* CTA BUTTON */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: var(--font-sans); font-weight: 600; font-size: 0.94rem;
+            padding: 0.72em 1.6em; border-radius: var(--radius-pill);
+            cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+            border: 2px solid transparent; text-decoration: none;
+        }
+        .btn--primary {
+            background: var(--clr-accent); color: var(--clr-white);
+            box-shadow: 0 4px 18px rgba(86,113,235,.35);
+        }
+        .btn--primary:hover {
+            background: var(--clr-accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(86,113,235,.42);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--clr-text); color: rgba(255,255,255,.7);
+            padding-block-start: var(--space-xl);
+        }
+        .footer__inner {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--space-lg); padding-bottom: var(--space-xl);
+        }
+        .footer__brand { max-width: 280px; }
+        .footer__brand img { margin-bottom: var(--space-sm); }
+        .footer__tagline { font-size: 0.88rem; line-height: 1.65; margin-bottom: var(--space-md); }
+        .footer__social { display: flex; gap: 0.6rem; }
+        .footer__social-link {
+            width: 38px; height: 38px; background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-sm);
+            display: grid; place-items: center; color: rgba(255,255,255,.7);
+            transition: background var(--transition), transform var(--transition);
+        }
+        .footer__social-link:hover {
+            background: var(--clr-accent); color: var(--clr-white);
+            transform: translateY(-2px); border-color: var(--clr-accent);
+        }
+        .footer__col-title {
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--clr-white); margin-bottom: var(--space-md);
+        }
+        .footer__list { display: flex; flex-direction: column; gap: 0.5rem; list-style: none;}
+        .footer__link { font-size: 0.88rem; transition: color var(--transition); }
+        .footer__link:hover { color: var(--clr-white); }
+        .footer__bottom {
+            border-top: 1px solid rgba(255,255,255,.08); padding-block: var(--space-md);
+        }
+        .footer__bottom-inner {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: var(--space-sm); font-size: 0.8rem; color: rgba(255,255,255,.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .footer__inner { grid-template-columns: 1fr 1fr; }
+            .footer__brand { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .navbar__nav {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: var(--clr-bg); padding: var(--space-md);
+                transform: translateX(100%); transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+                z-index: 999; overflow-y: auto;
+            }
+            .navbar__nav.is-open { transform: none; }
+            .navbar__list { flex-direction: column; width: 100%; }
+            .navbar__toggle { display: flex; }
+            .navbar__cta { display: none; }
+            .footer__inner { grid-template-columns: 1fr; }
+            .footer__brand { grid-column: auto; }
+            .footer__bottom-inner { flex-direction: column; text-align: center; }
+            .data-table { font-size: 0.85rem; }
+            .data-table th, .data-table td { padding: var(--space-xs); }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container navbar__inner">
+            <a href="../index.html" class="navbar__logo">
+                <img src="../assets/LOGO_HS.png" alt="HSDental Logo">
+            </a>
+            <div class="navbar__nav" id="navbarNav">
+                <ul class="navbar__list">
+                    <li><a href="../index.html" class="navbar__link">Inicio</a></li>
+                    <li><a href="../index.html#servicios" class="navbar__link">Servicios</a></li>
+                    <li><a href="../index.html#contacto" class="navbar__link">Contacto</a></li>
+                </ul>
+            </div>
+            <button class="navbar__toggle" id="navbarToggle" aria-label="Menu" aria-expanded="false">
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+        <div class="container">
+            <span class="page-header__badge">Información Legal</span>
+            <h1 class="page-header__title">Aviso Legal</h1>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- INTRO SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <div class="content-block">
+                    <p>El presente Aviso Legal regula el uso del sitio web <strong>www.hsdental.es</strong> (en adelante, "el Sitio Web"), titularidad de <strong>HAU YON SALAZAR S.L.</strong>, con NIF/CIF <strong>B21866850</strong> y domicilio social en <strong>Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</strong>.</p>
+                    <p>El acceso y navegación en este Sitio Web implica la aceptación plena y sin reservas de las condiciones aquí establecidas, por lo que le recomendamos que las lea detenidamente antes de utilizar este portal.</p>
+                </div>
+
+                <h2>1. Datos Identificativos</h2>
+                <p>De conformidad con la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE), se facilitan los siguientes datos identificativos:</p>
+                <table class="data-table">
+                    <tbody>
+                        <tr>
+                            <th>Denominación Social</th>
+                            <td>HAU YON SALAZAR S.L.</td>
+                        </tr>
+                        <tr>
+                            <th>NIF/CIF</th>
+                            <td>B21866850</td>
+                        </tr>
+                        <tr>
+                            <th>Domicilio Social</th>
+                            <td>Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</td>
+                        </tr>
+                        <tr>
+                            <th>Teléfono</th>
+                            <td>+34 624 26 48 25</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><a href="mailto:hsdental00@gmail.com">hsdental00@gmail.com</a></td>
+                        </tr>
+                        <tr>
+                            <th>Inscripción Registral</th>
+                            <td>Inscrita en el Registro Mercantil de Madrid.</td>
+                        </tr>
+                        <!--CAMBIAR --------------------------------------------------------------
+                        --------------------------------
+                        ----------------------------->
+                        <tr>
+                            <th>Nº Registro Sanitario</th>
+                            <td>CS0612</td>
+                        </tr>
+                        <!-------------------------------
+                        --------------------------
+                        ------------------------------->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- OBJECT SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>2. Objeto y Ámbito de Aplicación</h2>
+                <p>El presente Aviso Legal tiene por objeto regular las condiciones de acceso y uso del Sitio Web, así como los servicios y contenidos que se ponen a disposición de los usuarios.</p>
+                <p>El acceso al Sitio Web es gratuito, salvo en lo relativo al coste de la conexión a la red de comunicaciones a través de la cual se presta el servicio, que corre por cuenta exclusiva del usuario.</p>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Importante
+                    </div>
+                    <p>El acceso a este Sitio Web no implica el establecimiento de ninguna relación comercial, profesional ni contractual entre el usuario y HAU YON SALAZAR S.L. hasta que no se formalice expresamente por escrito.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTELLECTUAL PROPERTY SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>3. Propiedad Intelectual e Industrial</h2>
+                <p>Todos los contenidos del Sitio Web (textos, imágenes, logotipos, marcas, gráficos, vídeos, software, diseños, combinaciones de colores, estructura, selección y disposición de los contenidos) son propiedad exclusiva de <strong>HAU YON SALAZAR S.L.</strong> o de terceros que han autorizado su uso.</p>
+
+                <h3 style="margin-top: var(--space-md);">Queda prohibido:</h3>
+                <ul class="info-list">
+                    <li>Reproducir, distribuir, modificar o transformar los contenidos sin autorización previa y por escrito.</li>
+                    <li>Realizar ingeniería inversa, descompilar o desensamblar cualquier software del Sitio Web.</li>
+                    <li>Utilizar los contenidos con fines comerciales, ilegales o que puedan dañar la imagen de la empresa.</li>
+                    <li>Suprimir, alterar o eludir los dispositivos de protección o sistemas de seguridad instalados.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Uso permitido:</h3>
+                <p>Se permite la visualización y descarga temporal de los contenidos exclusivamente para uso personal y privado, siempre que no se modifiquen ni se utilicen con fines comerciales.</p>
+            </div>
+        </section>
+
+        <!-- RESPONSIBILITIES SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>4. Obligaciones del Usuario</h2>
+                <p>El usuario se compromete a hacer un uso adecuado y lícito del Sitio Web y de los servicios disponibles, absteniéndose de:</p>
+                <ul class="info-list">
+                    <li>Utilizar el Sitio Web para realizar actividades ilícitas, lesivas de los derechos de terceros, o que puedan dañar de cualquier forma el Sitio Web.</li>
+                    <li>Introducir o difundir virus informáticos, programas maliciosos o cualquier código destructivo.</li>
+                    <li>Acceder mediante suplantación de identidad a las áreas de uso restringido.</li>
+                    <li>Utilizar datos, contraseñas o credenciales de terceros sin autorización.</li>
+                    <li>Realizar acciones que puedan saturar, sobrecargar o deteriorar el rendimiento del Sitio Web.</li>
+                    <li>Extraer y/o reutilizar la totalidad o parte sustancial de los contenidos (scraping, data mining).</li>
+                </ul>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-shield-alt"></i>
+                        Seguridad del Usuario
+                    </div>
+                    <p>El usuario será responsable de la custodia y confidencialidad de cualquier credencial que se le facilite para el acceso a áreas restringidas. Cualquier actividad realizada con sus credenciales se considerará realizada por usted.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LINKS SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>5. Enlaces y Links</h2>
+
+                <h3>Enlaces de entrada (al Sitio Web)</h3>
+                <p>Se autoriza la creación de enlaces hacia el Sitio Web siempre que:</p>
+                <ul class="info-list">
+                    <li>El enlace dirija a la página de inicio, sin mostrar el contenido en marcos (framing).</li>
+                    <li>No se manifieste falsamente que el enlazador tiene relación comercial con HSDental.</li>
+                    <li>El sitio web de origen no contenga contenidos ilícitos, discriminatorios o contrarios a la moral.</li>
+                    <li>No se utilicen marcas o signos distintivos de HSDental sin autorización.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Enlaces de salida (a otros sitios)</h3>
+                <p>El Sitio Web puede contener enlaces a sitios web de terceros (redes sociales, proveedores, instituciones). HAU YON SALAZAR S.L. no se responsabiliza de:</p>
+                <ul class="info-list">
+                    <li>La legalidad, veracidad o calidad de los contenidos de dichos sitios.</li>
+                    <li>Las políticas de privacidad y seguridad de los sitios enlazados.</li>
+                    <li>Los daños o perjuicios que puedan derivarse del acceso a sitios de terceros.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- EXCLUSION OF LIABILITY SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>6. Exclusión de Responsabilidad</h2>
+
+                <h3>Disponibilidad del Servicio</h3>
+                <p>HAU YON SALAZAR S.L. no garantiza la disponibilidad y continuidad del funcionamiento del Sitio Web, que podrá verse interrumpido por motivos de mantenimiento, actualizaciones, o causas técnicas ajenas a la empresa.</p>
+
+                <h3 style="margin-top: var(--space-md);">Contenidos</h3>
+                <p>La información contenida en este Sitio Web tiene carácter meramente informativo y divulgativo. En ningún caso sustituye el diagnóstico, consejo o tratamiento profesional. Consulte siempre con su odontólogo o profesional sanitario.</p>
+
+                <h3 style="margin-top: var(--space-md);">Errores e Inexactitudes</h3>
+                <p>A pesar de que nos esforzamos por mantener la información actualizada y correcta, pueden existir errores u omisiones. HAU YON SALAZAR S.L. se reserva el derecho de modificar, actualizar o corregir los contenidos en cualquier momento sin previo aviso.</p>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-info-circle"></i>
+                        Nota Importante
+                    </div>
+                    <p>Los resultados de los tratamientos dentales pueden variar de un paciente a otro. Las imágenes mostradas en este Sitio Web son meramente ilustrativas y no garantizan resultados específicos.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEGISLATION SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>7. Legislación Aplicable y Jurisdicción</h2>
+                <p>El presente Aviso Legal se rige por la legislación española, en particular por:</p>
+                <ul class="info-list">
+                    <li>Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE)</li>
+                    <li>Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales (LOPDGDD)</li>
+                    <li>Reglamento (UE) 2016/679 (RGPD)</li>
+                    <li>Real Decreto Legislativo 1/2007, de 16 de noviembre, por el que se aprueba el texto refundido de la Ley General para la Defensa de los Consumidores y Usuarios</li>
+                </ul>
+                <p>Para cualquier controversia que pudiera derivarse del acceso o uso del Sitio Web, las partes se someten a los Juzgados y Tribunales de <strong>Madrid</strong>, con renuncia expresa a cualquier otro fuero que pudiera corresponderles.</p>
+            </div>
+        </section>
+
+        <!-- MODIFICATIONS SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>8. Modificaciones del Aviso Legal</h2>
+                <p>HAU YON SALAZAR S.L. se reserva el derecho de modificar unilateralmente, en cualquier momento y sin previo aviso, la presentación, configuración y contenidos del Sitio Web, así como las presentes condiciones de uso.</p>
+                <p>Se recomienda al usuario revisar periódicamente este Aviso Legal para estar al tanto de posibles cambios. La continuidad en el uso del Sitio Web tras las modificaciones implica la aceptación de las nuevas condiciones.</p>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>9. Contacto</h2>
+                <p>Para cualquier consulta, sugerencia o reclamación relacionada con el presente Aviso Legal, puede contactarnos a través de:</p>
+
+                <div class="contact-card">
+                    <div class="contact-card__title">
+                        <i class="fas fa-envelope"></i>
+                        Datos de Contacto
+                    </div>
+                    <p><strong>Email:</strong> <a href="mailto:hsdental00@gmail.com">hsdental00@gmail.com</a></p>
+                    <p><strong>Teléfono:</strong> +34 624 26 48 25</p>
+                    <p><strong>Dirección:</strong> Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA SECTION -->
+        <section class="content-section">
+            <div class="container" style="text-align: center;">
+                <h2>¿Necesita más información?</h2>
+                <p style="margin: var(--space-md) auto;">Nuestro equipo está disponible para resolver cualquier duda sobre nuestros servicios o aspectos legales.</p>
+                <a href="../index.html#contacto" class="btn btn--primary">
+                    <i class="fas fa-envelope"></i> Contactar
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__brand">
+                    <img src="../assets/LOGO_HS.png" alt="HSDental" style="height: 50px; background: #fff; border-radius: 8px; padding: 8px;">
+                    <p class="footer__tagline">Su clínica dental de confianza en Móstoles y Alcorcón. Cuidamos de su sonrisa con la mejor tecnología y profesionales.</p>
+                    <div class="footer__social">
+                        <a href="#" class="footer__social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Clínicas</h4>
+                    <ul class="footer__list">
+                        <li><a href="#" class="footer__link">Móstoles</a></li>
+                        <li><a href="#" class="footer__link">Alcorcón</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Legal</h4>
+                    <ul class="footer__list">
+                        <li><a href="./politica-privacidad.html" class="footer__link">Política de Privacidad</a></li>
+                        <li><a href="./aviso-legal.html" class="footer__link">Aviso Legal</a></li>
+                        <li><a href="./politica-cookies.html" class="footer__link">Política de Cookies</a></li>
+                        <li><a href="./terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Contacto</h4>
+                    <ul class="footer__list">
+                        <li><a href="mailto:hsdental00@gmail.com" class="footer__link">hsdental00@gmail.com</a></li>
+                        <li><a href="tel:+34624264825" class="footer__link">+34 624 26 48 25</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <div class="container footer__bottom-inner">
+                    <span>&copy; 2026 HS DENTAL. Todos los derechos reservados.</span>
+                    <span class="footer__disclaimer">Nº Registro Sanitario: CS0612</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navbar toggle
+        const toggle = document.getElementById('navbarToggle');
+        const nav = document.getElementById('navbarNav');
+        toggle?.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('is-open');
+        });
+    </script>
+</body>
+</html>

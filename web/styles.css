@@ -1,0 +1,1603 @@
+
+  /* ----------------------------------------------------------------
+    1. RESET & BASE
+    ---------------------------------------------------------------- */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--clr-bg);
+    color: var(--clr-text);
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  ul, ol { list-style: none; }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+
+  address { font-style: normal; }
+
+  /* ----------------------------------------------------------------
+    2. VARIABLES CSS
+    ---------------------------------------------------------------- */
+  :root {
+    /* — Paleta de colores — */
+    --clr-bg:           #f6f9f9;
+    --clr-text:         #272626;
+    --clr-text-sec:     #949494;
+    --clr-border:       #c4c4c4;
+    --clr-border-blue:  #c3d0f8;
+
+    /* Acento principal */
+    --clr-accent:       #5671eb;
+    --clr-accent-dark:  #3f57cc;
+    --clr-accent-light: #dde4fb;
+
+    /* Variaciones de azul */
+    --clr-blue-2:       #6c8cdc;
+    --clr-blue-3:       #91a0e4;
+    --clr-blue-4:       #747ccc;
+    --clr-blue-5:       #b6bce7;
+
+    /* Blancos / superficies */
+    --clr-white:        #ffffff;
+    --clr-surface:      #f0f4ff;
+
+    /* — Tipografía — */
+    --font-sans:   'Montserrat', sans-serif;
+    --font-serif:  'DM Serif Display', serif;
+
+    /* — Espaciado — */
+    --space-xs:   0.5rem;
+    --space-sm:   0.875rem;
+    --space-md:   1.5rem;
+    --space-lg:   2.5rem;
+    --space-xl:   4rem;
+    --space-xxl:  7rem;
+
+    /* — Radios — */
+    --radius-sm:  0.5rem;
+    --radius-md:  1rem;
+    --radius-lg:  1.5rem;
+    --radius-xl:  2rem;
+    --radius-pill: 9999px;
+
+    /* — Sombras — */
+    --shadow-sm:  0 2px 8px rgba(86,113,235,.08);
+    --shadow-md:  0 6px 24px rgba(86,113,235,.12);
+    --shadow-lg:  0 16px 48px rgba(86,113,235,.16);
+
+    /* — Transiciones — */
+    --transition: 0.28s ease;
+    --transition-slow: 0.5s cubic-bezier(.4,0,.2,1);
+
+    /* — Contenedor — */
+    --container: 1240px;
+    --container-pad: 1.5rem;
+
+    /* — Navbar — */
+    --navbar-h: 72px;
+  }
+
+  /* ----------------------------------------------------------------
+    3. LAYOUT GLOBAL
+    ---------------------------------------------------------------- */
+  .container {
+    width: 100%;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--container-pad);
+  }
+
+  section {
+    padding-block: var(--space-xxl);
+  }
+
+  /* ----------------------------------------------------------------
+    4. TIPOGRAFÍA GLOBAL
+    ---------------------------------------------------------------- */
+  h1, h2, h3, h4 {
+    line-height: 1.18;
+    font-weight: 700;
+  }
+
+  h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); }
+  h2 { font-size: clamp(2rem, 4vw, 3rem); }
+  h3 { font-size: clamp(1.15rem, 2vw, 1.35rem); }
+
+  p { max-width: 65ch; }
+
+  /* Encabezados de sección */
+  .section-header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .section-badge {
+    display: inline-block;
+    background: var(--clr-accent-light);
+    color: var(--clr-accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3em 1em;
+    border-radius: var(--radius-pill);
+    margin-bottom: var(--space-sm);
+  }
+
+  .section-badge--light {
+    background: rgba(255,255,255,.25);
+    color: var(--clr-white);
+  }
+
+  .section-title {
+    color: var(--clr-text);
+    margin-bottom: var(--space-sm);
+  }
+
+  .section-desc {
+    color: var(--clr-text-sec);
+    margin-inline: auto;
+    font-size: 1.05rem;
+    max-width: 54ch;
+  }
+
+  /* ----------------------------------------------------------------
+    5. BOTONES
+    ---------------------------------------------------------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.94rem;
+    letter-spacing: 0.01em;
+    padding: 0.72em 1.6em;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+    border: 2px solid transparent;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .btn--primary {
+    background: var(--clr-accent);
+    color: var(--clr-white);
+    box-shadow: 0 4px 18px rgba(86,113,235,.35);
+  }
+
+  .btn--primary:hover,
+  .btn--primary:focus-visible {
+    background: var(--clr-accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(86,113,235,.42);
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--clr-accent);
+    border-color: var(--clr-border-blue);
+  }
+
+  .btn--ghost:hover,
+  .btn--ghost:focus-visible {
+    background: var(--clr-accent-light);
+    transform: translateY(-2px);
+  }
+
+  .btn--lg { padding: 0.85em 2em; font-size: 1rem; }
+
+  .btn--full { width: 100%; justify-content: center; }
+
+  /* ----------------------------------------------------------------
+    6. SCROLL REVEAL (animación de aparición)
+    ---------------------------------------------------------------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.68s cubic-bezier(.4,0,.2,1), transform 0.68s cubic-bezier(.4,0,.2,1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal--delay-1 { transition-delay: 0.15s; }
+  .reveal--delay-2 { transition-delay: 0.3s; }
+  .reveal--delay-3 { transition-delay: 0.45s; }
+
+  /* ----------------------------------------------------------------
+    7. NAVBAR
+    ---------------------------------------------------------------- */
+  .navbar {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 1000;
+    height: var(--navbar-h);
+    background: rgba(246,249,249,.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--clr-border-blue);
+    transition: box-shadow var(--transition);
+  }
+
+  .navbar.is-scrolled {
+    box-shadow: var(--shadow-md);
+  }
+
+  .navbar__inner {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: var(--space-md);
+  }
+
+  .navbar__logo img {
+    height: 52px;
+    width: auto;
+  }
+
+  .navbar__nav {
+    margin-inline-start: auto;
+  }
+
+  .navbar__list {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .navbar__link {
+    display: block;
+    padding: 0.45em 0.9em;
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--clr-text);
+    transition: background var(--transition), color var(--transition);
+  }
+
+  .navbar__link:hover,
+  .navbar__link.is-active {
+    background: var(--clr-accent-light);
+    color: var(--clr-accent);
+  }
+
+  .navbar__cta {
+    margin-inline-start: var(--space-sm);
+    flex-shrink: 0;
+  }
+
+  /* Hamburguesa */
+  .navbar__toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    margin-inline-start: auto;
+  }
+
+  .navbar__toggle-line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--clr-text);
+    border-radius: 2px;
+    transition: transform var(--transition), opacity var(--transition);
+  }
+
+  .navbar__toggle[aria-expanded="true"] .navbar__toggle-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .navbar__toggle[aria-expanded="true"] .navbar__toggle-line:nth-child(2) {
+    opacity: 0;
+  }
+  .navbar__toggle[aria-expanded="true"] .navbar__toggle-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ----------------------------------------------------------------
+    8. HERO
+    ---------------------------------------------------------------- */
+  .hero {
+    position: relative;
+    padding-block: 0;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    margin-block-start: var(--navbar-h);
+    overflow: hidden;
+    background: var(--clr-bg);
+  }
+
+  /* Formas decorativas de fondo */
+  .hero__bg-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.28;
+  }
+
+  .shape--1 {
+    width: 620px;
+    height: 620px;
+    background: radial-gradient(circle, var(--clr-blue-5), var(--clr-blue-3));
+    top: -200px;
+    right: -100px;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .shape--2 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--clr-accent-light), var(--clr-blue-5));
+    bottom: -100px;
+    left: -80px;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+
+  .shape--3 {
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, var(--clr-blue-3), transparent);
+    top: 40%;
+    left: 38%;
+    animation: float 12s ease-in-out infinite 2s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-28px) scale(1.04); }
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: center;
+    padding-block: var(--space-xl);
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero__content { max-width: 560px; }
+
+  .hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--clr-accent);
+    background: var(--clr-accent-light);
+    padding: 0.4em 1.1em;
+    border-radius: var(--radius-pill);
+    margin-bottom: var(--space-md);
+  }
+
+  .hero__title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    color: var(--clr-text);
+    line-height: 1.08;
+    margin-bottom: var(--space-md);
+  }
+
+  .hero__title em {
+    font-style: italic;
+    color: var(--clr-accent);
+  }
+
+  .hero__subtitle {
+    font-size: 1.08rem;
+    color: var(--clr-text-sec);
+    line-height: 1.7;
+    margin-bottom: var(--space-lg);
+    max-width: 52ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  /* Mini-lista de confianza bajo los CTA */
+  .hero__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .hero__trust li {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: 0.82rem;
+    color: var(--clr-text-sec);
+    font-weight: 500;
+  }
+
+  .hero__trust svg { color: var(--clr-accent); flex-shrink: 0; }
+
+  /* Imagen hero */
+  .hero__image-wrap {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hero__img {
+    width: 100%;
+    height: 600px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s ease;
+  }
+
+  .hero__image-wrap:hover .hero__img {
+    transform: scale(1.03);
+  }
+
+  /* Tarjeta flotante de estadística */
+  .hero__float-card {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 1.5rem;
+    background: var(--clr-white);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.4rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--clr-border-blue);
+    display: flex;
+    flex-direction: column;
+    animation: float 6s ease-in-out infinite 1s;
+  }
+
+  .hero__float-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--clr-accent);
+    line-height: 1;
+  }
+
+  .hero__float-num sup {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .hero__float-label {
+    font-size: 0.75rem;
+    color: var(--clr-text-sec);
+    margin-top: 0.25rem;
+  }
+
+  /* ----------------------------------------------------------------
+    9. SERVICIOS
+    ---------------------------------------------------------------- */
+  .services {
+    background: var(--clr-white);
+  }
+
+  .services__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-md);
+  }
+
+  /* Tarjeta de servicio */
+  .service-card {
+    background: var(--clr-white);
+    border: 1.5px solid var(--clr-border-blue);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    transition: transform var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition);
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--card-bg, #eef1fc) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity var(--transition-slow);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--card-accent, var(--clr-accent));
+  }
+
+  .service-card:hover::before { opacity: 1; }
+
+  /* Icono de la tarjeta */
+  .service-card__icon-wrap {
+    width: 56px;
+    height: 56px;
+    background: var(--card-bg, var(--clr-accent-light));
+    border-radius: var(--radius-md);
+    display: grid;
+    place-items: center;
+    color: var(--card-accent, var(--clr-accent));
+    flex-shrink: 0;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .service-card:hover .service-card__icon-wrap {
+    background: var(--card-accent, var(--clr-accent));
+    color: var(--clr-white);
+    transform: scale(1.05);
+  }
+
+  /* Iconos de Font Awesome en las tarjetas */
+  .service-card__icon {
+    font-size: 1.75rem;
+    width: 1em;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .service-card__img-wrap {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    height: 160px;
+  }
+
+  .service-card__img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .service-card:hover .service-card__img-wrap img {
+    transform: scale(1.06);
+  }
+
+  .service-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--clr-text);
+  }
+
+  .service-card__desc {
+    font-size: 0.9rem;
+    color: var(--clr-text-sec);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .service-card__link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--card-accent, var(--clr-accent));
+    transition: gap var(--transition), color var(--transition);
+    gap: 0.3em;
+    margin-top: auto;
+  }
+
+  .service-card:hover .service-card__link { gap: 0.7em; }
+
+  /* ----------------------------------------------------------------
+    10. SECCIÓN DE CONFIANZA / STATS
+    ---------------------------------------------------------------- */
+  .trust {
+    position: relative;
+    padding-block: var(--space-xxl);
+    overflow: hidden;
+  }
+
+  .trust__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-blue-4) 50%, var(--clr-blue-2) 100%);
+    z-index: 0;
+  }
+
+  /* Patrón de puntos en el fondo */
+  .trust__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,.12) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+  }
+
+  .trust__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .trust__title,
+  .trust__content .section-title { color: var(--clr-white); }
+
+  .trust__desc {
+    color: rgba(255,255,255,.85);
+    font-size: 1.02rem;
+    line-height: 1.72;
+    margin-bottom: var(--space-md);
+    max-width: 48ch;
+  }
+
+  .trust__desc strong, .trust__desc em { color: var(--clr-white); }
+
+  /* Tarjetas de estadística */
+  .trust__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .stat-card {
+    background: rgba(255,255,255,.12);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .stat-card:hover {
+    background: rgba(255,255,255,.2);
+    transform: translateY(-3px);
+  }
+
+  .stat-card__num {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--clr-white);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-card__label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,.75);
+    font-weight: 500;
+  }
+
+  /* Barra de progreso */
+  .stat-card__bar {
+    height: 4px;
+    background: rgba(255,255,255,.2);
+    border-radius: var(--radius-pill);
+    margin-top: 0.4rem;
+    overflow: hidden;
+  }
+
+  .stat-card__fill {
+    height: 100%;
+    background: rgba(255,255,255,.7);
+    border-radius: var(--radius-pill);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.2s cubic-bezier(.4,0,.2,1);
+  }
+
+  .trust.is-counted .stat-card__fill { transform: scaleX(1); }
+
+  /* ----------------------------------------------------------------
+    11. TESTIMONIOS
+    ---------------------------------------------------------------- */
+  .testimonials {
+    background: var(--clr-bg);
+    overflow: hidden;
+    display: none;
+  }
+
+  /* Carrusel */
+  .testimonials__carousel {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+  }
+
+  .testimonials__track {
+    display: flex;
+    gap: var(--space-md);
+    transition: transform var(--transition-slow);
+    will-change: transform;
+  }
+
+  /* Tarjeta de testimonio */
+  .testimonial-card {
+    background: var(--clr-white);
+    border: 1.5px solid var(--clr-border-blue);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    flex: 0 0 calc((100% - 2 * var(--space-md)) / 3);
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .testimonial-card__stars {
+    color: #f5a623;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .testimonial-card__text {
+    font-size: 0.93rem;
+    color: var(--clr-text-sec);
+    line-height: 1.72;
+    flex: 1;
+    quotes: '"' '"' "'" "'";
+  }
+
+  .testimonial-card__text::before { content: open-quote; }
+  .testimonial-card__text::after  { content: close-quote; }
+
+  .testimonial-card__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    border-top: 1px solid var(--clr-border);
+    padding-top: var(--space-sm);
+  }
+
+  .testimonial-card__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid var(--clr-accent-light);
+    flex-shrink: 0;
+  }
+
+  .testimonial-card__name {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--clr-text);
+    font-style: normal;
+  }
+
+  .testimonial-card__role {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--clr-text-sec);
+  }
+
+  /* Controles del carrusel */
+  .testimonials__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+  }
+
+  .testimonials__btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--clr-white);
+    border: 1.5px solid var(--clr-border-blue);
+    display: grid;
+    place-items: center;
+    color: var(--clr-accent);
+    transition: background var(--transition), transform var(--transition), border-color var(--transition);
+    flex-shrink: 0;
+  }
+
+  .testimonials__btn:hover {
+    background: var(--clr-accent);
+    color: var(--clr-white);
+    border-color: var(--clr-accent);
+    transform: scale(1.08);
+  }
+
+  /* Indicadores (dots) */
+  .testimonials__dots {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .testimonials__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--clr-border);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+    border: none;
+  }
+
+  .testimonials__dot.is-active {
+    background: var(--clr-accent);
+    transform: scale(1.35);
+  }
+
+  /* ----------------------------------------------------------------
+    12. CONTACTO
+    ---------------------------------------------------------------- */
+  .contact {
+    background: var(--clr-white);
+  }
+
+  .contact__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  .contact__title { margin-block: var(--space-sm); }
+
+  .contact__subtitle {
+    font-size: 0.88rem;
+    color: var(--clr-text-sec);
+    margin-bottom: var(--space-md);
+  }
+
+  /* Formulario */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group--checkbox {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 0.75rem;
+    align-items: start;
+  }
+
+  .form-group--checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--clr-accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .form-group--checkbox .form-error {
+    grid-column: 2;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--clr-text);
+  }
+
+  .form-label span { color: var(--clr-accent); }
+
+  .form-label-check {
+    font-size: 0.83rem;
+    color: var(--clr-text-sec);
+    line-height: 1.5;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.7em 1em;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    color: var(--clr-text);
+    background: var(--clr-bg);
+    border: 1.5px solid var(--clr-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .form-control:focus {
+    border-color: var(--clr-accent);
+    box-shadow: 0 0 0 3px rgba(86,113,235,.15);
+  }
+
+  .form-control::placeholder { color: #bbb; font-size: 0.88rem; }
+
+  .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23949494' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9em center;
+    padding-right: 2.4em;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 110px;
+  }
+
+  .form-error {
+    font-size: 0.78rem;
+    color: #e05252;
+    font-weight: 500;
+    min-height: 1em;
+  }
+
+  /* Control inválido */
+  .form-control.is-invalid {
+    border-color: #e05252;
+  }
+
+  /* Mensaje de éxito */
+  .form-success {
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+    padding: 0.9em 1.2em;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .form-success:not([hidden]) {
+    display: flex;
+  }
+
+  /* Bloque de información de contacto */
+  .contact-info-block { margin-bottom: var(--space-md); }
+
+  .contact-info-block__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    color: var(--clr-text);
+  }
+
+  .contact-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .contact-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    font-size: 0.9rem;
+    color: var(--clr-text-sec);
+    line-height: 1.6;
+  }
+
+  .contact-info-item strong { color: var(--clr-text); display: block; }
+
+  .contact-info-item__icon {
+    width: 40px;
+    height: 40px;
+    background: var(--clr-accent-light);
+    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    color: var(--clr-accent);
+    flex-shrink: 0;
+    transition: background var(--transition);
+  }
+
+  .contact-info-item:hover .contact-info-item__icon {
+    background: var(--clr-accent);
+    color: var(--clr-white);
+  }
+
+  /* Mapa */
+  .contact__map {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1.5px solid var(--clr-border-blue);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .contact__map-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }
+
+  /* Sección de ubicaciones - Grid de clínicas */
+  .contact__subtitle-locations {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--clr-text);
+    margin-bottom: var(--space-lg);
+  }
+
+  .clinics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  /* Tarjetas de clínicas */
+  .clinic-card {
+    background: var(--clr-white);
+    border: 2px solid var(--clr-border-blue);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .clinic-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--clr-accent);
+    box-shadow: 0 12px 32px rgba(86,113,235,.15);
+  }
+
+  .clinic-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--clr-border-blue);
+  }
+
+  .clinic-card__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--clr-accent);
+  }
+
+  /* Badges de clínica */
+  .clinic-badge {
+    display: inline-block;
+    background: var(--clr-accent);
+    color: var(--clr-white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.35em 0.75em;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+  }
+
+  .clinic-badge--secondary {
+    background: var(--clr-blue-4);
+  }
+
+  /* Info de clínica */
+  .clinic-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    flex: 1;
+  }
+
+  .clinic-info-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .clinic-info-item svg {
+    color: var(--clr-accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .clinic-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--clr-text);
+    margin-bottom: 0.2rem;
+  }
+
+  .clinic-info-item p {
+    font-size: 0.9rem;
+    color: var(--clr-text-sec);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Botón de Map */
+  .clinic-card__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--clr-accent), var(--clr-blue-4));
+    color: var(--clr-white);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.65em 1.2em;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(86,113,235,.25);
+    margin-top: auto;
+  }
+
+  .clinic-card__btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 20px rgba(86,113,235,.35);
+  }
+
+  /* Info general - Email */
+  .contact-info-general {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    background: var(--clr-surface);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--clr-accent);
+  }
+
+  .contact-info-general svg {
+    color: var(--clr-accent);
+    flex-shrink: 0;
+  }
+
+  .contact-info-general strong {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--clr-text);
+  }
+
+  .contact-info-general a {
+    color: var(--clr-text-sec);
+    transition: color var(--transition);
+  }
+
+  .contact-info-general a:hover {
+    color: var(--clr-accent);
+  }
+
+  /* Wrapper de mapas - Dinámico */
+  .contact__maps-wrapper {
+    margin-top: var(--space-lg);
+  }
+
+  .clinic-map {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(86,113,235,.12);
+    animation: fadeIn 0.4s ease;
+  }
+
+  .clinic-map__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--clr-text);
+    margin-bottom: var(--space-sm);
+    text-align: center;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Link genérico */
+  .link {
+    color: var(--clr-accent);
+    font-weight: 600;
+    transition: color var(--transition);
+  }
+  .link:hover { color: var(--clr-accent-dark); }
+
+  /* ----------------------------------------------------------------
+    13. FOOTER
+    ---------------------------------------------------------------- */
+  .footer {
+    background: var(--clr-text);
+    color: rgba(255,255,255,.7);
+    padding-block-start: var(--space-xl);
+  }
+
+  .footer__inner {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--space-lg);
+    padding-bottom: var(--space-xl);
+  }
+
+  .footer__brand { max-width: 280px; }
+  .footer__brand img { margin-bottom: var(--space-sm); }
+
+  .footer__tagline {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    margin-bottom: var(--space-md);
+    max-width: 40ch;
+  }
+
+  /* Redes sociales */
+  .footer__social {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .footer__social-link {
+    width: 38px;
+    height: 38px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    color: rgba(255,255,255,.7);
+    transition: background var(--transition), color var(--transition), transform var(--transition);
+  }
+
+  .footer__social-link:hover {
+    background: var(--clr-accent);
+    color: var(--clr-white);
+    transform: translateY(-2px);
+    border-color: var(--clr-accent);
+  }
+
+  /* Columnas del footer */
+  .footer__col-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--clr-white);
+    margin-bottom: var(--space-md);
+  }
+
+  .footer__list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .footer__link {
+    font-size: 0.88rem;
+    transition: color var(--transition);
+  }
+
+  .footer__link:hover { color: var(--clr-white); }
+
+  /* Lista de horarios con dos columnas */
+  .footer__list--schedule li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding-block: 0.2rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+
+  .footer__list--schedule li:last-child { border-bottom: none; }
+
+  .footer__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: var(--space-md);
+    background: var(--clr-accent);
+    color: var(--clr-white);
+    padding: 0.55em 1.2em;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background var(--transition);
+  }
+
+  .footer__phone:hover { background: var(--clr-accent-dark); }
+
+  .footer__cert {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,.4);
+    margin-top: var(--space-md);
+    line-height: 1.6;
+  }
+
+  /* Barra inferior del footer */
+  .footer__bottom {
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding-block: var(--space-md);
+  }
+
+  .footer__bottom-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,.4);
+  }
+
+  .footer__disclaimer { font-style: italic; }
+
+  /* ----------------------------------------------------------------
+    14. BOTÓN VOLVER ARRIBA
+    ---------------------------------------------------------------- */
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    background: var(--clr-accent);
+    color: var(--clr-white);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 18px rgba(86,113,235,.4);
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity var(--transition), transform var(--transition), background var(--transition);
+    pointer-events: none;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .back-to-top:hover { background: var(--clr-accent-dark); }
+
+  /* ----------------------------------------------------------------
+    15. RESPONSIVE — Tablet (≤1024px)
+    ---------------------------------------------------------------- */
+  @media (max-width: 1024px) {
+    :root {
+      --space-xxl: 5rem;
+      --space-xl: 3rem;
+    }
+
+    .hero__inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero__content { max-width: 100%; margin-inline: auto; }
+
+    .hero__trust { justify-content: center; }
+
+    .hero__actions { justify-content: center; }
+
+    .hero__image-wrap { max-width: 520px; margin-inline: auto; }
+
+    .hero__float-card { left: 1rem; bottom: 1rem; }
+
+    .trust__inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .trust__desc { margin-inline: auto; }
+
+    .trust__stats { max-width: 560px; margin-inline: auto; }
+
+    .contact__inner { 
+      grid-template-columns: 1fr;
+      overflow: visible;
+    }
+
+    .footer__inner { grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+
+    .footer__brand { grid-column: span 2; }
+  }
+
+  /* ----------------------------------------------------------------
+    16. RESPONSIVE — Móvil (≤768px)
+    ---------------------------------------------------------------- */
+  @media (max-width: 768px) {
+    :root {
+      --space-xxl: 4rem;
+      --navbar-h: 64px;
+    }
+
+    /* Navbar móvil */
+    .navbar__nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--clr-bg);
+      border-top: 1px solid var(--clr-border-blue);
+      padding: var(--space-md);
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform var(--transition-slow);
+      z-index: 999;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    .navbar__nav.is-open { transform: none; }
+
+    .navbar__list { flex-direction: column; width: 100%; gap: 0.4rem; }
+
+    .navbar__link {
+      font-size: 1.05rem;
+      padding: 0.7em 1em;
+      display: block;
+      width: 100%;
+    }
+
+    .navbar__cta { display: none; }
+
+    .navbar__toggle { display: flex; }
+
+    /* Hero */
+    .hero__img { height: 380px; }
+
+    /* Servicios */
+    .services__grid { grid-template-columns: 1fr; }
+
+    /* Formulario */
+    .form-row { 
+      grid-template-columns: 1fr;
+      overflow: visible;
+    }
+
+    .form-group {
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-form {
+      padding-bottom: 1rem;
+    }
+
+    /* Clínicas - Grid a 1 columna en mobile */
+    .clinics-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .clinic-card {
+      padding: var(--space-md);
+    }
+
+    .clinic-card__title {
+      font-size: 1.1rem;
+    }
+
+    .contact__subtitle-locations {
+      font-size: 1rem;
+      margin-bottom: var(--space-md);
+    }
+
+    /* Testimonios: mostrar 1 a la vez */
+    .testimonial-card {
+      flex: 0 0 100%;
+    }
+
+    /* Footer */
+    .footer__inner { grid-template-columns: 1fr; }
+    .footer__brand { grid-column: auto; }
+    .footer__bottom-inner { flex-direction: column; text-align: center; }
+
+    /* Trust stats */
+    .trust__stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ----------------------------------------------------------------
+    17. RESPONSIVE — Móvil pequeño (≤480px)
+    ---------------------------------------------------------------- */
+  @media (max-width: 480px) {
+    .hero__actions { flex-direction: column; }
+    .btn--lg { width: 100%; justify-content: center; }
+    .trust__stats { grid-template-columns: 1fr; }
+  }
+
+  /* ----------------------------------------------------------------
+    18. ACCESIBILIDAD: reducción de movimiento
+    ---------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    .reveal { opacity: 1; transform: none; }
+
+    html { scroll-behavior: auto; }
+  }
+
+  /* ----------------------------------------------------------------
+    19. FOCUS VISIBLE (accesibilidad de teclado)
+    ---------------------------------------------------------------- */
+  :focus-visible {
+    outline: 3px solid var(--clr-accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }

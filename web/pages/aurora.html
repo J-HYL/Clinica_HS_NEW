@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Mi Aurora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffe5ec 100%);
+            overflow: hidden;
+            transition: background 0.1s;
+        }
+
+        .card {
+            position: relative;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(224, 86, 151, 0.2);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            border: 1px solid rgba(255, 204, 213, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #d81b60;
+            font-size: 3.5rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(216, 27, 96, 0.1);
+        }
+
+        .image-frame {
+            position: relative;
+            width: 100%;
+            border-radius: 20px;
+            padding: 10px;
+            background: linear-gradient(135deg, #ffccd5, #ff8fa3);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .image-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px;
+        }
+
+        .riddle-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            min-height: 45px;
+        }
+
+        button {
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #d81b60;
+            transform: scale(1.05);
+        }
+
+        #btn-dinamico {
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        #success-message {
+            display: none;
+        }
+        
+        #success-message h2 {
+            font-family: 'Dancing Script', cursive;
+            color: #d81b60;
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff8fa3;
+            opacity: 0.7;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatHearts 4s infinite ease-in-out;
+        }
+        .heart:nth-child(1) { top: -20px; left: 10%; animation-delay: 0s; }
+        .heart:nth-child(2) { top: 50%; left: -30px; animation-delay: 1s; font-size: 1.2rem;}
+        .heart:nth-child(3) { bottom: -20px; right: 15%; animation-delay: 2s; }
+        .heart:nth-child(4) { top: 20%; right: -25px; animation-delay: 3s; font-size: 1.3rem;}
+
+        @keyframes floatHearts {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(20deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="romantic-card">
+        <div id="riddle-section">
+            <p class="riddle-text" id="pregunta-texto">Adivinanza: Quien ama más al otro?</p>
+            <div class="buttons-container">
+                <button onclick="checkAnswer('jhon')">Jhon</button>
+                <button id="btn-dinamico">Aurora</button>
+            </div>
+        </div>
+
+        <div id="success-message">
+            <h2>SIIII 😍</h2>
+            <div class="image-frame">
+                <img src="../auroora.jpg" alt="Aurora">
+            </div>
+            <p><strong>te amo Estupida</strong></p>
+        </div>
+    </div>
+
+    <script>
+        let contadorCambios = 0;
+        let fase = 1;
+        const btnDinamico = document.getElementById('btn-dinamico');
+        const preguntaTexto = document.getElementById('pregunta-texto');
+
+        function checkAnswer(answer) {
+            if (answer === 'jhon') {
+                if (fase === 1) {
+                    preguntaTexto.textContent = "Adivinanza: Quien ama más a Aurora?";
+                } else if (fase === 2) {
+                    document.getElementById('riddle-section').style.display = 'none';
+                    document.getElementById('success-message').style.display = 'block';
+                }
+            }
+        }
+
+        function huirBoton() {
+            contadorCambios++;
+
+            const maxX = window.innerWidth - btnDinamico.offsetWidth - 30;
+            const maxY = window.innerHeight - btnDinamico.offsetHeight - 30;
+
+            const randomX = Math.max(15, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(15, Math.floor(Math.random() * maxY));
+
+            btnDinamico.style.position = 'fixed';
+            btnDinamico.style.left = randomX + 'px';
+            btnDinamico.style.top = randomY + 'px';
+
+            if (contadorCambios === 5) {
+                btnDinamico.textContent = 'Jhon';
+                btnDinamico.removeEventListener('mouseover', huirBoton);
+                fase = 2;
+                preguntaTexto.textContent = "Adivinanza: Quien ama más a Aurora?";
+            }
+        }
+
+        btnDinamico.addEventListener('mouseover', huirBoton);
+
+        btnDinamico.addEventListener('click', function(e) {
+            if (contadorCambios < 5) {
+                e.preventDefault();
+                huirBoton();
+            } else {
+                checkAnswer('jhon');
+            }
+        });
+    </script>
+
+</body>
+</html>

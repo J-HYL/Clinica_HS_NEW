@@ -1,0 +1,226 @@
+.sidebar{
+    width: 235px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #fff;
+    position: fixed;
+    z-index: 99;
+    top: 0;
+    bottom: 0;
+    left: -80%;
+    padding: 35px 25px;
+    box-shadow: 0 10px 20px var(--pale-primary);
+    transition: .5s ease-in-out left, .3s ease-in-out visibility;
+}
+
+.sidebar.open{
+    left: 0;
+}
+
+body:has(.preloader) .sidebar{
+    visibility: hidden;
+}
+
+body:has(.preloader--hidden) .sidebar{
+    visibility: visible;
+}
+
+.sidebar__close{
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: var(--light-gray);
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.logo__name{
+    color: var(--dark-gray);
+    font-size: 1.5em;
+}
+
+.logo__version{
+    align-self: flex-end;
+    font-weight: 500;
+    font-size: 0.625em;
+    color: var(--light-gray);
+}
+
+.sidebar__content{
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.sidebar__links{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+}
+
+.sidebar__item{
+    padding: 8px;
+    cursor: pointer;
+}
+
+.sidebar__item--selected{
+    background-color: var(--primary);
+    border-radius: 8px;
+}
+
+.sidebar__item a, .sidebar__logo{
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    text-decoration: none;
+}
+
+.item__hide{
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+}
+
+.item__hide--logo{
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.sidebar__item i{
+    font-size: 20px;
+    color: var(--light-gray);
+}
+
+.item__name{
+    color: var(--pale-gray);
+    font-weight: 500;
+    font-size: 0.875em;
+}
+
+.item__chevron{
+    font-size: 14px;
+    color: var(--light-gray);
+}
+
+.sidebar__item i, .item__name, .item__chevron{
+    transition: .3s ease-in-out color;
+}
+
+.sidebar__item--selected .item__name, .sidebar__item--selected i, .sidebar__item--selected .item__chevron{
+    color: #fff;
+}
+
+.sidebar__item:hover i, .sidebar__item:hover .item__name, .sidebar__item:hover .item__chevron{
+    color: var(--primary);
+}
+
+.sidebar__item--selected:hover i, .sidebar__item--selected:hover .item__name, .sidebar__item--selected:hover .item__chevron{
+    color: #fff;
+}
+
+.sidebar__socials{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.socials__item{
+    width: 32px;
+    height: 32px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transition: .3s ease-in-out scale;
+}
+
+.socials__item a{
+    text-decoration: none;
+    color: #fff;
+    font-size: 20px;
+}
+
+.socials__item:hover{
+    scale: 1.1;
+}
+
+/* Responsive */
+
+@media screen and (min-width: 744px) {
+    .sidebar__close{
+        display: none;
+    }
+
+    .sidebar{
+        width: 100px;
+        align-items: center;
+        left: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .sidebar:hover{
+        width: 235px;
+    }
+
+    .sidebar__item a, .sidebar__logo{
+        width: 100%;
+        display: grid;
+        gap: 0px;
+        transition: .3s ease-in-out grid-template-columns, .3s ease-in-out gap;
+    }
+
+    .sidebar__item a{
+        grid-template-columns: 24px 0fr;
+    }
+
+    .sidebar:hover .sidebar__item a{
+        grid-template-columns: 24px 1fr;
+    }
+
+    .sidebar__logo{
+        grid-template-columns: 38px 0fr;
+    }
+
+    .sidebar:hover .sidebar__logo{
+        grid-template-columns: 38px 1fr;
+    }
+
+    .sidebar:hover .sidebar__item a, .sidebar:hover .sidebar__logo{
+        gap: 8px;
+    }
+
+    .sidebar__content{
+        align-items: center;
+    }
+
+    .sidebar__item i{
+        font-size: 24px;
+    }
+
+    .sidebar__links{
+        gap: 24px;
+    }
+
+    .item__name{
+        font-size: 1em;
+    }
+
+    .sidebar__socials{
+        width: 0;
+        overflow: hidden;
+        transition: .3s ease-in-out width;
+    }
+
+    .sidebar:hover .sidebar__socials{
+        width: 132px;
+    }
+}

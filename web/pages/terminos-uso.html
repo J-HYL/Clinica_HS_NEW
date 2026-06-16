@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos de Uso - HSDental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* VARIABLES & BASE */
+        :root {
+            --clr-bg:           #f6f9f9;
+            --clr-text:         #272626;
+            --clr-text-sec:     #949494;
+            --clr-border:       #c4c4c4;
+            --clr-border-blue:  #c3d0f8;
+            --clr-accent:       #5671eb;
+            --clr-accent-dark:  #3f57cc;
+            --clr-accent-light: #dde4fb;
+            --clr-blue-2:       #6c8cdc;
+            --clr-blue-3:       #91a0e4;
+            --clr-blue-4:       #747ccc;
+            --clr-blue-5:       #b6bce7;
+            --clr-white:        #ffffff;
+            --clr-surface:      #f0f4ff;
+            --font-sans:   'Montserrat', sans-serif;
+            --font-serif:  'DM Serif Display', serif;
+            --space-xs:   0.5rem;
+            --space-sm:   0.875rem;
+            --space-md:   1.5rem;
+            --space-lg:   2.5rem;
+            --space-xl:   4rem;
+            --space-xxl:  7rem;
+            --radius-sm:  0.5rem;
+            --radius-md:  1rem;
+            --radius-lg:  1.5rem;
+            --radius-xl:  2rem;
+            --radius-pill: 9999px;
+            --shadow-sm:  0 2px 8px rgba(86,113,235,.08);
+            --shadow-md:  0 6px 24px rgba(86,113,235,.12);
+            --shadow-lg:  0 16px 48px rgba(86,113,235,.16);
+            --transition: 0.28s ease;
+            --container: 1240px;
+            --container-pad: 1.5rem;
+            --navbar-h: 72px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-sans); background-color: var(--clr-bg); color: var(--clr-text); line-height: 1.65; }
+        a { color: inherit; text-decoration: none; transition: color var(--transition); }
+        .container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--container-pad); }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3, h4 { line-height: 1.18; font-weight: 700; }
+        h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: var(--space-md); }
+        h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: var(--space-sm); color: var(--clr-accent); }
+        h3 { font-size: clamp(1.1rem, 2vw, 1.25rem); margin-bottom: var(--space-xs); }
+        p { margin-bottom: var(--space-sm); max-width: 75ch; }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; inset-block-start: 0; inset-inline: 0; z-index: 1000;
+            height: var(--navbar-h); background: rgba(246,249,249,.88);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .navbar__inner { display: flex; align-items: center; height: 100%; gap: var(--space-md); }
+        .navbar__logo img { height: 52px; width: auto; }
+        .navbar__nav { margin-inline-start: auto; }
+        .navbar__list { display: flex; gap: 0.25rem; list-style: none; list-style: none; }
+        .navbar__link {
+            display: block; padding: 0.45em 0.9em; border-radius: var(--radius-pill);
+            font-size: 0.9rem; font-weight: 500; color: var(--clr-text);
+            transition: background var(--transition), color var(--transition);
+        }
+        .navbar__link:hover { background: var(--clr-accent-light); color: var(--clr-accent); }
+        .navbar__toggle {
+            display: none; flex-direction: column; gap: 5px; padding: 6px;
+            border-radius: var(--radius-sm); margin-inline-start: auto;
+        }
+        .navbar__toggle-line {
+            display: block; width: 24px; height: 2px; background: var(--clr-text);
+            border-radius: 2px; transition: transform var(--transition), opacity var(--transition);
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-blue-4) 100%);
+            padding-block: calc(var(--space-xxl) + var(--navbar-h)) var(--space-xxl);
+            margin-block-start: var(--navbar-h);
+            text-align: center;
+        }
+        .page-header__badge {
+            display: inline-block; background: rgba(255,255,255,.25); color: var(--clr-white);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; padding: 0.3em 1em; border-radius: var(--radius-pill);
+            margin-bottom: var(--space-sm);
+        }
+        .page-header__title { color: var(--clr-white); font-family: var(--font-serif); }
+
+        /* CONTENT SECTION */
+        .content-section { padding-block: var(--space-xxl); background: var(--clr-white); }
+        .content-section--gray { background: var(--clr-bg); }
+        .content-block { margin-bottom: var(--space-lg); }
+        .content-block:last-child { margin-bottom: 0; }
+
+        /* LISTS */
+        .info-list { list-style: none; }
+        .info-list li {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--clr-border-blue);
+            display: flex; gap: var(--space-sm);
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-list li::before {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free';
+            font-weight: 900; color: var(--clr-accent); flex-shrink: 0;
+        }
+
+        /* DATA TABLE */
+        .data-table {
+            width: 100%; border-collapse: collapse;
+            background: var(--clr-white); border-radius: var(--radius-md);
+            overflow: hidden; box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-md);
+        }
+        .data-table th, .data-table td {
+            padding: var(--space-sm) var(--space-md);
+            text-align: left; border-bottom: 1px solid var(--clr-border-blue);
+        }
+        .data-table th {
+            background: var(--clr-accent-light); color: var(--clr-accent);
+            font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover { background: var(--clr-surface); }
+
+        /* CONTACT CARD */
+        .contact-card {
+            background: var(--clr-surface); border-left: 4px solid var(--clr-accent);
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin-top: var(--space-md);
+        }
+        .contact-card__title {
+            font-size: 1rem; font-weight: 700; color: var(--clr-accent);
+            margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 0.5rem;
+        }
+        .contact-card p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .contact-card a { color: var(--clr-accent); font-weight: 600; }
+
+        /* ALERT BOX */
+        .alert-box {
+            background: #fff3cd; border-left: 4px solid #ffc107;
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin: var(--space-md) 0;
+        }
+        .alert-box__title {
+            font-size: 0.95rem; font-weight: 700; color: #856404;
+            margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .alert-box p { margin-bottom: 0; font-size: 0.9rem; color: #856404; }
+
+        /* INFO BOX */
+        .info-box {
+            background: #e7f3ff; border: 1px solid var(--clr-accent-light);
+            padding: var(--space-md); border-radius: var(--radius-sm);
+            margin: var(--space-md) 0;
+        }
+        .info-box__title {
+            font-size: 0.95rem; font-weight: 700; color: var(--clr-accent-dark);
+            margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .info-box p { margin-bottom: 0; font-size: 0.9rem; color: var(--clr-accent-dark); }
+
+        /* CTA BUTTON */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-family: var(--font-sans); font-weight: 600; font-size: 0.94rem;
+            padding: 0.72em 1.6em; border-radius: var(--radius-pill);
+            cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+            border: 2px solid transparent; text-decoration: none;
+        }
+        .btn--primary {
+            background: var(--clr-accent); color: var(--clr-white);
+            box-shadow: 0 4px 18px rgba(86,113,235,.35);
+        }
+        .btn--primary:hover {
+            background: var(--clr-accent-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(86,113,235,.42);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--clr-text); color: rgba(255,255,255,.7);
+            padding-block-start: var(--space-xl);
+        }
+        .footer__inner {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--space-lg); padding-bottom: var(--space-xl);
+        }
+        .footer__brand { max-width: 280px; }
+        .footer__brand img { margin-bottom: var(--space-sm); }
+        .footer__tagline { font-size: 0.88rem; line-height: 1.65; margin-bottom: var(--space-md); }
+        .footer__social { display: flex; gap: 0.6rem; }
+        .footer__social-link {
+            width: 38px; height: 38px; background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius-sm);
+            display: grid; place-items: center; color: rgba(255,255,255,.7);
+            transition: background var(--transition), transform var(--transition);
+        }
+        .footer__social-link:hover {
+            background: var(--clr-accent); color: var(--clr-white);
+            transform: translateY(-2px); border-color: var(--clr-accent);
+        }
+        .footer__col-title {
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--clr-white); margin-bottom: var(--space-md);
+        }
+        .footer__list { display: flex; flex-direction: column; gap: 0.5rem; list-style: none; }
+        .footer__link { font-size: 0.88rem; transition: color var(--transition); }
+        .footer__link:hover { color: var(--clr-white); }
+        .footer__bottom {
+            border-top: 1px solid rgba(255,255,255,.08); padding-block: var(--space-md);
+        }
+        .footer__bottom-inner {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: var(--space-sm); font-size: 0.8rem; color: rgba(255,255,255,.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .footer__inner { grid-template-columns: 1fr 1fr; }
+            .footer__brand { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .navbar__nav {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: var(--clr-bg); padding: var(--space-md);
+                transform: translateX(100%); transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+                z-index: 999; overflow-y: auto;
+            }
+            .navbar__nav.is-open { transform: none; }
+            .navbar__list { flex-direction: column; width: 100%; }
+            .navbar__toggle { display: flex; }
+            .navbar__cta { display: none; }
+            .footer__inner { grid-template-columns: 1fr; }
+            .footer__brand { grid-column: auto; }
+            .footer__bottom-inner { flex-direction: column; text-align: center; }
+            .data-table { font-size: 0.85rem; }
+            .data-table th, .data-table td { padding: var(--space-xs); }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container navbar__inner">
+            <a href="../index.html" class="navbar__logo">
+                <img src="../assets/LOGO_HS.png" alt="HSDental Logo">
+            </a>
+            <div class="navbar__nav" id="navbarNav">
+                <ul class="navbar__list">
+                    <li><a href="../index.html" class="navbar__link">Inicio</a></li>
+                    <li><a href="../index.html#servicios" class="navbar__link">Servicios</a></li>
+                    <li><a href="../index.html#contacto" class="navbar__link">Contacto</a></li>
+                </ul>
+            </div>
+            <button class="navbar__toggle" id="navbarToggle" aria-label="Menu" aria-expanded="false">
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+                <span class="navbar__toggle-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+        <div class="container">
+            <span class="page-header__badge">Información Legal</span>
+            <h1 class="page-header__title">Términos de Uso</h1>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- INTRO SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <div class="content-block">
+                    <p>Bienvenido a <strong>www.hsdental.es</strong>. Los presentes Términos de Uso regulan el acceso y utilización de este sitio web, propiedad de <strong>HAU YON SALAZAR S.L.</strong> (en adelante, "HSDental", "nosotros", "nuestro").</p>
+                    <p>Al acceder o utilizar este sitio web, usted (en adelante, "el Usuario" o "usted") acepta estar legalmente vinculado por estos Términos de Uso. Si no está de acuerdo con alguna parte de estos términos, le rogamos no utilice este sitio web.</p>
+                </div>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Importante
+                    </div>
+                    <p style="margin-bottom: 0;">Nos reservamos el derecho de modificar estos Términos de Uso en cualquier momento. Le recomendamos revisarlos periódicamente. El uso continuado del sitio web tras las modificaciones implica su aceptación.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACCEPTANCE SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>1. Aceptación de los Términos</h2>
+                <p>El acceso y navegación en este Sitio Web atribuye la condición de Usuario y expresa la aceptación plena y sin reservas de todas y cada una de las disposiciones incluidas en estos Términos de Uso.</p>
+
+                <h3 style="margin-top: var(--space-md);">Al utilizar este sitio web, usted declara y garantiza que:</h3>
+                <ul class="info-list">
+                    <li>Tiene capacidad legal suficiente para contratar y aceptar estos términos.</li>
+                    <li>Utilizará el sitio web de conformidad con la ley y estos Términos de Uso.</li>
+                    <li>La información que proporcione será veraz, exacta y completa.</li>
+                    <li>No utilizará el sitio web para fines ilícitos o prohibidos.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SERVICES SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>2. Servicios Ofrecidos</h2>
+                <p>HSDental pone a disposición de los Usuarios el sitio web con los siguientes servicios:</p>
+
+                <h3 style="margin-top: var(--space-md);">Información general</h3>
+                <ul class="info-list">
+                    <li>Información sobre nuestros servicios dentales y tratamientos.</li>
+                    <li>Presentación del equipo profesional y las instalaciones.</li>
+                    <li>Ubicación y datos de contacto de nuestras clínicas en Móstoles y Alcorcón.</li>
+                    <li>Información sobre horarios y formas de contacto.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Servicios interactivos</h3>
+                <ul class="info-list">
+                    <li>Formulario de contacto para solicitudes de información.</li>
+                    <li>Solicitud de citas a través de los canales habilitados.</li>
+                    <li>Envío de comunicaciones a través de los formularios del sitio web.</li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-box__title">
+                        <i class="fas fa-info-circle"></i>
+                        Nota Importante
+                    </div>
+                    <p style="margin-bottom: 0;">La información contenida en este sitio web tiene carácter meramente informativo y no sustituye en ningún caso el diagnóstico, consejo o tratamiento profesional. Consulte siempre con su odontólogo o profesional sanitario cualificado.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- USER OBLIGATIONS SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>3. Obligaciones del Usuario</h2>
+                <p>El Usuario se compromete a utilizar el sitio web de conformidad con la ley, la moral, el orden público y los presentes Términos de Uso.</p>
+
+                <h3 style="margin-top: var(--space-md);">Queda expresamente prohibido:</h3>
+                <ul class="info-list">
+                    <li>Utilizar el sitio web para realizar actividades ilícitas, lesivas de derechos de terceros, o que puedan dañar de cualquier forma el sitio web.</li>
+                    <li>Introducir o difundir virus informáticos, programas maliciosos o cualquier código destructivo.</li>
+                    <li>Acceder mediante suplantación de identidad a las áreas de uso restringido.</li>
+                    <li>Utilizar datos, contraseñas o credenciales de terceros sin autorización.</li>
+                    <li>Realizar acciones que puedan saturar, sobrecargar o deteriorar el rendimiento del sitio web.</li>
+                    <li>Extraer y/o reutilizar la totalidad o parte sustancial de los contenidos (scraping, data mining, crawling).</li>
+                    <li>Eludir o intentar eludir las medidas de seguridad instaladas.</li>
+                    <li>Utilizar robots, spiders u otros medios automáticos para acceder al sitio web.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Responsabilidad del Usuario</h3>
+                <p>El Usuario será el único responsable de las infracciones en las que pueda incurrir y de los perjuicios que pueda causar a HSDental o a terceros por el incumplimiento de estas obligaciones.</p>
+            </div>
+        </section>
+
+        <!-- REGISTRATION SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>4. Registro y Cuentas de Usuario</h2>
+                <p>Para acceder a determinados servicios, puede ser necesario registrarse o proporcionar información personal.</p>
+
+                <h3 style="margin-top: var(--space-md);">El Usuario se compromete a:</h3>
+                <ul class="info-list">
+                    <li>Proporcionar información veraz, exacta, completa y actualizada.</li>
+                    <li>Mantener la confidencialidad de sus credenciales de acceso.</li>
+                    <li>Notificar inmediatamente cualquier uso no autorizado de su cuenta.</li>
+                    <li>No transferir ni compartir sus credenciales con terceros.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">HSDental se reserva el derecho de:</h3>
+                <ul class="info-list">
+                    <li>Rechazar o cancelar cualquier registro que considere inapropiado.</li>
+                    <li>Suspender o terminar el acceso de cualquier Usuario que incumpla estos términos.</li>
+                    <li>Modificar o discontinuar cualquier servicio sin previo aviso.</li>
+                </ul>
+
+                <div class="alert-box">
+                    <div class="alert-box__title">
+                        <i class="fas fa-shield-alt"></i>
+                        Seguridad de la Cuenta
+                    </div>
+                    <p style="margin-bottom: 0;">Usted es responsable de todas las actividades que ocurran bajo su cuenta. Notifíquenos inmediatamente cualquier uso no autorizado en hsdental00@gmail.com.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- APPOINTMENTS SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>5. Solicitudes de Citas</h2>
+                <p>Las solicitudes de cita realizadas a través del sitio web están sujetas a las siguientes condiciones:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Condición</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Confirmación</strong></td>
+                            <td>Las citas no se consideran confirmadas hasta que reciba una comunicación de nuestro personal.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Disponibilidad</strong></td>
+                            <td>Las citas están sujetas a disponibilidad y pueden verse modificadas por causas justificadas.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cancelación</strong></td>
+                            <td>Debe cancelar con al menos 24 horas de antelación para evitar posibles cargos.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Información veraz</strong></td>
+                            <td>Debe proporcionar información de contacto válida y actualizada.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: var(--space-md);">Política de cancelación</h3>
+                <p>Las cancelaciones realizadas con menos de 24 horas de antelación podrán generar un cargo administrativo. Las incomparecencias sin aviso previo (no-show) podrán ser facturadas según el tipo de tratamiento reservado.</p>
+            </div>
+        </section>
+
+        <!-- CONTENT ACCURACY SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>6. Exactitud de la Información</h2>
+                <p>HSDental se esfuerza por mantener la información del sitio web actualizada y correcta. Sin embargo:</p>
+
+                <ul class="info-list">
+                    <li>La información puede contener errores tipográficos o inexactitudes ocasionales.</li>
+                    <li>Los precios y servicios pueden cambiar sin previo aviso.</li>
+                    <li>Las imágenes son meramente ilustrativas y los resultados reales pueden variar.</li>
+                    <li>La disponibilidad de servicios puede cambiar según circunstancias operativas.</li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-box__title">
+                        <i class="fas fa-stethoscope"></i>
+                        Información Médica
+                    </div>
+                    <p style="margin-bottom: 0;">La información sobre tratamientos dentales es de carácter general. Cada paciente requiere una evaluación individualizada. Consulte con nuestro equipo profesional para obtener información específica sobre su caso.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TERMINATION SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>7. Suspensión y Terminación</h2>
+                <p>HSDental se reserva el derecho de suspender o terminar el acceso de cualquier Usuario al sitio web, en todo momento y sin previo aviso, por motivos incluyendo, entre otros:</p>
+
+                <ul class="info-list">
+                    <li>Incumplimiento de estos Términos de Uso.</li>
+                    <li>Conducta abusiva, fraudulenta o ilegal.</li>
+                    <li>Solicitudes de autoridades judiciales o administrativas.</li>
+                    <li>Motivos técnicos o de seguridad.</li>
+                    <li>Mantenimiento programado del sitio web.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Efectos de la terminación</h3>
+                <p>En caso de suspensión o terminación, las disposiciones de estos Términos que por su naturaleza deban subsistir (propiedad intelectual, limitación de responsabilidad, ley aplicable) continuarán vigentes.</p>
+            </div>
+        </section>
+
+        <!-- LIMITATION OF LIABILITY SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>8. Limitación de Responsabilidad</h2>
+
+                <h3 style="margin-top: var(--space-md);">Disponibilidad del sitio</h3>
+                <p>HSDental no garantiza la disponibilidad continua del sitio web, que podrá verse interrumpido por mantenimiento, actualizaciones o causas técnicas.</p>
+
+                <h3 style="margin-top: var(--space-md);">Enlaces a terceros</h3>
+                <p>El sitio web puede contener enlaces a sitios de terceros. HSDental no se responsabiliza de:</p>
+                <ul class="info-list">
+                    <li>La legalidad, veracidad o calidad de los contenidos de sitios enlazados.</li>
+                    <li>Las políticas de privacidad de los sitios de terceros.</li>
+                    <li>Los daños que puedan derivarse del acceso a sitios externos.</li>
+                </ul>
+
+                <h3 style="margin-top: var(--space-md);">Daños y perjuicios</h3>
+                <p>En la máxima medida permitida por la ley, HSDental no será responsable por:</p>
+                <ul class="info-list">
+                    <li>Daños indirectos, incidentales o consecuentes.</li>
+                    <li>Pérdida de datos, beneficios o expectativas.</li>
+                    <li>Errores o interrupciones en el funcionamiento del sitio web.</li>
+                    <li>Decisiones tomadas basándose en la información del sitio web.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODIFICATIONS SECTION -->
+        <section class="content-section content-section--gray">
+            <div class="container">
+                <h2>9. Modificaciones de los Términos</h2>
+                <p>HSDental se reserva el derecho de modificar estos Términos de Uso en cualquier momento.</p>
+
+                <h3 style="margin-top: var(--space-md);">Procedimiento de modificación</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Notificación</strong></td>
+                            <td>Los cambios se publicarán en esta página con indicación de la fecha de actualización.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Efectividad</strong></td>
+                            <td>Los cambios entrarán en vigor inmediatamente después de su publicación.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aceptación</strong></td>
+                            <td>El uso continuado del sitio web implica la aceptación de los nuevos términos.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top: var(--space-sm);">Le recomendamos revisar periódicamente esta página para estar informado de cualquier cambio.</p>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section class="content-section">
+            <div class="container">
+                <h2>10. Contacto</h2>
+                <p>Si tiene alguna duda o pregunta sobre estos Términos de Uso, puede contactarnos a través de:</p>
+
+                <div class="contact-card">
+                    <div class="contact-card__title">
+                        <i class="fas fa-envelope"></i>
+                        Datos de Contacto
+                    </div>
+                    <p><strong>Email:</strong> <a href="mailto:hsdental00@gmail.com">hsdental00@gmail.com</a></p>
+                    <p><strong>Teléfono:</strong> +34 624 26 48 25</p>
+                    <p><strong>Dirección:</strong> Calle Cruz Roja, 7, 1ºE 28400 Collado Villalba, Madrid, España</p>
+                    <p style="margin-bottom: 0;"><strong>Clínicas:</strong> Móstoles y Alcorcón (Madrid)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA SECTION -->
+        <section class="content-section">
+            <div class="container" style="text-align: center;">
+                <h2>¿Tiene alguna pregunta?</h2>
+                <p style="margin: var(--space-md) auto;">Nuestro equipo está disponible para resolver cualquier duda sobre nuestros servicios o condiciones de uso.</p>
+                <a href="../index.html#contacto" class="btn btn--primary">
+                    <i class="fas fa-envelope"></i> Contactar
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__inner">
+                <div class="footer__brand">
+                    <img src="../assets/LOGO_HS.png" alt="HSDental" style="height: 50px; background: #fff; border-radius: 8px; padding: 8px;">
+                    <p class="footer__tagline">Su clínica dental de confianza en Móstoles y Alcorcón. Cuidamos de su sonrisa con la mejor tecnología y profesionales.</p>
+                    <div class="footer__social">
+                        <a href="#" class="footer__social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer__social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Clínicas</h4>
+                    <ul class="footer__list">
+                        <li><a href="#" class="footer__link">Móstoles</a></li>
+                        <li><a href="#" class="footer__link">Alcorcón</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Legal</h4>
+                    <ul class="footer__list">
+                        <li><a href="./politica-privacidad.html" class="footer__link">Política de Privacidad</a></li>
+                        <li><a href="./aviso-legal.html" class="footer__link">Aviso Legal</a></li>
+                        <li><a href="./politica-cookies.html" class="footer__link">Política de Cookies</a></li>
+                        <li><a href="./terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">Contacto</h4>
+                    <ul class="footer__list">
+                        <li><a href="mailto:hsdental00@gmail.com" class="footer__link">hsdental00@gmail.com</a></li>
+                        <li><a href="tel:+34624264825" class="footer__link">+34 624 26 48 25</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <div class="container footer__bottom-inner">
+                    <span>&copy; 2026 HAU YON SALAZAR S.L. Todos los derechos reservados.</span>
+                    <span class="footer__disclaimer">Nº Registro Sanitario: CS0612</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navbar toggle
+        const toggle = document.getElementById('navbarToggle');
+        const nav = document.getElementById('navbarNav');
+        toggle?.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !expanded);
+            nav.classList.toggle('is-open');
+        });
+    </script>
+</body>
+</html>

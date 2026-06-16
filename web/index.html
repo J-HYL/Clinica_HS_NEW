@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="HSDental - Clínica dental moderna. Sonrisas que transforman vidas con tecnología de vanguardia." />
+  <title>HSDental</title>
+
+  <!-- Fuentes Google: Montserrat + DM Serif Display para jerarquía tipográfica -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/LOGO_HS.png" type="image/png">
+  <!-- Iconos: Font Awesome 6 Free -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <header class="navbar" id="navbar" role="banner">
+    <div class="navbar__inner container">
+
+      <!-- Logo: imagen placeholder con texto alternativo accesible -->
+      <a href="#inicio" class="navbar__logo" aria-label="HSDental - Inicio">
+        <img src="assets/logoCompleto-removebg-preview.png" alt="HSDental Logo" loading="eager" />
+      </a>
+
+      <!-- Navegación principal -->
+      <nav class="navbar__nav" id="main-nav" role="navigation" aria-label="Menú principal">
+        <ul class="navbar__list">
+          <li><a href="#inicio"    class="navbar__link">Inicio</a></li>
+          <li><a href="#servicios" class="navbar__link">Servicios</a></li>
+          <li><a href="#nosotros"  class="navbar__link">Nosotros</a></li>
+          <li><a href="#contacto"  class="navbar__link">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <!-- CTA destacado -->
+      <a href="#contacto" class="btn btn--primary navbar__cta">Agendar Cita</a>
+
+      <!-- Botón hamburguesa para móviles -->
+      <button class="navbar__toggle" id="menu-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="main-nav">
+        <span class="navbar__toggle-line"></span>
+        <span class="navbar__toggle-line"></span>
+        <span class="navbar__toggle-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+         HERO SECTION
+    ============================================================ -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <!-- Fondo decorativo con formas geométricas -->
+      <div class="hero__bg-shapes" aria-hidden="true">
+        <div class="shape shape--1"></div>
+        <div class="shape shape--2"></div>
+        <div class="shape shape--3"></div>
+      </div>
+
+      <div class="container hero__inner">
+
+        <!-- Columna de texto -->
+        <div class="hero__content reveal">
+          <span class="hero__badge">✦ Tecnología dental de vanguardia</span>
+          <h1 class="hero__title" id="hero-title">
+            Sonrisas que<br />
+            <em>Transforman</em><br />
+            Vidas
+          </h1>
+          <p class="hero__subtitle">
+            En <strong>HSDental</strong> combinamos diagnóstico digital de precisión,
+            materiales de última generación y un equipo especializado para ofrecerte
+            tratamientos sin dolor que renuevan tu confianza desde la primera visita.
+          </p>
+          <div class="hero__actions">
+            <a href="#contacto" class="btn btn--primary btn--lg">Agendar mi cita gratis</a>
+            <a href="#servicios" class="btn btn--ghost btn--lg">Ver servicios →</a>
+          </div>
+          <!-- Micro-trust badges -->
+          <ul class="hero__trust" aria-label="Certificaciones">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Certificado ISO 9001
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Sin dolor garantizado
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Financiación a tu medida
+            </li>
+          </ul>
+        </div>
+
+        <!-- Columna de imagen -->
+        <div class="hero__image reveal reveal--delay-1">
+          <div class="hero__image-wrap">
+            <img
+              src="assets/consultorio.jpeg"
+              alt="Dentista profesional realizando diagnóstico digital a paciente sonriente"
+              width="620" height="680"
+              loading="eager"
+              class="hero__img"
+            />
+            <!-- Tarjeta flotante de stats -->
+            <div class="hero__float-card" aria-hidden="true">
+              <span class="hero__float-num">1.000<sup>+</sup></span>
+              <span class="hero__float-label">Pacientes satisfechos</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SERVICIOS
+    ============================================================ -->
+    <section class="services" id="servicios" aria-labelledby="services-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-badge">Nuestros tratamientos</span>
+          <h2 class="section-title" id="services-title">Soluciones para cada sonrisa</h2>
+          <p class="section-desc">Tecnología de diagnóstico 3D y materiales biocompatibles de última generación al servicio de tu salud bucodental.</p>
+          <p class="section-desc" style="margin-top: 1rem; font-size: 0.95rem;"><a href="#contacto" class="link" style="font-weight: 600;">Consulta para más información</a></p>
+        </div>
+
+        <div class="services__grid">
+
+          <!-- Tarjeta 1: Limpieza Dental -->
+          <article class="service-card reveal" style="--card-accent: #5671eb; --card-bg: #eef1fc;">
+            <div class="service-card__icon-wrap">
+              <i class="fas fa-tooth service-card__icon" aria-hidden="true"></i>
+            </div>
+            <div class="service-card__img-wrap">
+              <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=75&auto=format&fit=crop" alt="Limpieza dental profesional" width="400" height="200" loading="lazy" />
+            </div>
+            <h3 class="service-card__title">Limpieza Dental</h3>
+            <p class="service-card__desc">Elimina el sarro y la placa bacteriana con ultrasonidos de precisión. Previene enfermedades periodontales y te deja una sensación de frescura duradera.</p>
+            <a href="#contacto" class="service-card__link" aria-label="Agendar cita para limpieza dental">Consultar precio →</a>
+          </article>
+
+          <!-- Tarjeta 2: Ortodoncia -->
+          <article class="service-card reveal reveal--delay-1" style="--card-accent: #6c8cdc; --card-bg: #edf1fb;">
+            <div class="service-card__icon-wrap">
+              <i class="fas fa-tooth service-card__icon" aria-hidden="true"></i>
+            </div>
+            <div class="service-card__img-wrap">
+              <img src="https://img.freepik.com/foto-gratis/mujer-que-usa-aparatos-ortodoncicos-invisibles-silicona_107420-74181.jpg" alt="Tratamiento de ortodoncia con alineadores" width="400" height="200" loading="lazy" />
+            </div>
+            <h3 class="service-card__title">Ortodoncia Invisible</h3>
+            <p class="service-card__desc">Alineadores removibles de alta tecnología que corrigen la posición de tus dientes sin brackets. Cómodos, estéticos y diseñados con escáner 3D personalizado.</p>
+            <a href="#contacto" class="service-card__link" aria-label="Agendar cita para ortodoncia">Consultar precio →</a>
+          </article>
+
+          <!-- Tarjeta 3: Implantes -->
+          <article class="service-card reveal reveal--delay-2" style="--card-accent: #6c8cdc; --card-bg: #efeffb;">
+            <div class="service-card__icon-wrap">
+              <i class="fas fa-tooth service-card__icon" aria-hidden="true"></i>
+            </div>
+            <div class="service-card__img-wrap">
+              <img src="https://img.freepik.com/vector-gratis/protesis-dentales-dientes-sanos_1284-32619.jpg" alt="Implante dental de titanio de alta precisión" width="400" height="200" loading="lazy" />
+            </div>
+            <h3 class="service-card__title">Implantes Dentales</h3>
+            <p class="service-card__desc">Implantes de titanio con protocolo de carga inmediata. Recupera la funcionalidad completa y la estética natural en una sola jornada con planificación digital guiada.</p>
+            <a href="#contacto" class="service-card__link" aria-label="Agendar cita para implantes">Consultar precio →</a>
+          </article>
+
+          <!-- Tarjeta 4: Estética Dental -->
+          <article class="service-card reveal reveal--delay-3" style="--card-accent: #6c8cdc; --card-bg: #f0f2fb;">
+            <div class="service-card__icon-wrap">
+              <i class="fas fa-tooth service-card__icon" aria-hidden="true"></i>
+            </div>
+            <div class="service-card__img-wrap">
+              <img src="https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=400&q=75&auto=format&fit=crop" alt="Blanqueamiento dental y carillas de porcelana" width="400" height="200" loading="lazy" />
+            </div>
+            <h3 class="service-card__title">Estética Dental</h3>
+            <p class="service-card__desc">Carillas de porcelana ultrafinas y diseño de sonrisa digital. Transforma tu imagen con resultados naturales e instantáneos.</p>
+            <a href="#contacto" class="service-card__link" aria-label="Agendar cita para estética dental">Consultar precio →</a>
+          </article>
+
+          <!-- Tarjeta 5: Endodoncia -->
+          <article class="service-card reveal reveal--delay-1" style="--card-accent: #6c8cdc; --card-bg: #f3f4fc;">
+            <div class="service-card__icon-wrap">
+              <i class="fas fa-tooth service-card__icon" aria-hidden="true"></i>
+            </div>
+            <div class="service-card__img-wrap">
+              <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&q=75&auto=format&fit=crop" alt="Endodoncia sin dolor con tecnología rotacional" width="400" height="200" loading="lazy" />
+            </div>
+            <h3 class="service-card__title">Endodoncia sin Dolor</h3>
+            <p class="service-card__desc">Tratamientos de conducto con instrumentación rotatoria de níquel-titanio y anestesia de precisión computarizada. Salva tu diente natural sin molestias.</p>
+            <a href="#contacto" class="service-card__link" aria-label="Agendar cita para endodoncia">Consultar precio →</a>
+          </article>
+
+          <!-- Tarjeta 6: Odontopediatría -->
+          <article class="service-card reveal reveal--delay-2" style="--card-accent: #6c8cdc; --card-bg: #edf1fb;">
+            <div class="service-card__icon-wrap">
+              <i class="fas fa-tooth service-card__icon" aria-hidden="true"></i>
+            </div>
+            <div class="service-card__img-wrap">
+              <img src="https://img.freepik.com/foto-gratis/dentista-limpiando-dientes-nino_23-2149195877.jpg" alt="Odontopediatría para niños" width="400" height="200" loading="lazy" />
+            </div>
+            <h3 class="service-card__title">Odontopediatría</h3>
+            <p class="service-card__desc">Consulta adaptada para los más pequeños. Creamos experiencias positivas con técnica TDA (Tell-Do-Ask) para que los niños amen visitar al dentista desde el primer día.</p>
+            <a href="#contacto" class="service-card__link" aria-label="Agendar cita para odontopediatría">Consultar precio →</a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECCIÓN DE CONFIANZA / STATS
+    ============================================================ -->
+    <section class="trust" id="nosotros" aria-labelledby="trust-title">
+      <div class="trust__bg" aria-hidden="true"></div>
+      <div class="container trust__inner">
+
+        <!-- Columna de texto -->
+        <div class="trust__content reveal">
+          <span class="section-badge section-badge--light">Sobre HSDental</span>
+          <h2 class="section-title trust__title" id="trust-title">
+            Comprometidos con<br />tu salud bucodental
+          </h2>
+          <p class="trust__desc">
+            Con mas de 30 años de experiencia, <strong>HSDental El Greco</strong> nació con una visión clara: hacer
+            accesible la odontología de alto nivel sin renunciar a la calidez humana.
+            Nuestro equipo de 12 especialistas combina más de 80 años de experiencia
+            acumulada con formación continua en las técnicas más innovadoras del mundo.
+          </p>
+          <p class="trust__desc">
+            Gracias a nuestra tecnología de escaneado avanzado, eliminamos las molestias del pasado para ofrecerte 
+            diagnósticos más rápidos, cómodos y de una precisión absoluta. Innovamos cada día para que tu única 
+            preocupación sea lucir tu mejor versión.
+          </p>
+        </div>
+
+        <!-- Columna de stats -->
+        <div class="trust__stats reveal reveal--delay-1" aria-label="Estadísticas de la clínica">
+          <div class="stat-card">
+            <span class="stat-card__num" data-target="1000" aria-label="Más de 1000 pacientes felices">0</span>
+            <span class="stat-card__label">Pacientes felices</span>
+            <div class="stat-card__bar"><div class="stat-card__fill" style="width:92%"></div></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__num" data-target="30" aria-label="Más de 30 años de experiencia">0</span>
+            <span class="stat-card__label">Años de experiencia</span>
+            <div class="stat-card__bar"><div class="stat-card__fill" style="width:78%"></div></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__num" data-target="10" aria-label="10 especialistas en plantilla">0</span>
+            <span class="stat-card__label">Especialistas</span>
+            <div class="stat-card__bar"><div class="stat-card__fill" style="width:60%"></div></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__num" data-target="99" aria-label="99 por ciento de satisfacción">0</span>
+            <span class="stat-card__label">% Satisfacción</span>
+            <div class="stat-card__bar"><div class="stat-card__fill" style="width:99%"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TESTIMONIOS
+    ============================================================ -->
+    <section class="testimonials" aria-labelledby="testimonials-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-badge">Lo que dicen nuestros pacientes</span>
+          <h2 class="section-title" id="testimonials-title">Historias reales, sonrisas reales</h2>
+        </div>
+
+        <!-- Carrusel de testimonios -->
+        <div class="testimonials__carousel" id="testimonials-carousel" role="region" aria-label="Testimonios de pacientes">
+          <div class="testimonials__track" id="testimonials-track">
+
+            <!-- Testimonio 1 -->
+            <article class="testimonial-card" aria-label="Testimonio de María González">
+              <div class="testimonial-card__stars" aria-label="5 estrellas">
+                ★★★★★
+              </div>
+              <blockquote class="testimonial-card__text">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit fuga ex, error optio ratione quia incidunt, ea dignissimos vero, saepe odio ullam expedita exercitationem amet id. Expedita sapiente non dicta.
+              </blockquote>
+              <footer class="testimonial-card__author">
+                <img src="https://i.pravatar.cc/56?img=47 " alt="Foto de María González" width="56" height="56" loading="lazy" class="testimonial-card__avatar" />
+                <div>
+                  <cite class="testimonial-card__name">María González</cite>
+                  <span class="testimonial-card__role">Carillas de porcelana</span>
+                </div>
+              </footer>
+            </article>
+
+            <!-- Testimonio 2 -->
+            <article class="testimonial-card" aria-label="Testimonio de Carlos Méndez">
+              <div class="testimonial-card__stars" aria-label="5 estrellas">★★★★★</div>
+              <blockquote class="testimonial-card__text">
+              </blockquote>
+              <footer class="testimonial-card__author">
+                <img src="https://i.pravatar.cc/56?img=12" alt="Foto de Carlos Méndez" width="56" height="56" loading="lazy" class="testimonial-card__avatar" />
+                <div>
+                  <cite class="testimonial-card__name">Carlos Méndez</cite>
+                  <span class="testimonial-card__role">Implantes</span>
+                </div>
+              </footer>
+            </article>
+
+            <!-- Testimonio 3 -->
+            <article class="testimonial-card" aria-label="Testimonio de Sofía Ramírez">
+              <div class="testimonial-card__stars" aria-label="5 estrellas">★★★★★</div>
+              <blockquote class="testimonial-card__text">
+              </blockquote>
+              <footer class="testimonial-card__author">
+                <img src="https://i.pravatar.cc/56?img=31" alt="Foto de Sofía Ramírez" width="56" height="56" loading="lazy" class="testimonial-card__avatar" />
+                <div>
+                  <cite class="testimonial-card__name">Sofía Ramírez</cite>
+                  <span class="testimonial-card__role">Odontopediatría</span>
+                </div>
+              </footer>
+            </article>
+
+            <!-- Testimonio 4 -->
+            <article class="testimonial-card" aria-label="Testimonio de Andrés Villanueva">
+              <div class="testimonial-card__stars" aria-label="4 estrellas">★★★★☆</div>
+              <blockquote class="testimonial-card__text">
+                lorem
+              </blockquote>
+              <footer class="testimonial-card__author">
+                <img src="https://i.pravatar.cc/56?img=65" alt="Foto de Andrés Villanueva" width="56" height="56" loading="lazy" class="testimonial-card__avatar" />
+                <div>
+                  <cite class="testimonial-card__name">Andrés Villanueva</cite>
+                  <span class="testimonial-card__role">Ortodoncia Invisible</span>
+                </div>
+              </footer>
+            </article>
+
+          </div><!-- /.testimonials__track -->
+
+          <!-- Controles del carrusel -->
+          <div class="testimonials__controls" aria-label="Controles del carrusel">
+            <button class="testimonials__btn" id="prev-btn" aria-label="Testimonio anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="testimonials__dots" id="testimonials-dots" role="tablist" aria-label="Indicadores de testimonio"></div>
+            <button class="testimonials__btn" id="next-btn" aria-label="Testimonio siguiente">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CONTACTO
+    ============================================================ -->
+    <section class="contact" id="contacto" aria-labelledby="contact-title">
+      <div class="container contact__inner">
+
+        <!-- Columna: Formulario -->
+        <div class="contact__form-wrap reveal">
+          <span class="section-badge">Reserva tu cita</span>
+          <h2 class="section-title contact__title" id="contact-title">Hablemos de tu sonrisa</h2>
+          <p class="contact__subtitle">Primera consulta gratuita · Sin compromiso · Respuesta en menos de 24h</p>
+
+          <form class="contact-form" id="contact-form" novalidate aria-label="Formulario de contacto">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name" class="form-label">Nombre completo <span aria-hidden="true">*</span></label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="Ana García López" required autocomplete="name" aria-required="true" />
+                <span class="form-error" id="name-error" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label for="email" class="form-label">Email <span aria-hidden="true">*</span></label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="ana@email.com" required autocomplete="email" aria-required="true" />
+                <span class="form-error" id="email-error" role="alert"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="clinic" class="form-label">Selecciona clínica <span aria-hidden="true">*</span></label>
+                <select id="clinic" name="clinic" class="form-control form-select" required aria-required="true">
+                  <option value="mostoles">Móstoles</option>
+                  <option value="alcorcon">Alcorcón</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="phone" class="form-label">Teléfono</label>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="+34 600 000 000" autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="service" class="form-label">Servicio de interés</label>
+                <select id="service" name="service" class="form-control form-select">
+                  <option value="">Selecciona un servicio</option>
+                  <option>Limpieza Dental</option>
+                  <option>Ortodoncia Invisible</option>
+                  <option>Implantes Dentales</option>
+                  <option>Estética Dental</option>
+                  <option>Endodoncia</option>
+                  <option>Odontopediatría</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message" class="form-label">Mensaje</label>
+              <textarea id="message" name="message" class="form-control form-textarea" rows="4" placeholder="Cuéntanos brevemente cómo podemos ayudarte..."></textarea>
+            </div>
+
+            <div class="form-group form-group--checkbox">
+              <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
+              <label for="privacy" class="form-label-check">
+                He leído y acepto la <a href="./pages/politica-privacidad.html" class="link">Política de Privacidad</a> y el <a href="./pages/aviso-legal.html" class="link">Aviso Legal</a>. <span aria-hidden="true">*</span>
+              </label>
+              <span class="form-error" id="privacy-error" role="alert"></span>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--full" id="submit-btn">
+              <span class="btn__text">Enviar solicitud</span>
+              <span class="btn__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </span>
+            </button>
+
+            <!-- Mensaje de éxito -->
+            <div class="form-success" id="form-success" role="status" aria-live="polite" hidden>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              ¡Solicitud enviada! Te contactaremos en menos de 24 horas.
+            </div>
+          </form>
+        </div>
+
+        <!-- Columna: Info de contacto - Dos ubicaciones -->
+        <div class="contact__info reveal reveal--delay-1">
+          <h3 class="contact__subtitle-locations">Nuestras ubicaciones</h3>
+          
+          <!-- Grid de ubicaciones -->
+          <div class="clinics-grid">
+            <!-- Clínica Móstoles -->
+            <div class="clinic-card" data-clinic="mostoles">
+              <div class="clinic-card__header">
+                <h4 class="clinic-card__title">Móstoles</h4>
+              </div>
+              
+              <div class="clinic-card__info">
+                <div class="clinic-info-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <div>
+                    <span class="clinic-label">Dirección</span>
+                    <p>C/ Pintor el Greco 2<br />28933 Móstoles, Madrid</p>
+                  </div>
+                </div>
+                
+                <div class="clinic-info-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  <div>
+                    <span class="clinic-label">Teléfono</span>
+                    <p><strong>WhatsApp:</strong><br> <a href="https://wa.me/34678484539" class="link" target="_blank">+34 678 48 45 39</a><br /><strong>Fijo:</strong> <a href="tel:+34916182424" class="link">+34 916 18 24 24</a></p>
+                  </div>
+                </div>
+                
+                <div class="clinic-info-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <div>
+                    <span class="clinic-label">Horario</span>
+                    <p>Lun-Vie: <br/>9:30-14:00 | 16:30-20:00 </p>
+                    <p>Sáb: 9:00-14:00</p>
+                  </div>
+                </div>
+              </div>
+              
+              <a href="https://www.google.com/maps/search/C%2F+Pintor+el+Greco+2,+28933+M%C3%B3stoles,+Madrid" target="_blank" rel="noopener" class="clinic-card__btn">Ver en Maps</a>
+            </div>
+            
+            <!-- Clínica Alcorcón -->
+            <div class="clinic-card" data-clinic="alcorcon">
+              <div class="clinic-card__header">
+                <h4 class="clinic-card__title">Alcorcón</h4>
+              </div>
+              
+              <div class="clinic-card__info">
+                <div class="clinic-info-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <div>
+                    <span class="clinic-label">Dirección</span>
+                    <p>Calle Mayor 65, 1ºB<br />28921 Alcorcón, Madrid</p>
+                  </div>
+                </div>
+                
+                <div class="clinic-info-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  <div>
+                    <span class="clinic-label">Teléfono</span>
+                    <p><strong>WhatsApp:</strong> <br/><a href="https://wa.me/34641265985" class="link" target="_blank">+34 641 26 59 85</a><br /><strong>Fijo:</strong> <a href="tel:+34916431212" class="link">+34 916 43 12 12</a></p>
+                  </div>
+                </div>
+                
+                <div class="clinic-info-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <div>
+                    <span class="clinic-label">Horario</span>
+                    <p>Lun-Vie:<br/> 9:30-13:30 |16:30-20:30</p>
+                  </div>
+                </div>
+              </div>
+              
+              <a href="https://www.google.com/maps/search/Calle+Mayor+65,+1%C2%BAB,+28921+Alcor%C3%B3n,+Madrid" target="_blank" rel="noopener" class="clinic-card__btn">Ver en Maps</a>
+            </div>
+          </div>
+          
+          <!-- Google Maps - Dinámico según clínica -->
+          <div class="contact__maps-wrapper">
+            <!-- Mapa Móstoles -->
+            <div class="clinic-map" data-clinic="mostoles" style="display: block;">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3041.588253681792!2d-3.8714559100478425!3d40.329294787362215!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418e7e39c49e9f%3A0x1a3b2620715f07e0!2sC.%20del%20Pintor%20el%20Greco%2C%202%2C%2028933%20M%C3%B3stoles%2C%20Madrid!5e0!3m2!1ses!2ses!4v1774717131161!5m2!1ses!2ses"
+                width="100%"
+                height="320"
+                style="border:0; border-radius: 12px;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+            
+            <!-- Mapa Alcorcón -->
+            <div class="clinic-map" data-clinic="alcorcon" style="display: none;">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3040.8606772725598!2d-3.8301485234956747!3d40.34543655997477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418eb5abc78215%3A0x4cabd3e535737eac!2zQy4gTWF5b3IsIDY1LCAxwrpCLCAyODkyMSBBbGNvcmPDs24sIE1hZHJpZA!5e0!3m2!1ses!2ses!4v1774717591563!5m2!1ses!2ses"
+                width="100%"
+                height="320"
+                style="border:0; border-radius: 12px;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer__inner">
+
+      <!-- Bloque: Logo + descripción -->
+      <div class="footer__brand">
+        <a href="#inicio" aria-label="HSDental - Volver al inicio">
+          <img src="assets/logoCompleto-removebg-preview.png" alt="HSDental Logo" width="140" height="38" loading="lazy" />
+        </a>
+        <p class="footer__tagline">Sonrisas que transforman vidas con tecnología de vanguardia.</p>
+        <!-- Redes sociales -->
+        <div class="footer__social" aria-label="Redes sociales">
+          <a href="#" class="footer__social-link" aria-label="Síguenos en Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Síguenos en Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Síguenos en YouTube">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.1C5.12 19.56 12 19.56 12 19.56s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.97 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.46z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Reseñas en Google">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Bloque: Servicios -->
+      <nav class="footer__col" aria-label="Servicios dentales">
+        <h4 class="footer__col-title">Servicios</h4>
+        <ul class="footer__list">
+          <li><a href="#servicios" class="footer__link">Limpieza Dental</a></li>
+          <li><a href="#servicios" class="footer__link">Ortodoncia Invisible</a></li>
+          <li><a href="#servicios" class="footer__link">Implantes Dentales</a></li>
+          <li><a href="#servicios" class="footer__link">Estética Dental</a></li>
+          <li><a href="#servicios" class="footer__link">Endodoncia</a></li>
+          <li><a href="#servicios" class="footer__link">Odontopediatría</a></li>
+        </ul>
+                <a href="#contacto" class="footer__phone" aria-label="Saber más sobre nuestro horario de atención">
+          Saber más...
+        </a>
+      </nav>
+
+      <!-- Bloque: Horario -->
+      <div class="footer__col" aria-label="Horario de atención">
+        <h4 class="footer__col-title">Horario</h4>
+        <h6 class="footer__col-title">MÓSTOLES</h6>
+        <ul class="footer__list footer__list--schedule">
+          <li><span style="border-bottom: #5671eb;">Lunes – Viernes</span><span>9:30 – 14:00</span></li>
+          <li><span style="text-align: right; width: 100%;">16:30 – 20:00</span></li>
+          <li><span>Sábados</span><span>9:00 – 14:00</span></li>
+          <li><span>Domingos</span><span>Cerrado</span></li>
+        </ul>
+        <br>
+        <h6 class="footer__col-title">ALCORCÓN</h6>
+
+        <ul class="footer__list footer__list--schedule">
+          <li><span>Lunes – Viernes</span><span>9:30 – 13:30</span></li>
+          <li><span style="text-align: right; width: 100%;">16:30 – 20:30</span></li>
+          <li><span>Sábados</span><span>Cerrado</span></li>
+          <li><span>Domingos</span><span>Cerrado</span></li>
+        </ul>
+        <a href="#contacto" class="footer__phone" aria-label="Saber más sobre nuestro horario de atención">
+          Saber más...
+        </a>
+      </div>
+      
+
+      <!-- Bloque: Legal -->
+      <nav class="footer__col" aria-label="Información legal">
+        <h4 class="footer__col-title">Legal</h4>
+        <ul class="footer__list">
+          <li><a href="./pages/politica-privacidad.html" class="footer__link">Política de Privacidad</a></li>
+          <li><a href="./pages/aviso-legal.html" class="footer__link">Aviso Legal</a></li>
+          <li><a href="./pages/politica-cookies.html" class="footer__link">Política de Cookies</a></li>
+          <li><a href="./pages/terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+        </ul>
+      </nav>
+
+    </div>
+
+    <!-- Barra inferior del footer -->
+    <div class="footer__bottom">
+      <div class="container footer__bottom-inner">
+        <p>© <span id="footer-year"></span> HSDental · Todos los derechos reservados    </p>
+        <p class="footer__disclaimer">Esta web tiene carácter informativo y no sustituye la consulta médica profesional.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Botón "Volver arriba" -->
+  <button class="back-to-top" id="back-to-top" aria-label="Volver al inicio de la página" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>

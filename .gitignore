@@ -1,0 +1,6 @@
+.vscode/sftp.json
+
+/app/uploads/
+/app/uploads/**
+
+**/logs/**

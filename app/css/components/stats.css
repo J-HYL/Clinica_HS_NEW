@@ -1,0 +1,126 @@
+.stats{
+    container-type: inline-size;
+    container-name: stats;
+}
+
+.stats__items{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    justify-content: center;
+    align-items: center;
+}
+
+.stats__item{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.stats__item .stat__icon{
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5em;
+    border-radius: 50%;
+}
+
+.stats__item:nth-child(1) .stat__icon{
+    background-color: var(--pale-orange);
+}
+
+.stats__item:nth-child(2) .stat__icon{
+    background-color: var(--pale-pink);
+}
+
+.stats__item:nth-child(3) .stat__icon{
+    background-color: var(--pale-green);
+}
+
+.stats__item:nth-child(4) .stat__icon{
+    background-color: var(--pale-primary);
+}
+
+.stats__item:nth-child(1) .stat__icon i{
+    color: var(--orange);
+}
+
+.stats__item:nth-child(2) .stat__icon i{
+    color: var(--pink);
+}
+
+.stats__item:nth-child(3) .stat__icon i{
+    color: var(--green);
+}
+
+.stats__item:nth-child(4) .stat__icon i{
+    color: var(--light-primary);
+}
+
+.stat__content{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+}
+
+.stat__title{
+    font-weight: 400;
+    font-size: 0.9375em;
+    text-wrap: nowrap;
+    color: var(--light-gray);
+}
+
+.stat__number{
+    font-size: 2em;
+    color: var(--dark-gray);
+}
+
+/* Responsive */
+
+@container stats (min-width: 500px) {
+    .stats__item{
+        flex-direction: row;
+        gap: 16px;
+    }
+
+    .stat__content{
+        width: 105px;
+        text-align: start;
+    }
+
+    .stat__title{
+        font-size: 1em;
+    }
+    
+    .stat__number{
+        font-size: 2.125em;
+    }
+}
+
+@container stats (min-width: 870px) {
+    .stats__items{
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat__content{
+        width: 115px;
+        text-align: start;
+    }
+}
+
+@media screen and (min-width: 744px) {
+    .stats{
+        margin-top: 28px;
+    }
+}
+
+@media screen and (min-width: 1080px) {
+    .stats{
+        margin-top: 40px;
+    }
+}

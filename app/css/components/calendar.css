@@ -1,0 +1,331 @@
+.main{
+    overflow: hidden;
+    border-radius: 60px 60px 0 0;
+    padding: 0;
+    container-name: main;
+    container-type: inline-size;
+}
+
+.container__heading{
+    color: #fff;
+    font-size: 1.25em;
+}
+
+/* Calendar */
+.calendar__header{
+    background-image: var(--calendar-gradient);
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.header__container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+}
+
+.calendar__button{
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #FE783D;
+    display: grid;
+    place-items: center;
+    font-size: 1.25em;
+    cursor: pointer;
+    transition: .3s ease-in-out scale;
+}
+
+.calendar__button--info{
+    display: none;
+}
+
+.calendar__button:hover, .calendar__button:focus{
+    scale: 1.05;
+}
+
+.calendar__weekdays, .calendar__days{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    place-items: center;
+}
+
+.calendar__weekday{
+    padding: 10px 0;
+}
+
+.calendar__weekday h4{
+    display: none;
+}
+
+.calendar__weekday abbr{
+    color: var(--light-gray);
+    font-size: 0.875em;
+}
+
+.calendar__days{
+    background-color: #FAFAFA;
+    transition: .3s ease-in-out background-color, .3s ease-in-out border-color;
+}
+
+.calendar__day{
+    width: 100%;
+    min-height: 64px;
+    max-height: 150px;
+    height: 100%;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #E6E6E6;
+    overflow: hidden;
+}
+.calendar__day:hover{
+    background-color: #f5f4f4;
+    transition: .3s ease-in-out border-color, .3s ease-in-out background-color;
+}
+
+.calendar__day--hidden{
+    display: none;
+}
+
+.day__info{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.day__info h5{
+    font-size: 0.9375em;
+    color: var(--dark-gray);
+    transition: .3s ease-in-out color;
+}
+
+.day__info button{
+    background: none;
+    border: none;
+    font-size: 1.125em;
+    color: #FE783D;
+    cursor: pointer;
+    transition: .3s ease-in-out color;
+}
+
+.calendar__day--content{
+    cursor: pointer;
+    transition: .3s ease-in-out background-color, .3s ease-in-out color;
+    overflow: hidden;
+}
+
+.calendar__day--content:hover, .calendar__day--content:focus{
+    background-color: #FE783D;
+}
+
+.calendar__day--content:hover .day__info h5,
+.calendar__day--content:focus .day__info h5,
+.calendar__day--content:hover .day__info button,
+.calendar__day--content:focus .day__info button{
+    color: #fff;
+}
+
+.calendar__appointments{
+    display: none;
+    max-height: 100px; /* ajustar para que quepa dentro del día */
+    overflow-y: auto;
+    margin-top: auto; /* que las citas queden al final si quieres */
+    padding-right: 4px; /* para que no tape el scroll el contenido */
+    /* Ocultar barra de scroll en Firefox */
+    scrollbar-width: none;
+
+    /* Ocultar barra de scroll en Webkit (Chrome, Safari) */
+    -webkit-overflow-scrolling: touch; /* para suavizar el scroll en iOS */
+}
+
+.calendar__appointments::-webkit-scrollbar {
+    display: none; /* Oculta barra en Chrome, Safari y Edge */
+}
+
+@container main (min-width: 400px){
+    .calendar__day{
+        padding: 10px;
+    }
+}
+
+@container main (min-width: 500px){
+    .calendar__header{
+        padding: 0 48px;
+    }
+    
+    .calendar__day{
+        aspect-ratio: 1/1;
+        padding: 10px 16px;
+    }
+
+    .day__info h5{
+        font-size: 1.125em;
+    }
+    
+    .day__info button{
+        font-size: 1.25em;
+    }
+
+    .calendar__button{
+        width: 28px;
+        height: 28px;
+        font-size: 24px;
+    }
+}
+
+@container main (min-width: 874px){
+    .calendar__day{
+        min-height: 150px;
+        max-height: none;
+        aspect-ratio: auto;
+        gap: 20px;
+    }
+
+    .container__heading{
+        color: #fff;
+        font-size: 1.5em;
+    }
+
+    .calendar__weekday{
+        padding: 16px 0;
+    }
+
+    .calendar__weekday h4{
+        display: block;
+        font-weight: 400;
+        color: var(--light-gray);
+    }
+    
+    .calendar__weekday abbr{
+        display: none;
+    }
+
+    .day__info h5{
+        font-size: 1.375em;
+    }
+    
+    .day__info button{
+        display: none;
+    }
+
+    .calendar__day--content {
+        transition: none;
+    }
+
+    .calendar__day--content:hover, .calendar__day--content:focus {
+        background-color: initial;
+    }
+
+    .calendar__day--content:hover .day__info h5,
+    .calendar__day--content:focus .day__info h5,
+    .calendar__day--content:hover .day__info button,
+    .calendar__day--content:focus .day__info button{
+        color: initial;
+    }
+
+    .calendar__appointments{
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        list-style: none;
+    }
+
+    .calendar__appointments li{
+        padding: 4px 8px;
+        font-size: 0.75em;
+        color: var(--calendar--appointment-text-color);
+        border-radius: 12px;
+        transition: .3s ease-in-out transform, .3s ease-in-out box-shadow;
+    }
+
+    .calendar__appointments li button{
+        width: 100%;
+        max-width: 100px;
+        background: none;
+        border: none;
+        text-align: left;
+        display: flex;
+        gap: 4px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .calendar__appointments li button .appointment-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .appointment__completada{
+        background-color: var(--calendar-green-status);
+    }
+
+    .appointment__completada i{
+        color: var(--green);
+    }
+
+    .appointment__pendiente{
+        background-color: var(--calendar-orange-status);
+    }
+
+    .appointment__pendiente i{
+        color: var(--orange);
+    }
+
+    .appointment__cancelada{
+        background-color: var(--calendar-red-status);
+    }
+
+    .appointment__cancelada i{
+        color: var(--red);
+    }
+
+    .calendar__button{
+        width: 32px;
+        height: 32px;
+        font-size: 1.75em;
+    }
+
+    .calendar__button--info{
+        display: grid;
+        width: 24px;
+        height: 24px;
+        font-size: 1.25em;
+        position: absolute;
+        right: 48px;
+    }
+
+    /* Drag & Drop */
+    .drag__over{
+        background-color: var(--light-primary);
+        border-color: var(--primary);
+        transition: .3s ease-in-out border-color, .3s ease-in-out background-color;
+    }
+
+    .drag__over .day__info h5{
+        color: #fff;
+    }
+
+    .dragging {
+        transform: scale(1.1);
+        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidad */
+    }
+}
+
+@container main (min-width: 1080px){
+    .calendar__appointments li{
+        max-width: 120px;
+        font-size: 0.875em;
+    }
+}

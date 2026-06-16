@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HS Dental - Tratamientos</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="/css/pages/agregar.css">
+    <link rel="stylesheet" href="/css/pages/control.css">
+    <link rel="stylesheet" href="/css/lib/datatables.min.css" />
+    <link rel="stylesheet" href="../../css/components/modal.css">
+
+
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+    <style>  
+    .modal__card {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        padding: 0;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: box-shadow 0.3s ease;
+        margin: 1rem 0;
+        overflow: hidden;
+    }
+
+    .card[open] {
+        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    }
+
+    .card__summary {
+        padding: 1rem 1.2rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        position: relative;
+        background-color: #f8f9fa;
+        user-select: none;
+    }
+
+    .card__summary::marker {
+        display: none;
+    }
+
+    .card__summary::after {
+        content: "▼";
+        position: absolute;
+        right: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .card[open] .card__summary::after {
+        transform: rotate(-180deg);
+    }
+
+    .card__content {
+        padding: 1rem 1.2rem;
+        border-top: 1px solid #eee;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .ri-money-dollar-circle-fill {
+        font-size: x-large;
+    }
+
+    .main__table-wrapper {
+        overflow-x: auto;
+        padding: 0 1rem; /* espacio lateral */
+    }
+
+    .main__table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px; /* evita que se aplaste demasiado en móvil */
+    }
+
+    .container__heading,
+    .crear-pago {
+        margin: 0 1rem;
+    }
+
+    .gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .image-card {
+        width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .image-card img {
+        width: 100%;
+        display: block;
+        border-radius: 8px;
+    }
+
+    /* Modal estilo básico */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+    }
+
+    .modal .close {
+        position: absolute;
+        top: 1rem;
+        right: 2rem;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+    }
+
+    #fileInfo {
+        transition: all 0.3s ease;
+        margin-top: 15px;
+        align-items: center;
+        gap: 10px;
+        background-color: #f3f4f6;
+        padding: 10px;
+        border-radius: 6px;
+        display: none; /* Inicialmente oculto */
+    }
+
+    #fileInfo a {
+        color: #3b82f6;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #fileInfo a:hover {
+        text-decoration: underline;
+    }
+
+    /* estilos del odontograma */
+    .odontograma {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .fila {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        transform: rotate(0deg);
+    }
+
+    .fila.superior {
+        transform: rotate(0deg) translateY(10px);
+    }
+
+    .fila.inferior {
+        transform: rotate(180deg) translateY(10px);
+    }
+
+    .diente {
+        width: 40px;
+        height: 60px;
+        background: white; /* Fondo blanco por defecto para dientes no marcados */
+        border: 2px solid #444; /* Borde oscuro por defecto */
+        border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        position: relative;
+        /* Transiciones para suavizar los cambios de color de fondo, borde y texto */
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    /* Estilos para dientes marcados (ROJO): con fondo rojo y número blanco */
+    .diente.marcado-rojo {
+        background-color: #ff4d4d; /* Fondo ROJO */
+        border-color: #cc0000; /* Borde rojo más oscuro para contraste */
+        color: white; /* Color del TEXTO del diente (y su número por herencia) */
+    }
+
+    /* Estilos para dientes marcados (VERDE): con fondo verde y número blanco */
+    .diente.marcado-verde {
+        background-color: #4CAF50; /* Fondo VERDE */
+        border-color: #388e3c; /* Borde verde más oscuro para contraste */
+        color: white; /* Color del TEXTO del diente (y su número por herencia) */
+    }
+
+    .numero {
+        position: absolute;
+        bottom: -18px;
+        font-size: 11px;
+        transform: rotate(0deg);
+        color: #444; /* Color oscuro por defecto para los números de dientes NO marcados */
+        transition: color 0.3s; /* Transición para el color del número */
+    }
+
+    .inferior .diente .numero {
+        transform: rotate(180deg);
+    }
+
+    .linea-div {
+        width: 90%;
+        height: 2px;
+        background-color: #aaa;
+        margin: 5px auto;
+    }
+
+    .etiquetas {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Nuevos estilos para hacer el modal scrollable */
+    .modal__card {
+        max-height: 90vh; /* Ajusta la altura máxima del modal al 90% de la altura de la ventana */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal__body {
+        overflow-y: auto; /* Permite el desplazamiento vertical solo en el cuerpo del modal */
+        padding-right: 1rem; /* Añade un espacio para el scrollbar */
+    }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
+            <i class="ri-close-large-fill"></i>
+        </button>
+        <div class="sidebar__content">
+            <div class="sidebar__logo">
+                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
+                <div class="item__hide item__hide--logo">
+                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
+
+                </div>
+            </div>
+            <ul class="sidebar__links">
+                <li class="sidebar__item">
+                    <a href="/index.html" aria-label="Ir al Principal">
+                        <i class="ri-dashboard-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Principal</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
+                        <i class="ri-calendar-schedule-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Citas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item sidebar__item--selected">
+                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
+                        <i class="ri-group-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Pacientes</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
+                        <i class="ri-briefcase-4-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Servicios</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
+                        <i class="ri-file-text-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Presupuestos</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
+                        <i class="ri-receipt-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Facturas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
+                        <i class="ri-admin-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Admin</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>Tratamiento</span></h1> </div>
+        </header>
+        <section class="container">
+            <div class="card__content">
+                <div class="paciente-info">
+                    <h2>
+                        Paciente: <span id="nombre-paciente"></span><br>
+                        Tratamiento: <span id="nombre-tratamiento"></span><br>
+                    </h2>
+                    <div class="datos-grid">
+                        <div><strong>Precio de este Tratamiento:</strong> <span id="costo-tratamiento"></span></div>
+                        <div><strong>Observaciones:</strong> <span id="observaciones-tratamiento"></span></div>
+                        <div><strong>Abonado:</strong> <span id="pagado-tratamiento"></span></div>
+                        <div><strong>Estado:</strong> <span id="estado-tratamiento"></span></div>
+                        <div><strong>Deuda:</strong> <span id="deuda-tratamiento"></span></div>
+                        <div><strong>Fecha de inicio:</strong> <span id="fecha-inicio-tratamiento"></span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <div class="container">
+            <div class="odontograma">
+                <div class="fila superior" id="fila-superior"></div>
+                <div class="etiquetas">
+                <div>Superior derecha</div>
+                <div>Maxilar</div>
+                <div>Superior izquierda</div>
+                </div>
+
+                <div class="linea-div"></div>
+
+                <div class="etiquetas">
+                <div>Inferior derecha</div>
+                <div>Mandíbula</div>
+                <div>Inferior izquierda</div>
+                </div>
+                <div class="fila inferior" id="fila-inferior"></div>
+            </div>
+        </div>
+            
+        <main class="container">
+            <details class="card">
+                <summary class="card__summary"><i class="ri-file-text-fill"></i>  Presupuesto del tratamiento</summary>
+                <div style="max-width: 300px; margin: 20px; font-family: sans-serif;">
+                    <label for="pdfUpload" style="display: block; margin-bottom: 10px; font-weight: bold;">Subir presupuesto PDF</label>
+                    
+                    <input type="file" id="pdfUpload" accept="application/pdf" style="display: none;" />
+                    
+                    <button id="uploadBtn" style="padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        Elegir PDF
+                    </button>
+                    
+                   <div id="fileInfo">
+                        <span style="font-size: 1.2rem;">📄</span>
+                        <span id="fileName" style="word-break: break-word;"></span>
+                        </div>
+                </div>
+            </details>
+            <details class="card">
+                <summary class="card__summary"><i class="ri-money-dollar-circle-fill"></i>  Historial de pagos</summary>
+                    <div class="main__group">
+                        <h3 class="container__heading" id="deuda-h3"></h3>
+                        <div class="main__actions">
+                            <a href="#" class="main__action" id="crear-pago"><span>Nuevo pago</span> <i class="ri-add-line"></i></a>
+                        </div>
+                    </div>
+                    <div class="main__loading">
+                        <div class="sk-chase">
+                            <div class="sk-chase-dot"></div>
+                            <div class="sk-chase-dot"></div>
+                            <div class="sk-chase-dot"></div>
+                            <div class="sk-chase-dot"></div>
+                            <div class="sk-chase-dot"></div>
+                            <div class="sk-chase-dot"></div>
+                        </div>
+                        <p class="loading__message">Obteniendo los registros...</p>
+                    </div>
+                    <div class="main__empty">
+                        <img src="/assets/svg/empty-illustration.svg" alt="Not Found Records Illustration">
+                        <p class="empty__message">No se encontraron registros para esta sección...</p>
+                    </div>
+                    <div class="main__table-wrapper">
+                        <table class="main__table" id="table"></table>
+                    </div>
+            </details>
+
+            <details class="card">
+                <summary class="card__summary"><i class="ri-image-2-fill"></i></i>  Imagenes</summary>
+                <div style="max-width: 300px; margin: 20px; font-family: sans-serif;">
+                <label for="imageInput" style="display: block; margin-bottom: 10px; font-weight: bold;">
+                    Subir imagen
+                </label>
+
+                <input type="file" id="imageInput" accept="image/*" style="display: none;" />
+
+                <button id="uploadImageBtn" style="padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    Elegir imagen
+                </button>
+                </div>
+
+                <div id="imagePreviewContainer" class="gallery"></div>
+
+                <div id="imageModal" class="modal">
+                    <span class="close">&times;</span>
+                    <img class="modal-content" id="modalImage">
+                </div>
+            </details>
+        </main> 
+    </div>
+    <dialog class="modal" id="edit-modal" role="dialog"
+        aria-labelledby="Crear  pago"
+        aria-describedby="Modal para una Pagos">
+        <div class="modal__container">
+            <section class="modal__card">
+                <header class="modal__header">
+                    <h3 class="modal__heading">Añadir pago</h3>
+                    <button type="button" class="modal__close" aria-label="Cerrar Modal">
+                    <i class="ri-close-line"></i>
+                    </button>
+                </header>
+                <div class="modal__body">
+                    <form action="#" class="form">
+                        <div class="form__group">
+                            <label for="monto" class="form__label">Monto</label>
+                            <input
+                                type="number"
+                                name="monto"
+                                id="monto"
+                                class="form__input"
+                                placeholder="Monto del pago"
+                                required
+                            />
+                        </div>
+                        <div class="form__group">
+                            <label for="metodo_pago" class="form__label">Metodo pago</label>
+                            <select name="metodo_pago" id="metodo_pago"
+                                    class="form__input form__input--select form__input--modal--pagos">
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta">Tarjeta</option>
+                            </select>
+                        </div>
+                        <div class="form__group">
+                            <label for="notas" class="form__label">Nota</label>
+                            <input type="text" id="notas" name="notas" class="form__input" data-required="true" />
+                        </div>
+                    </form>
+                </div>
+                <footer class="modal__footer">
+                    <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
+                    <button type="button" class="modal__button modal__button--primary" id="guardar-pago">Guardar Cambios</button>
+                </footer>
+            </section>
+        </div>
+    </dialog>
+
+    <style>
+        .paciente-info h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .datos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .datos-grid {
+            grid-template-columns: 1fr;
+        }}
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/lib/datatables.min.js"></script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/clientes/tratamientos.js" type="module"></script>
+
+</body>
+</html>

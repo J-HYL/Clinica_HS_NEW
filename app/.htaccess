@@ -1,0 +1,2 @@
+DirectoryIndex api/index.php
+#Redirect 301 /index.html /api/index.php
