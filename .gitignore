@@ -8,3 +8,6 @@
 # Logs y artefactos (no versionar)
 *.log
 appWeb.zip
+
+# Credenciales reales (no versionar; viven en el servidor)
+config.secret.php

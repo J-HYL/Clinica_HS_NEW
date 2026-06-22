@@ -1,38 +1,38 @@
 <?php
-//db_connect.php
-//session_start();
+// db_connect.php
+// session_start();
+
+/** Devuelve el entorno actual según el nombre de host: 'local' | 'pre' | 'prod'. */
+function currentEnv() {
+    $host = $_SERVER['SERVER_NAME'] ?? '';
+    if (in_array($host, ['localhost', '127.0.0.1'], true)) {
+        return 'local';
+    }
+    // pre.hsdental.es -> 'pre'   |   app.hsdental.es / hsdental.es -> 'prod'
+    return strpos($host, 'pre.') === 0 ? 'pre' : 'prod';
+}
 
 function getConnection() {
-    $isLocal = in_array($_SERVER['SERVER_NAME'], ['localhost','127.0.0.1']);
+    $cfg = require __DIR__ . '/../../config.secret.php';
+    $env = currentEnv();
 
-    if ($isLocal) {
-        $servername = "localhost";
-        $username   = "root";
-        $password   = "";
-        $dbname     = "clinicahs";
+    if ($env === 'local') {
+        $c = $cfg['db']['local'];
     } else {
         if (!isset($_SESSION['clinic_id'])) {
             die(json_encode(["error" => "Clínica no seleccionada."]));
         }
-        switch ($_SESSION['clinic_id']) {
-            case 1: // Alcorcón
-                $servername = "db5017933701.hosting-data.io";
-                $username   = "dbu943630";
-                $password   = "Jjbinks1999$";
-                $dbname     = "dbs14273934";
-                break;
-            case 2: // Móstoles
-                $servername = "db5018426857.hosting-data.io";
-                $username   = "dbu1523504";
-                $password   = "Jjbinks1999$";
-                $dbname     = "dbs14654471";
-                break;
-            default:
-                die(json_encode(["error" => "ID de clínica inválido."]));
+        $map = [1 => 'alcorcon', 2 => 'mostoles'];
+        $clinicKey = $map[$_SESSION['clinic_id']] ?? null;
+
+        // En 'pre' puede haber solo una clínica habilitada (la copia).
+        if ($clinicKey === null || !isset($cfg['db'][$env][$clinicKey])) {
+            die(json_encode(["error" => "Clínica no disponible en este entorno ({$env})."]));
         }
+        $c = $cfg['db'][$env][$clinicKey];
     }
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = new mysqli($c['host'], $c['user'], $c['pass'], $c['db']);
     if ($conn->connect_error) {
         die(json_encode(["error" => "Error de conexión: " . $conn->connect_error]));
     }
