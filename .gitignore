@@ -4,3 +4,7 @@
 /app/uploads/**
 
 **/logs/**
+
+# Logs y artefactos (no versionar)
+*.log
+appWeb.zip
