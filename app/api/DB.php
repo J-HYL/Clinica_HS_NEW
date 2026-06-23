@@ -1,7 +1,10 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://app.hsdental.es'); 
+$allowedOrigins = ['https://app.hsdental.es', 'https://pre.hsdental.es'];
+$reqOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+header('Access-Control-Allow-Origin: ' . (in_array($reqOrigin, $allowedOrigins, true) ? $reqOrigin : 'https://app.hsdental.es'));
+header('Vary: Origin'); 
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -450,6 +453,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $options = new Options();
 				$options->set('isRemoteEnabled', true);
             	$dompdf = new Dompdf($options);
+                // Logo embebido como data URI: el PDF se genera en el servidor sin acceso de red,
+                // así el logo sale igual en producción y en pre (no depende del host).
+                $logoPath = __DIR__ . '/../assets/images/logoCompleto.jpg';
+                if (is_file($logoPath)) {
+                    $logoData = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
+                    $html = preg_replace_callback(
+                        '#src\s*=\s*([\'"])[^\'"]*logoCompleto\.jpg\1#i',
+                        function ($m) use ($logoData) { return 'src=' . $m[1] . $logoData . $m[1]; },
+                        $html
+                    );
+                }
                 $dompdf->loadHtml($html);
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
@@ -462,7 +476,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode([
                         "success" => true,
                         "numero" => $numero_factura,
-                        "ruta" => "http://localhost/$ruta_relativa"
+                        "ruta" => $ruta_relativa
                     ]);
                 } else {
                     echo json_encode(["success" => false, "error" => $conn->error]);

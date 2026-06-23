@@ -7,6 +7,7 @@
 
 # Logs y artefactos (no versionar)
 *.log
+*.sql
 appWeb.zip
 
 # Credenciales reales (no versionar; viven en el servidor)

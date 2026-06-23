@@ -88,7 +88,7 @@ export function createTableInstance(records) {
 
             if(objectStore === "facturas"){
               buttons= `
-                  <a href="https://app.hsdental.es${row.ruta}" target="_blank" class="table__btn table__btn--print" aria-label="Descargar factura"> <i class="ri-download-2-line"></i></a>
+                  <a href="${row.ruta}" target="_blank" class="table__btn table__btn--print" aria-label="Descargar factura"> <i class="ri-download-2-line"></i></a>
               `;
             }
 

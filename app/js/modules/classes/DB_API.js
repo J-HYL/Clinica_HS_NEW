@@ -7,7 +7,7 @@ import { reloadPage, goToControlPage } from "../funciones.js";
 import Alert from "../components/Alert.js";
 
 class DB {
-  baseUrl = 'https://app.hsdental.es/api/DB.php';
+  baseUrl = '/api/DB.php';
 
   /**
    * Obtiene todas las visitas de un cliente específico

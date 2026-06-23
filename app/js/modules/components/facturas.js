@@ -166,7 +166,7 @@ async function imprimirFactura() {
   
   const now = new Date();
   const fechaExp = now.toLocaleDateString();
-  const res = await fetch("https://app.hsdental.es/api/DB.php?table=facturas");
+  const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
   const data = await res.json();
 
   const ultimoNumero = data.ultimoNumero || 0;
@@ -409,7 +409,7 @@ async function imprimirFactura() {
     formData.append("nombre_paciente", patientName);
     formData.append("html", facturaHtml);
     
-    const resPost = await fetch("https://app.hsdental.es/api/DB.php?table=facturas", {
+    const resPost = await fetch("/api/DB.php?table=facturas", {
       method: "POST",
       body: formData,
       credentials: "include"
@@ -425,7 +425,7 @@ async function imprimirFactura() {
   } catch (err) {
     console.error(err);
     //Swal.fire("Error", err.message, "error");
-    window.open(`https://app.hsdental.es/uploads/facturas/factura_HSD-${prefijoClinica}-${numeroFactura}.pdf`, "_blank");
+    window.open(`/uploads/facturas/factura_HSD-${prefijoClinica}-${numeroFactura}.pdf`, "_blank");
 
   }
 }

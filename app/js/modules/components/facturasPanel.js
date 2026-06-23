@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         mainEmpty.style.display = "none";
         table.style.display = "none";
 
-        const res = await fetch("https://app.hsdental.es/api/DB.php?table=facturas");
+        const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
         const data = await res.json();
 
         if (!data.success) throw new Error(data.error || "Error al cargar las facturas");

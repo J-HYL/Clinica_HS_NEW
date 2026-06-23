@@ -371,7 +371,7 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
 
         const img = document.createElement("img");
         // Construye la ruta COMPLETA y CORRECTA
-        const imageUrl = `https://app.hsdental.es/${file.ruta}`.replace(/([^:])(\/\/+)/g, '$1/');
+        const imageUrl = `/${file.ruta}`.replace(/([^:])(\/\/+)/g, '$1/');
         img.src = imageUrl;
         img.alt = "Imagen de tratamiento";
         img.style.cursor = "pointer";
@@ -408,7 +408,7 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
     
     // Botón de descarga (manteniendo tu estilo original)
     const pdfLink = document.createElement("a");
-    pdfLink.href = `https://app.hsdental.es/${file.ruta}`;
+    pdfLink.href = `/${file.ruta}`;
     pdfLink.target = "_blank";
     pdfLink.download = file.nombre_original;
     pdfLink.innerHTML = '<i class="ri-file-download-fill" style="font-size: x-large; text-decoration: none;"></i>';
