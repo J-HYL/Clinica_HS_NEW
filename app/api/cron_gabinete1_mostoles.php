@@ -59,17 +59,30 @@ function terminar($msg, $codigo = 0) {
     exit($codigo);
 }
 
-// --- Citas de Gabinete 1 (med1), del día de hoy, sin canceladas ---
+// --- Fecha objetivo: hoy por defecto; se puede pedir otra SOLO para pruebas ---
+// URL:  ...?dia=manana   o   ...?fecha=YYYY-MM-DD   (requiere token, ya validado)
+// CLI:  php cron_gabinete1_mostoles.php manana   |   php ... 2026-07-15
 $hoy = date('Y-m-d');
+$dia = $hoy;
+$origen = $esCli ? ($argv[1] ?? '') : (($_GET['fecha'] ?? '') ?: ($_GET['dia'] ?? ''));
+if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $origen)) {
+    $dia = $origen;
+} elseif ($origen === 'manana') {
+    $dia = date('Y-m-d', strtotime('+1 day'));
+}
+$esHoy = ($dia === $hoy);
+
+// --- Citas de Gabinete 1 (med1) de ese día, sin canceladas ---
 try {
     $conn  = agendaConexionMostolesProd($cfg);
-    $citas = agendaCitasGab1($conn, $hoy, $hoy);
+    $citas = agendaCitasGab1($conn, $dia, $dia);
     $conn->close();
 } catch (Throwable $e) {
     terminar($e->getMessage(), 1);
 }
 
-$fechaLegible = date('d/m/Y');
+$fechaLegible = date('d/m/Y', strtotime($dia));
+$diaFrase = $esHoy ? 'de hoy' : ('del ' . $fechaLegible);
 $total = count($citas);
 
 // Enlace para suscribir TODA la agenda de Gabinete 1 en Google (feed .ics).
@@ -109,7 +122,7 @@ foreach ($citas as $cita) {
 if ($total > 0) {
     $cuerpo =
         '<p style="margin:0 0 6px;font-size:16px;color:#111827;">Hola doctor 👋</p>' .
-        '<p style="margin:0 0 18px;font-size:14px;color:#374151;">Estas son tus citas de <strong>hoy</strong> en <strong>Gabinete 1</strong> (Móstoles):</p>' .
+        '<p style="margin:0 0 18px;font-size:14px;color:#374151;">Estas son tus citas <strong>' . $diaFrase . '</strong> en <strong>Gabinete 1</strong> (Móstoles):</p>' .
         '<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;border-collapse:separate;">' . $filas . '</table>' .
 
         '<div style="margin-top:22px;text-align:center;">' .
@@ -118,12 +131,12 @@ if ($total > 0) {
         '<p style="margin:10px 0 0;font-size:12px;color:#9ca3af;text-align:center;">Suscribe toda tu agenda de Gabinete 1 de una vez (se mantiene actualizada).</p>' .
 
         '<div style="margin-top:20px;background:#f8f9ff;border:1px solid #e0e4ff;border-radius:8px;padding:14px 16px;">' .
-        '<p style="margin:0;font-size:13px;color:#374151;">📎 <strong>¿iPhone u otro calendario?</strong> Abre el archivo adjunto <strong>citas_hoy.ics</strong> desde este correo y se añadirán las citas de hoy a tu calendario predeterminado.</p>' .
+        '<p style="margin:0;font-size:13px;color:#374151;">📎 <strong>¿iPhone u otro calendario?</strong> Abre el archivo adjunto <strong>citas.ics</strong> desde este correo y se añadirán las citas a tu calendario predeterminado.</p>' .
         '</div>';
 } else {
     $cuerpo =
         '<p style="margin:0 0 6px;font-size:16px;color:#111827;">Hola doctor 👋</p>' .
-        '<p style="margin:0;font-size:14px;color:#374151;">Hoy no tienes citas en <strong>Gabinete 1</strong> (Móstoles). ¡Buen día!</p>';
+        '<p style="margin:0;font-size:14px;color:#374151;">No tienes citas <strong>' . $diaFrase . '</strong> en <strong>Gabinete 1</strong> (Móstoles). ¡Buen día!</p>';
 }
 
 $body =
@@ -164,12 +177,12 @@ try {
     $mail->setFrom($smtp['user'] ?? 'avisos@hsdental.es', 'HS Dental · Agenda');
     $mail->addAddress(CRON_DESTINO);
     $mail->isHTML(true);
-    $mail->Subject = 'Tus citas de hoy · Gabinete 1 · Móstoles · ' . $fechaLegible;
+    $mail->Subject = 'Tus citas ' . $diaFrase . ' · Gabinete 1 · Móstoles · ' . $fechaLegible;
     $mail->Body    = $body;
-    $mail->AltBody = "Hola doctor, tienes $total cita(s) hoy en Gabinete 1 (Mostoles).";
+    $mail->AltBody = "Hola doctor, tienes $total cita(s) $diaFrase en Gabinete 1 (Mostoles).";
 
     if ($icsHoy !== '') {
-        $mail->addStringAttachment($icsHoy, 'citas_hoy.ics', PHPMailer::ENCODING_BASE64, 'text/calendar; charset=utf-8; method=PUBLISH');
+        $mail->addStringAttachment($icsHoy, 'citas.ics', PHPMailer::ENCODING_BASE64, 'text/calendar; charset=utf-8; method=PUBLISH');
     }
 
     $mail->send();
