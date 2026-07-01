@@ -3,6 +3,7 @@ import { reloadPage } from "../funciones.js";
 import Alert from "./Alert.js";
 import UI from "../classes/UI.js";
 import DB from "../classes/DB_API.js";
+import { renderGreeting, renderTodayAgenda, renderTreatmentsDonut } from "./DashboardPanels.js";
 
 // Helper: devuelve 'YYYY-MM-DD' de hoy
 function getTodayString() {
@@ -10,12 +11,16 @@ function getTodayString() {
 }
 
 export async function loadStats() {
+  // Saludo: se pinta de inmediato, no depende de la red.
+  renderGreeting();
+
   try {
     // 1) Traer todos los registros
-    const [appointments, clients, services] = await Promise.all([
+    const [appointments, clients, services, treatments] = await Promise.all([
       DB.getRecords("appointments"),
       DB.getRecords("clients"),
       DB.getRecords("services"),
+      DB.getRecords("treatments"),
     ]);
 
     const todayStr = getTodayString();
@@ -37,6 +42,10 @@ export async function loadStats() {
       clients:  clientesCount,
       services: serviciosCount
     });
+
+    // 6) Paneles: agenda de hoy y donut de tratamientos
+    renderTodayAgenda(appointments);
+    renderTreatmentsDonut(treatments);
 
   } catch (err) {
     Alert.showStatusAlert("error", "¡Error!", err.message, reloadPage);

@@ -1,0 +1,249 @@
+/* Paneles del dashboard: agenda de citas de hoy + donut de tratamientos.
+   Reutiliza la paleta y el radio/sombra de .container (base.css). */
+
+.panels{
+    container-type: inline-size;
+    container-name: panels;
+}
+
+.panels__grid{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* --- Cabecera de panel --- */
+
+.panel__head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.panel__count{
+    font-size: 0.8125em;
+    font-weight: 600;
+    color: var(--primary);
+    background-color: var(--pale-primary);
+    padding: 3px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+/* --- Agenda de citas de hoy --- */
+
+.agenda__list{
+    list-style: none;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.agenda__item{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background-color: var(--background);
+    border: 1px solid #EDEFF5;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.agenda__item:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(145, 151, 179, .16);
+    border-color: #E1E5F0;
+}
+
+/* La hora como chip destacado. */
+.agenda__time{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 74px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background-color: var(--pale-primary);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.9375em;
+    white-space: nowrap;
+}
+
+.agenda__time i{ color: var(--primary); }
+
+.agenda__info{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.agenda__patient{
+    font-weight: 600;
+    color: var(--dark-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.agenda__note{
+    font-size: 0.8125em;
+    color: var(--light-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.agenda__meta{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.agenda__gab{
+    font-size: 0.6875em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.agenda__gab.gab--med1{ background-color: rgba(43, 128, 247, .12); color: #1c5fb8; }
+.agenda__gab.gab--med2{ background-color: rgba(149, 92, 255, .14); color: #6a3fd0; }
+
+.agenda__status{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 0.75em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Píldora tintada por estado (mismo mapeo de color que el resto de la app). */
+.agenda__item[data-estado="pendiente"] .agenda__status{ background-color: var(--pale-orange); color: var(--dark-orange); }
+.agenda__item[data-estado="completada"] .agenda__status{ background-color: var(--pale-green); color: var(--green-status); }
+.agenda__item[data-estado="cancelada"] .agenda__status{ background-color: var(--calendar-red-status); color: var(--red); }
+
+.agenda__empty{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 34px 0;
+    color: var(--pale-gray);
+    text-align: center;
+}
+
+.agenda__empty i{ font-size: 2em; }
+
+/* --- Donut de tratamientos --- */
+
+.donut{
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.donut__chart{
+    position: relative;
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+}
+
+.donut__svg{
+    width: 100%;
+    height: 100%;
+}
+
+.donut__seg{
+    transition: stroke-dashoffset .6s ease;
+}
+
+.donut__center{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.donut__center strong{
+    font-size: 1.75em;
+    line-height: 1;
+    color: var(--dark-gray);
+}
+
+.donut__center span{
+    font-size: 0.75em;
+    color: var(--light-gray);
+}
+
+.donut__legend{
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.donut__legend-item{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9375em;
+}
+
+.donut__dot{
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.donut__legend-label{
+    flex: 1;
+    color: var(--dark-gray);
+}
+
+.donut__legend-val{
+    font-weight: 600;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+/* --- Dos columnas cuando hay ancho suficiente --- */
+
+@container panels (min-width: 760px){
+    .panels__grid{
+        flex-direction: row;
+        gap: 32px;
+    }
+
+    .panel--agenda{
+        flex: 1 1 58%;
+        padding-right: 32px;
+        border-right: 1px solid #EBEBEB;
+    }
+
+    .panel--donut{
+        flex: 1 1 42%;
+    }
+}

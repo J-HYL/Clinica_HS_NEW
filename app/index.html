@@ -113,7 +113,10 @@
                 <button class="header__menu" aria-label="Abrir Sidebar">
                     <i class="ri-menu-line"></i>
                 </button>
-                <h1 class="header__heading">HS Dental - <span>Principal</span></h1>
+                <div class="header__titles">
+                    <h1 class="header__heading">HS Dental - <span>Principal</span></h1>
+                    <p class="header__greeting" id="header-greeting"></p>
+                </div>
             </div>
         </header>
     
@@ -182,6 +185,22 @@
                     </div>
                 </div>
                 <strong class="wallet__amount"><span id="incomes"></span></strong>
+            </div>
+        </section>
+
+        <section class="container panels">
+            <div class="panels__grid">
+                <div class="panel panel--agenda">
+                    <div class="panel__head">
+                        <h3 class="container__heading"><i class="ri-calendar-check-line"></i> Citas de hoy</h3>
+                        <span class="panel__count" id="agenda-count"></span>
+                    </div>
+                    <ul class="agenda__list" id="agenda-list"></ul>
+                </div>
+                <div class="panel panel--donut">
+                    <h3 class="container__heading"><i class="ri-pie-chart-2-line"></i> Estado de tratamientos</h3>
+                    <div class="donut" id="donut"></div>
+                </div>
             </div>
         </section>
     </div>
