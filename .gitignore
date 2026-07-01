@@ -12,3 +12,7 @@ appWeb.zip
 
 # Credenciales reales (no versionar; viven en el servidor)
 config.secret.php
+
+# Herramientas locales de Claude Code / Impeccable (no versionar)
+.claude/
+.impeccable/
