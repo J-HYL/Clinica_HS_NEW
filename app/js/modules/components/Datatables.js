@@ -47,14 +47,16 @@ export function createTableInstance(records) {
             aria-label="Abrir modal para editar estado"
           >${data}</button>`;
       }
-      // este bloque para Médico:
+      // este bloque para el Gabinete (se guarda como med1/med2, se muestra "Gabinete 1/2"):
       else if (key === "medico") {
+        col.title = "Gabinete";
+        const gabinetes = { med1: "Gabinete 1", med2: "Gabinete 2" };
         col.render = (data, _, row) => `
           <button
             class="table__medico"
             data-id="${row.id}"
-            aria-label="Abrir modal para editar médico"
-          >${data || '—'}</button>`;
+            aria-label="Abrir modal para editar gabinete"
+          >${gabinetes[data] || data || '—'}</button>`;
       }
       // columnas de fecha: mostrar DD/MM/YYYY, ordenar/filtrar por el ISO crudo
       else if (isDateColumn(key)) {

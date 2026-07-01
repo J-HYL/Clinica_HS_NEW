@@ -67,8 +67,9 @@
     gap: 8px;
 }
 .table__medico {
-  width: min-content;
-  padding: 4px 2vw;
+  width: max-content;
+  white-space: nowrap;
+  padding: 4px 12px;
   border: 1px solid var(--medico-border-color);
   border-radius: 4px;
   font-weight: 500;
