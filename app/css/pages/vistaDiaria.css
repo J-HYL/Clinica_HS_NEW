@@ -1,0 +1,248 @@
+/* Vista diaria de citas: bottom sheet del formulario (móvil) + tema del
+   calendario (FullCalendar). Mobile-first; en escritorio el formulario
+   vuelve a mostrarse inline junto al calendario. */
+
+#calendar{
+    max-width: 100vw !important;
+}
+
+.modal__card{
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
+
+/* ===== Botón que abre el formulario (solo móvil) ===== */
+
+.sheet__trigger{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background-color: var(--primary);
+    color: #fff;
+    font-family: inherit;
+    font-size: 1.0625em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(43, 128, 247, .3);
+    transition: background-color .2s ease, box-shadow .2s ease, transform .15s ease;
+}
+
+.sheet__trigger i{ font-size: 22px; }
+
+.sheet__trigger:hover, .sheet__trigger:focus-visible{
+    background-color: var(--dark-primary);
+    transform: translateY(-2px);
+}
+
+/* ===== Bottom sheet (móvil) ===== */
+
+.sheet__backdrop{
+    position: fixed;
+    inset: 0;
+    background-color: rgba(29, 36, 46, .45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .3s ease, visibility .3s ease;
+    z-index: 90;
+}
+
+.sheet__backdrop.is-open{
+    opacity: 1;
+    visibility: visible;
+}
+
+.form-sheet{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 0;
+    padding-bottom: calc(25px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -12px 40px rgba(29, 36, 46, .18);
+    transform: translateY(105%);
+    transition: transform .35s cubic-bezier(.32, .72, 0, 1);
+    z-index: 100;
+}
+
+.form-sheet.is-open{
+    transform: translateY(0);
+}
+
+.sheet__grabber{
+    display: block;
+    width: 44px;
+    height: 5px;
+    margin: 2px auto 14px;
+    border-radius: 999px;
+    background-color: #D8DCE8;
+}
+
+.sheet__head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sheet__close{
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--background);
+    color: var(--light-gray);
+    font-size: 1.3em;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.sheet__close:hover{
+    background-color: var(--pale-pink);
+    color: var(--pink);
+}
+
+body.sheet-open{ overflow: hidden; }
+
+/* ===== Tema del calendario (FullCalendar) ===== */
+
+.fc{
+    font-family: "Figtree", Arial, sans-serif;
+    /* Resaltado de "hoy": azul muy suave en vez del amarillo por defecto. */
+    --fc-today-bg-color: rgba(43, 128, 247, .05);
+}
+
+.fc .fc-toolbar.fc-header-toolbar{
+    margin-bottom: 18px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.fc .fc-toolbar-title{
+    font-size: 1.15em;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.fc .fc-button-primary{
+    background-color: var(--pale-primary);
+    border: none;
+    color: var(--primary);
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-weight: 600;
+    text-transform: capitalize;
+    box-shadow: none;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.fc .fc-button-primary:hover{
+    background-color: var(--light-primary);
+    color: #fff;
+}
+
+.fc .fc-button-primary:disabled{
+    background-color: var(--pale-primary);
+    color: var(--pale-gray);
+    opacity: 1;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active{
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.fc .fc-button:focus{ box-shadow: 0 0 0 3px rgba(43, 128, 247, .2); }
+
+/* Cabeceras de columnas (GABINETE 1 / 2) */
+.fc .fc-col-header-cell{
+    background-color: var(--pale-primary);
+    padding: 10px 4px;
+}
+
+.fc .fc-col-header-cell-cushion{
+    color: var(--primary);
+    font-weight: 700;
+    font-size: .95em;
+    text-decoration: none;
+}
+
+/* Rejilla y etiquetas de hora */
+.fc-theme-standard td,
+.fc-theme-standard th{ border-color: #EDEFF5; }
+
+.fc .fc-timegrid-slot{ height: 2.4em; }
+
+.fc .fc-timegrid-axis-cushion,
+.fc .fc-timegrid-slot-label-cushion{
+    color: var(--light-gray);
+    font-size: .8em;
+}
+
+.fc .fc-timegrid-now-indicator-line{ border-color: var(--pink); }
+
+/* Eventos: acento de color a la izquierda + texto legible */
+.fc .fc-timegrid-event{
+    border-radius: 8px;
+    border-width: 0 0 0 3px;
+    box-shadow: none;
+    padding: 2px 4px;
+}
+
+.fc .fc-event-title,
+.fc .fc-event-time{
+    font-weight: 600;
+    white-space: normal;
+}
+
+/* ===== Escritorio: el formulario vuelve a ser una tarjeta inline ===== */
+
+@media screen and (min-width: 744px){
+    .sheet__trigger{ display: none; }
+
+    .form-sheet{
+        position: static;
+        max-width: 550px;
+        max-height: none;
+        overflow-y: visible;
+        margin: 0;
+        padding-bottom: 25px;
+        border-radius: 30px;
+        box-shadow: 0 10px 60px rgba(252, 225, 255, 0.5);
+        transform: none;
+        z-index: auto;
+    }
+
+    .sheet__grabber,
+    .sheet__close{ display: none; }
+
+    .sheet__backdrop{ display: none; }
+
+    body.sheet-open{ overflow: auto; }
+}
+
+/* ===== Móvil: calendario más compacto y legible ===== */
+
+@media screen and (max-width: 743px){
+    .fc .fc-toolbar-title{ font-size: 1em; }
+
+    .fc .fc-timegrid-slot{ height: 2em; }
+
+    .fc .fc-col-header-cell-cushion{ font-size: .8em; }
+
+    .fc .fc-event-title,
+    .fc .fc-event-time{ font-size: .72em; }
+}

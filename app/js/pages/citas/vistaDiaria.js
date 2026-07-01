@@ -22,6 +22,14 @@ const dateParam = params.get('date'); // "YYYY-MM-DD" o null
 const hoy = new Date().toISOString().slice(0,10);
 const horaMin = '09:00';
 
+// Colores del evento según su estado (mismo lenguaje que la agenda del dashboard).
+function coloresEstado(estado){
+  const e = (estado || 'Pendiente').toLowerCase();
+  if (e === 'completada') return { backgroundColor: '#DEFFD2', borderColor: '#3CD856', textColor: '#087443' };
+  if (e === 'cancelada')  return { backgroundColor: '#FCDFDF', borderColor: '#DE5753', textColor: '#B23935' };
+  return { backgroundColor: '#FCEEDF', borderColor: '#F78E2B', textColor: '#C46A16' }; // pendiente
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // --- 4) Preparar input de fecha/hora (Crear Cita) ---
   const inputFecha = document.getElementById('fecha');
@@ -29,6 +37,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (dateParam) {
     inputFecha.value = `${dateParam}T${horaMin}`;
   }
+
+  // --- 4.1) Bottom sheet "Crear Cita" (móvil) ---
+  const formSheet    = document.getElementById('form-sheet');
+  const sheetBackdrop = document.getElementById('sheet-backdrop');
+  const openFormBtn  = document.getElementById('open-form');
+  const closeFormBtn = document.getElementById('close-form');
+
+  const openSheet = () => {
+    formSheet.classList.add('is-open');
+    sheetBackdrop.classList.add('is-open');
+    document.body.classList.add('sheet-open');
+  };
+  const closeSheet = () => {
+    formSheet.classList.remove('is-open');
+    sheetBackdrop.classList.remove('is-open');
+    document.body.classList.remove('sheet-open');
+  };
+
+  if (openFormBtn)  openFormBtn.addEventListener('click', openSheet);
+  if (closeFormBtn) closeFormBtn.addEventListener('click', closeSheet);
+  if (sheetBackdrop) sheetBackdrop.addEventListener('click', closeSheet);
 
   // --- 5) Inicializar FullCalendar ---
   const calendar = new FullCalendar.Calendar(
@@ -43,6 +72,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       initialDate: dateParam || hoy,
       slotMinTime: '09:00:00',
       slotMaxTime: '21:00:00',
+      allDaySlot: false,
+      height: 'auto',
       headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
       
       // ==================================================================
@@ -67,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // --- 5.1) dateClick: asignar al input "Crear Cita" ---
       dateClick: info => {
         inputFecha.value = info.dateStr.slice(0,16);
+        openSheet(); // en móvil, abre el formulario ya con la hora seleccionada
       },
 
       // --- 5.2) datesSet: cargar y mostrar citas del día actual ---
@@ -100,9 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               medico: app.medico,
               estado: app.estado
             },
-            backgroundColor: '#c8c5c5',
-            borderColor: '#c8c5c5',
-            textColor: '#000000'
+            ...coloresEstado(app.estado)
           });
         });
       },
@@ -292,12 +322,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         fcEvent.setExtendedProp('estado',   nuevoEstado);
 
         // Cambiar color según estado
-        let color;
-        if (nuevoEstado === 'Completada')    color = 'green';
-        else if (nuevoEstado === 'Cancelada') color = 'red';
-        else                                  color = '#c8c5c5';
-        fcEvent.setProp('backgroundColor', color);
-        fcEvent.setProp('borderColor',     color);
+        const c = coloresEstado(nuevoEstado);
+        fcEvent.setProp('backgroundColor', c.backgroundColor);
+        fcEvent.setProp('borderColor',     c.borderColor);
+        fcEvent.setProp('textColor',       c.textColor);
       }
     } catch (err) {
       console.error('Error al actualizar la cita:', err);
@@ -345,13 +373,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           medico:   data.medico,
           estado:   data.estado
         },
-        backgroundColor: '#c8c5c5',
-        borderColor:     '#c8c5c5',
-        textColor:       '#000000'
+        ...coloresEstado(data.estado)
       });
 
       Swal.fire('Éxito','Cita guardada exitosamente.','success');
       form.reset();
+      closeSheet();
     } catch (err) {
       Swal.fire('Error', err.message, 'error');
     }

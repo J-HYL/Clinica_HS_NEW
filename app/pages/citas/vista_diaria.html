@@ -14,6 +14,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="/css/pages/agregar.css">
     <link rel="stylesheet" href="/css/components/modal.css">
+    <link rel="stylesheet" href="/css/pages/vistaDiaria.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
@@ -21,17 +22,6 @@
     <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-    <style>
-        #calendar {
-            max-width: 100vw !important;
-            max-height: 790px;
-        }
-        .modal__card{
-            padding-right: 1rem;
-            padding-left: 1rem;
-
-        }
-    </style>
 </head>
 <body>
     <nav class="sidebar" id="sidebar">
@@ -125,9 +115,19 @@
 
         </header>
 
+        <button type="button" class="sheet__trigger" id="open-form" aria-label="Crear una cita">
+            <i class="ri-add-line"></i> Crear Cita
+        </button>
+
         <div class="content-layout">
-            <main class="container main">
-                <h3 class="container__heading">Crear Cita</h3>
+            <main class="container main form-sheet" id="form-sheet">
+                <span class="sheet__grabber" aria-hidden="true"></span>
+                <div class="sheet__head">
+                    <h3 class="container__heading">Crear Cita</h3>
+                    <button type="button" class="sheet__close" id="close-form" aria-label="Cerrar el formulario">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
                 <form id="event-form" class="form">
                   <!--Cliente-->
                     <div class="form__group">
@@ -179,8 +179,9 @@
             </main>
             <!--Calendario-->
             <div id="calendar" class="container main"></div>
-
         </div>
+
+        <div class="sheet__backdrop" id="sheet-backdrop"></div>
     </div>
     <!--Modal de edicion-->
     <dialog class="modal" id="edit-modal" role="dialog"
