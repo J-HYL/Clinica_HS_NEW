@@ -22,4 +22,6 @@ return [
         'pass' => '',
         'port' => 587,
     ],
+    // Token secreto para lanzar los cron por URL (?token=...). Genera uno aleatorio.
+    'cron_token' => '',
 ];
