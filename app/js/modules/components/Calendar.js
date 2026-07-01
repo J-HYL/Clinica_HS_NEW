@@ -1,5 +1,5 @@
 import { calendarDays, calendarHeading, firstDayGrid, linkAppointmentsControlBtn, modalCalendarList, modalHeading } from "../selectores.js";
-import { formatDateRange, formatDateString, formatTitle, reloadPage } from "../funciones.js";
+import { formatDateRange, formatDateString, formatFecha, formatTitle, reloadPage } from "../funciones.js";
 import { openModal } from "./Modal.js";
 import UI from "../classes/UI.js";
 import DB from "../classes/DB_API.js";
@@ -112,7 +112,9 @@ function displayAppointmentsInModal(appointments){
     modalHeading.textContent = `Citas - ${formattedDateString}`;
     UI.cleanHTML(modalCalendarList);
     appointments.forEach(appointment => UI.createCalendarModalItem(appointment))
-    linkAppointmentsControlBtn.href = `control.html?search=${date.slice(0,10)}`;
+    // La tabla filtra las fechas por su valor mostrado (DD/MM/YYYY), así que el
+    // término de búsqueda debe ir en ese mismo formato, no en ISO.
+    linkAppointmentsControlBtn.href = `control.html?search=${encodeURIComponent(formatFecha(date.slice(0, 10)))}`;
 
     openModal();
 }
