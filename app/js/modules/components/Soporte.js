@@ -99,7 +99,7 @@ function buildWidget() {
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 Soporte técnico
             </h3>
-            <p>¿Algo no funciona o tienes una duda con el panel? Cuéntanos qué ocurre y, si puedes, adjunta una captura. El equipo lo revisará.</p>
+            <p>¿Algo no funciona o tienes una duda con el panel? Cuéntame qué ocurre y, si puedes, adjunta una captura. Lo reviso y te echo una mano.</p>
         </div>
         <div class="hs-support-body">
             <label class="hs-support-label" for="hs-support-text">Describe el problema</label>
