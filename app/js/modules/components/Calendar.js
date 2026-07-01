@@ -55,16 +55,35 @@ export function setMonth(step){
     renderCalendar()
 }
 
-function displayAppointmentsInCalendar(appointments){
-    const calendarDaysWithAppointments = document.querySelectorAll(".calendar__day--content");
-    calendarDaysWithAppointments.forEach(calendarDay => UI.cleanCalendarDay(calendarDay))
+// Guardamos las citas del mes en curso para poder refiltrar por gabinete
+// sin tener que volver a pedirlas al servidor.
+let lastAppointments = [];
+let currentGabinete = "all"; // "all" | "med1" | "med2"
 
-    appointments.forEach(record => {
-        const date = new Date(record.fecha);
-        const day = date.getDate();
+function displayAppointmentsInCalendar(appointments){
+    lastAppointments = appointments;
+    renderFilteredAppointments();
+}
+
+function renderFilteredAppointments(){
+    document.querySelectorAll(".calendar__day--content")
+        .forEach(calendarDay => UI.cleanCalendarDay(calendarDay));
+
+    const visibles = currentGabinete === "all"
+        ? lastAppointments
+        : lastAppointments.filter(record => (record.medico || "") === currentGabinete);
+
+    visibles.forEach(record => {
+        const day = new Date(record.fecha).getDate();
         const calendarDayContainer = document.querySelector(`.calendar__day[data-day="${day}"]`);
-        UI.updateCalendarDayContent(calendarDayContainer, record)
-    })
+        if (calendarDayContainer) UI.updateCalendarDayContent(calendarDayContainer, record);
+    });
+}
+
+/** Cambia el gabinete visible (med1/med2/all) y repinta sin recargar datos. */
+export function setGabinete(medico){
+    currentGabinete = medico;
+    renderFilteredAppointments();
 }
 
 //* Appointment Modal

@@ -22,6 +22,15 @@ const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 // Fecha de referencia de la semana mostrada (se muta al navegar).
 const semanaActual = new Date();
 
+// Gabinete visible: "all" | "med1" | "med2" (lo cambia el switch de la cabecera).
+let gabineteActual = "all";
+
+/** Cambia el gabinete visible y repinta la semana. */
+export function setGabineteSemana(medico) {
+  gabineteActual = medico;
+  renderSemana();
+}
+
 const ymd = d =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
@@ -125,6 +134,9 @@ export function renderSemana() {
       const porDia = Array.from({ length: 7 }, () => []);
 
       apps.forEach(a => {
+        // Filtro por gabinete (med1/med2) si el switch no está en "Todos".
+        if (gabineteActual !== "all" && (a.medico || "") !== gabineteActual) return;
+
         const diaISO = a.fecha.slice(0, 10);
         if (diaISO < desde || diaISO >= hasta) return;
         const idx = dias.findIndex(d => ymd(d) === diaISO);

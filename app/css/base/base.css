@@ -30,7 +30,7 @@
     --light-gray: #6D6D6D;
     --pale-gray: #9197B3;
 
-    --calendar-gradient: linear-gradient(to bottom, #839cff, #839cff);
+    --calendar-gradient: linear-gradient(to bottom, var(--primary), var(--primary));
     --calendar--appointment-text-color: #836942;
     --calendar-green-status: #DEFFD2;
     --calendar-blue-status: #EEECFD;

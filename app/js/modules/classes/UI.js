@@ -169,7 +169,7 @@ class UI{
         if (!appointmentsLength) this.cleanCalendarDay(container);
     }
 
-    createCalendarModalItem({ servicio, cliente, estado, fecha }){
+    createCalendarModalItem({ servicio, cliente, estado, fecha, medico }){
         const formattedStatus = estado.toLowerCase();
 
         const listItem = document.createElement("LI");
@@ -200,6 +200,15 @@ class UI{
 
         itemContent.appendChild(serviceHeading);
         itemContent.appendChild(clientSpan);
+
+        //* Distintivo de gabinete (med1 -> Gabinete 1, med2 -> Gabinete 2)
+        const gabLabels = { med1: "Gabinete 1", med2: "Gabinete 2" };
+        if (gabLabels[medico]) {
+            const gabBadge = document.createElement("SPAN");
+            gabBadge.classList.add("item__gabinete", `gab--${medico}`);
+            gabBadge.textContent = gabLabels[medico];
+            itemContent.appendChild(gabBadge);
+        }
 
         itemDescription.appendChild(itemIcon);
         itemDescription.appendChild(itemContent)

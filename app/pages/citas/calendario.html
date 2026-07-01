@@ -53,19 +53,160 @@
             .calendar__view-btn{ padding: 4px 12px; font-size: 0.72em; }
         }
 
-        /* Día actual en la vista mensual */
-        .calendar__day--today{
-            box-shadow: inset 0 0 0 2px var(--light-primary);
-        }
+        /* Día actual: sin marco ni círculo, solo el número en azul y en negrita */
         .calendar__day--today .day__info h5{
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Switch de gabinete (control segmentado bajo la cabecera) */
+        .calendar__toolbar{
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            background: #fff;
+            border-bottom: 1px solid #eef0f4;
+        }
+        .gab-chip{
+            flex: 1;
+            padding: 8px 6px;
+            border: none;
+            border-radius: 10px;
+            background: #f1f3f7;
+            color: var(--light-gray);
+            font-size: 0.82em;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+        }
+        .gab-chip:hover{ background: #e7ebf3; }
+        .gab-chip--active{
             background: var(--primary);
             color: #fff;
-            border-radius: 999px;
-            min-width: 1.8em;
-            height: 1.8em;
-            padding: 0 0.35em;
-            display: inline-grid;
-            place-items: center;
+            box-shadow: 0 2px 8px rgba(43, 128, 247, .35);
+        }
+        .gab-chip--active:hover{ background: var(--primary); }
+
+        /* ===== Vista móvil: calendario tipo app nativa ===== */
+        @media (max-width: 743px){
+            /* Aprovechar el ancho: menos margen y tarjeta a pantalla casi completa */
+            .wrapper{ padding: 14px 10px; }
+            .main{
+                margin-top: 14px;
+                border-radius: 20px;
+                box-shadow: 0 6px 24px rgba(17, 24, 39, .06);
+            }
+
+            /* Cabecera blanca y limpia, en lugar de la barra degradada */
+            .calendar__header{
+                background: #fff;
+                background-image: none;
+                height: auto;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 16px 16px 12px;
+                border-bottom: 1px solid #eef0f4;
+            }
+            .calendar__header .header__container{
+                width: 100%;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .container__heading{
+                color: var(--dark-gray);
+                font-size: 1.15em;
+                font-weight: 700;
+            }
+            /* Flechas como iconos limpios (sin círculo blanco), en azul de marca */
+            .calendar__button{
+                background: transparent;
+                width: 38px;
+                height: 38px;
+                font-size: 1.6em;
+            }
+            .calendar__header .calendar__button i{ color: var(--primary) !important; }
+
+            /* El toggle Mes/Semana pasa al flujo, centrado bajo el título */
+            .calendar__views{
+                position: static;
+                transform: none;
+                right: auto;
+                top: auto;
+                align-self: center;
+                background: #f1f3f7;
+            }
+            .calendar__view-btn{ color: var(--light-gray); }
+            .calendar__view-btn--active{ background: #fff; color: var(--primary); }
+
+            /* Rejilla de días sin bordes duros: separadores finos, look nativo */
+            .calendar__days{ background: #fff; }
+            .calendar__day{
+                min-height: 58px;
+                padding: 8px 2px;
+                border: none;
+                border-top: 1px solid #f1f2f5;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 5px;
+            }
+            .calendar__day:hover{ background: transparent; }
+
+            /* Número centrado arriba y punto indicador debajo */
+            .day__info{
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                width: 100%;
+            }
+            .day__info h5{
+                font-size: 0.95em;
+                color: var(--dark-gray);
+                width: 1.9em;
+                height: 1.9em;
+                display: grid;
+                place-items: center;
+            }
+
+            /* Cada cita se muestra como un punto bajo el número (estilo app de
+               calendario). El color respeta el estado de la cita, igual que
+               las píldoras del escritorio: pendiente / completada / cancelada. */
+            .day__info button.day__notification{ display: none; }
+            .calendar__day .calendar__appointments{
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: center;
+                gap: 4px;
+                max-height: none;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+            .calendar__appointments li{
+                width: 7px;
+                height: 7px;
+                padding: 0;
+                border-radius: 50%;
+                background: var(--pale-gray);
+                overflow: hidden;
+            }
+            .calendar__appointments li button{ display: none; }
+            .calendar__appointments li.appointment__pendiente{ background: var(--orange-status); }
+            .calendar__appointments li.appointment__completada{ background: var(--green); }
+            .calendar__appointments li.appointment__cancelada{ background: var(--red); }
+            /* No más de 5 puntos para que no desborde la celda */
+            .calendar__appointments li:nth-child(n+6){ display: none; }
+
+            /* Hoy: solo el círculo azul del número (sin marco alrededor de la celda) */
+            .calendar__day--today{ box-shadow: none; }
+
+            /* Evitar el resalte naranja al tocar un día en el móvil */
+            .calendar__day--content:hover,
+            .calendar__day--content:focus{ background: transparent; }
+            .calendar__day--content:hover .day__info h5,
+            .calendar__day--content:focus .day__info h5{ color: var(--dark-gray); }
         }
     </style>
 </head>
@@ -174,7 +315,14 @@
                         <a href="semana.html" class="calendar__view-btn">Semana</a>
                     </nav>
                 </header>
-                
+
+                <!-- Switch de gabinete: elige qué gabinete quieres ver -->
+                <div class="calendar__toolbar" role="group" aria-label="Filtrar por gabinete">
+                    <button type="button" class="gab-chip gab-chip--active" data-medico="all">Todos</button>
+                    <button type="button" class="gab-chip" data-medico="med1">Gabinete 1</button>
+                    <button type="button" class="gab-chip" data-medico="med2">Gabinete 2</button>
+                </div>
+
                 <!-- Días de la semana -->
                 <section class="calendar__weekdays">
                     <div class="calendar__weekday"><h4>Lunes</h4><abbr>Lun</abbr></div>
@@ -297,7 +445,6 @@
                 <ul class="modal__list"></ul>
             </div>
             <footer class="modal__footer">
-                <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
                 <a href="#" class="modal__button modal__button--primary modal__button--control">Ver en Control de Citas</a>
             </footer>
         </section>
