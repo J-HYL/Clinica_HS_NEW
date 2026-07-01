@@ -1,6 +1,10 @@
 //datatables.js
-import { formatTitle } from "../funciones.js";
+import { formatTitle, formatFecha } from "../funciones.js";
 import UI from "../classes/UI.js";
+
+// Columnas cuyo valor es una fecha (se muestran como DD/MM/YYYY, pero se
+// ordenan/filtran por el valor ISO crudo para mantener el orden cronológico).
+const isDateColumn = key => key === "Alta" || key === "fecha" || key.startsWith("fecha_");
 
 export function createTableInstance(records) {
     let objectStore = "";
@@ -52,6 +56,11 @@ export function createTableInstance(records) {
             aria-label="Abrir modal para editar médico"
           >${data || '—'}</button>`;
       }
+      // columnas de fecha: mostrar DD/MM/YYYY, ordenar/filtrar por el ISO crudo
+      else if (isDateColumn(key)) {
+        col.render = (data, type) =>
+          (type === "display" || type === "filter") ? formatFecha(data) : (data ?? "");
+      }
 
       return col;
     });
@@ -96,11 +105,17 @@ export function createTableInstance(records) {
         }
     });
 
+    // Orden por defecto: si hay columna de fecha, ordenar por ella ascendente
+    // (las más próximas primero). Si no, DataTables usa su orden por defecto.
+    const dateColIndex = Object.keys(records[0]).findIndex(isDateColumn);
+    const defaultOrder = dateColIndex >= 0 ? [[dateColIndex, "asc"]] : [];
+
     //Datatable Instancia
     const table = new DataTable('#table', {
         destroy: true,
         data: records,
         columns,
+        order: defaultOrder,
         search: {
             search: searchQuery
         },

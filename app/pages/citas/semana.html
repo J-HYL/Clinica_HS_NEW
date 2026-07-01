@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista Semanal de Citas</title>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/pages/calendario.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+
+    <style>
+        /* Toggle Mes / Semana (control segmentado sobre la barra del calendario) */
+        .calendar__views{
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-flex;
+            gap: 2px;
+            padding: 3px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+        }
+        .calendar__view-btn{
+            padding: 5px 16px;
+            border-radius: 999px;
+            color: #fff;
+            background: transparent;
+            text-decoration: none;
+            font-size: 0.8em;
+            font-weight: 600;
+            transition: .2s ease background, .2s ease color;
+        }
+        .calendar__view-btn--active{
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+        }
+
+        @media (max-width: 600px){
+            .calendar__views{ right: 16px; }
+            .calendar__view-btn{ padding: 4px 12px; font-size: 0.72em; }
+        }
+
+        /* ===== Rejilla semanal (horas × días) ===== */
+        /* Cabecera y cuerpo comparten las mismas columnas para alinearse. */
+        .week__head, .week__grid{
+            display: grid;
+            grid-template-columns: 56px repeat(7, 1fr);
+        }
+
+        .week__head{
+            background: #fff;
+            border-bottom: 1px solid #E6E6E6;
+        }
+        .week__corner{
+            border-right: 1px solid #E6E6E6;
+        }
+        .week__dayhead{
+            padding: 12px 4px;
+            text-align: center;
+            border-left: 1px solid #E6E6E6;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        .week__dayhead .week__dayname{
+            display: block;
+            font-size: 0.78em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--light-gray);
+        }
+        .week__dayhead--today{
+            color: var(--primary);
+        }
+        .week__dayhead--today .week__dayname{
+            color: var(--primary);
+        }
+
+        .week__grid{
+            background: #FAFAFA;
+        }
+        .week__hours{
+            border-right: 1px solid #E6E6E6;
+        }
+        .week__hour-label{
+            height: 48px;                 /* = ALTO_HORA en WeekCalendar.js */
+            box-sizing: border-box;
+            padding: 2px 6px 0 0;
+            text-align: right;
+            font-size: 0.72em;
+            color: var(--light-gray);
+        }
+        .week__col{
+            position: relative;
+            border-left: 1px solid #E6E6E6;
+            min-height: 576px;            /* 12 h × 48px */
+            /* Líneas de cada hora */
+            background-image: repeating-linear-gradient(to bottom, #ececec 0 1px, transparent 1px 48px);
+        }
+
+        .week__event{
+            position: absolute;
+            border-radius: 8px;
+            padding: 2px 6px;
+            font-size: 0.72em;
+            line-height: 1.2;
+            overflow: hidden;
+            cursor: pointer;
+            box-sizing: border-box;
+            color: var(--calendar--appointment-text-color, #333);
+            box-shadow: 0 1px 2px rgba(0,0,0,.12);
+            transition: .15s ease transform, .15s ease box-shadow;
+        }
+        .week__event:hover{
+            transform: scale(1.02);
+            box-shadow: 0 2px 6px rgba(0,0,0,.25);
+            z-index: 4;
+        }
+        .week__event .hora{
+            font-weight: 600;
+            margin-right: 2px;
+        }
+        .week__event.appointment__pendiente{  background: var(--calendar-orange-status); }
+        .week__event.appointment__completada{ background: var(--calendar-green-status); }
+        .week__event.appointment__cancelada{  background: var(--calendar-red-status); }
+
+        /* Arrastrar citas a otro día */
+        .week__event{ cursor: grab; }
+        .week__event--dragging{ opacity: .5; }
+        .week__col.drag__over{ background-color: #eef3ff; }
+
+        /* Línea de "ahora" */
+        .week__now{
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--red, #e53935);
+            z-index: 3;
+        }
+        .week__now::before{
+            content: "";
+            position: absolute;
+            left: -4px;
+            top: -3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red, #e53935);
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
+            <i class="ri-close-large-fill"></i>
+        </button>
+        <div class="sidebar__content">
+            <div class="sidebar__logo">
+                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
+                <div class="item__hide item__hide--logo">
+                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
+                </div>
+            </div>
+            <ul class="sidebar__links">
+                <li class="sidebar__item">
+                    <a href="/index.html" aria-label="Ir al Principal">
+                        <i class="ri-dashboard-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Principal</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item sidebar__item--selected">
+                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
+                        <i class="ri-calendar-schedule-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Citas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
+                        <i class="ri-group-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Pacientes</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
+                        <i class="ri-briefcase-4-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Servicios</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
+                        <i class="ri-file-text-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Presupuestos</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
+                        <i class="ri-receipt-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Facturas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
+                        <i class="ri-admin-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Admin</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>Semana</span></h1>
+            </div>
+        </header>
+
+        <main class="container main">
+            <section class="calendar">
+                <header class="calendar__header">
+                    <div class="header__container">
+                        <button class="calendar__button calendar__button--previous" aria-label="Ir a la Semana Anterior"><i class="ri-arrow-left-s-line" style="color:#839cff;"></i></button>
+                        <h3 class="container__heading" id="calendar-date"></h3>
+                        <button class="calendar__button calendar__button--next" aria-label="Ir a la Semana Siguiente"><i class="ri-arrow-right-s-line" style="color:#839cff;"></i></button>
+                    </div>
+
+                    <!-- Toggle Mes / Semana -->
+                    <nav class="calendar__views">
+                        <a href="calendario.html" class="calendar__view-btn">Mes</a>
+                        <a href="semana.html" class="calendar__view-btn calendar__view-btn--active">Semana</a>
+                    </nav>
+                </header>
+
+                <!-- Cabecera de días (la rellena semana.js) -->
+                <div class="week__head" id="week-head"></div>
+
+                <!-- Rejilla horas × días (la rellena semana.js) -->
+                <div class="week__grid" id="week-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/citas/semana.js" type="module"></script>
+</body>
+</html>

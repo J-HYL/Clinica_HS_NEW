@@ -175,14 +175,22 @@ export function showRecordsP(objectStore, id = null) {
 export function getAppointments(callback = displayRecordsInTable) {
   DB.getRecords("appointments")
     .then(appointments => {
-      const rows = appointments.map(app => ({
-        id:      app.id,
-        Paciente: app.servicio,
-        Observaciones: app.cliente,
-        fecha:   app.fecha.split("T").join(" "),
-        medico:  app.medico,
-        estado:  app.estado
-      }));
+      // Fecha de hoy en formato local 'YYYY-MM-DD' para comparar por día.
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+      const rows = appointments
+        // Solo citas de hoy en adelante (compara la parte 'YYYY-MM-DD').
+        // El orden ISO coincide con el cronológico y descarta '0000-00-00'.
+        .filter(app => app.fecha && app.fecha.slice(0, 10) >= todayStr)
+        .map(app => ({
+          id:      app.id,
+          Paciente: app.servicio,
+          Observaciones: app.cliente,
+          fecha:   app.fecha.split("T").join(" "),
+          medico:  app.medico,
+          estado:  app.estado
+        }));
       callback(rows);
     })
     .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage));
@@ -368,6 +376,21 @@ export function goToControlPage() {
 
 export function formatTitle(title){
     return title.charAt(0).toUpperCase() + title.slice(1).replace(/_/g, ' ');
+}
+
+// Formatea una fecha de BD ('YYYY-MM-DD[ T]HH:MM[:SS]' o 'YYYY-MM-DD') al
+// formato de Windows español: 'DD/MM/YYYY' o 'DD/MM/YYYY HH:MM'.
+// Trabaja sobre el string (sin new Date) para no desfasar por zona horaria.
+export function formatFecha(value){
+    if (!value) return "";
+    const [datePart, timePart = ""] = String(value).replace("T", " ").split(" ");
+    const [y, m, d] = datePart.split("-");
+    if (!y || !m || !d) return String(value); // formato no reconocido
+    if (y === "0000") return "";              // fecha basura ('0000-00-00')
+    let out = `${d}/${m}/${y}`;
+    const [hh, mm] = timePart.split(":");
+    if (hh && mm) out += ` ${hh}:${mm}`;
+    return out;
 }
 
 //* Calendar Functions

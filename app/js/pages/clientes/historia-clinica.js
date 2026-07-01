@@ -1,6 +1,7 @@
 import {
   setTableEventsListeners,
-  showRecords
+  showRecords,
+  formatFecha
 } from "../../modules/funciones.js";
 import { table } from "../../modules/selectores.js";
 import DB from "../../modules/classes/DB_API.js";
@@ -48,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('nombre-paciente').textContent = pacienteData.nombre || 'No disponible';
     document.getElementById('email-paciente').textContent = pacienteData.email || 'No disponible';
     document.getElementById('telefono-paciente').textContent = pacienteData.telefono || 'No disponible';
-    document.getElementById('fecha-alta-paciente').textContent = pacienteData.Alta || 'No disponible';
+    document.getElementById('fecha-alta-paciente').textContent = pacienteData.Alta ? formatFecha(pacienteData.Alta) : 'No disponible';
     document.getElementById('alergias').textContent = pacienteData.alergias || 'No disponible';
     document.getElementById('edad').textContent = ' ' + pacienteData.edad || 'No disponible';
     document.title = `Historia Clínica - ${pacienteData.nombre}`;
