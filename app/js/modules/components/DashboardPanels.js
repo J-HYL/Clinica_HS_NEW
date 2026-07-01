@@ -30,13 +30,19 @@ export function renderGreeting() {
   el.textContent = `${saludo} — ${fecha}`;
 }
 
-// Lista de citas del día ordenadas por hora.
+const CITAS_POR_PAGINA = 3;
+
+// Lista de citas del día ordenadas por hora, paginada en un slider de 3 en 3.
 // OJO (inconsistencia del proyecto): en appointments la columna `servicio`
 // guarda el NOMBRE DEL PACIENTE y `cliente` guarda las OBSERVACIONES.
 export function renderTodayAgenda(appointments) {
-  const list = document.getElementById("agenda-list");
+  const track = document.getElementById("agenda-track");
   const count = document.getElementById("agenda-count");
-  if (!list) return;
+  const nav = document.getElementById("agenda-nav");
+  const dotsWrap = document.getElementById("agenda-dots");
+  const prevBtn = document.getElementById("agenda-prev");
+  const nextBtn = document.getElementById("agenda-next");
+  if (!track) return;
 
   const todayStr = getTodayString();
   const citas = appointments
@@ -45,20 +51,70 @@ export function renderTodayAgenda(appointments) {
 
   if (count) count.textContent = citas.length ? `${citas.length} ${citas.length === 1 ? "cita" : "citas"}` : "";
 
-  list.innerHTML = "";
+  track.innerHTML = "";
+  if (dotsWrap) dotsWrap.innerHTML = "";
 
+  // Sin citas: una sola "página" con el estado vacío, sin controles.
   if (!citas.length) {
-    const empty = document.createElement("li");
+    if (nav) nav.hidden = true;
+    track.style.transform = "translateX(0)";
+    const page = document.createElement("div");
+    page.className = "agenda__page";
+    const empty = document.createElement("div");
     empty.className = "agenda__empty";
     empty.innerHTML = '<i class="ri-calendar-line"></i>';
     empty.append("No hay citas para hoy");
-    list.appendChild(empty);
+    page.appendChild(empty);
+    track.appendChild(page);
     return;
   }
 
-  const fragment = document.createDocumentFragment();
-  citas.forEach((cita) => fragment.appendChild(crearFilaAgenda(cita)));
-  list.appendChild(fragment);
+  // Repartir en páginas de 3.
+  const paginas = [];
+  for (let i = 0; i < citas.length; i += CITAS_POR_PAGINA) {
+    paginas.push(citas.slice(i, i + CITAS_POR_PAGINA));
+  }
+
+  paginas.forEach((grupo) => {
+    const page = document.createElement("div");
+    page.className = "agenda__page";
+    grupo.forEach((cita) => page.appendChild(crearFilaAgenda(cita)));
+    track.appendChild(page);
+  });
+
+  // Slider solo si hay más de una página (más de 3 citas).
+  const haySlider = paginas.length > 1;
+  if (nav) nav.hidden = !haySlider;
+  track.style.transform = "translateX(0)";
+  if (!haySlider) return;
+
+  let indice = 0;
+  const dots = [];
+
+  const actualizar = () => {
+    track.style.transform = `translateX(-${indice * 100}%)`;
+    if (prevBtn) prevBtn.disabled = indice === 0;
+    if (nextBtn) nextBtn.disabled = indice === paginas.length - 1;
+    dots.forEach((dot, i) => dot.classList.toggle("agenda__dot--active", i === indice));
+  };
+
+  if (dotsWrap) {
+    paginas.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "agenda__dot";
+      dot.setAttribute("aria-label", `Página ${i + 1}`);
+      dot.addEventListener("click", () => { indice = i; actualizar(); });
+      dots.push(dot);
+      dotsWrap.appendChild(dot);
+    });
+  }
+
+  // onclick (no addEventListener) para no acumular handlers si se re-renderiza.
+  if (prevBtn) prevBtn.onclick = () => { if (indice > 0) { indice--; actualizar(); } };
+  if (nextBtn) nextBtn.onclick = () => { if (indice < paginas.length - 1) { indice++; actualizar(); } };
+
+  actualizar();
 }
 
 function crearFilaAgenda(cita) {

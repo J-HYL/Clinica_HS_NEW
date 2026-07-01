@@ -184,19 +184,30 @@
                         </div>
                     </div>
                 </div>
-                <strong class="wallet__amount"><span id="incomes"></span></strong>
+                <div class="panel panel--agenda sections__agenda">
+                    <div class="panel__head">
+                        <h3 class="container__heading"><i class="ri-calendar-check-line"></i> Citas de hoy</h3>
+                        <div class="panel__head-right">
+                            <span class="panel__count" id="agenda-count"></span>
+                            <div class="agenda__nav" id="agenda-nav" hidden>
+                                <button type="button" class="agenda__nav-btn" id="agenda-prev" aria-label="Citas anteriores"><i class="ri-arrow-left-s-line"></i></button>
+                                <button type="button" class="agenda__nav-btn" id="agenda-next" aria-label="Citas siguientes"><i class="ri-arrow-right-s-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="agenda__viewport">
+                        <div class="agenda__track" id="agenda-track"></div>
+                    </div>
+                    <div class="agenda__dots" id="agenda-dots"></div>
+                    <a class="agenda__cta" href="/pages/citas/calendario.html" aria-label="Ir al calendario">
+                        <i class="ri-calendar-2-line"></i> Ver calendario
+                    </a>
+                </div>
             </div>
         </section>
 
         <section class="container panels">
             <div class="panels__grid">
-                <div class="panel panel--agenda">
-                    <div class="panel__head">
-                        <h3 class="container__heading"><i class="ri-calendar-check-line"></i> Citas de hoy</h3>
-                        <span class="panel__count" id="agenda-count"></span>
-                    </div>
-                    <ul class="agenda__list" id="agenda-list"></ul>
-                </div>
                 <div class="panel panel--donut">
                     <h3 class="container__heading"><i class="ri-pie-chart-2-line"></i> Estado de tratamientos</h3>
                     <div class="donut" id="donut"></div>

@@ -31,16 +31,109 @@
     white-space: nowrap;
 }
 
-/* --- Agenda de citas de hoy --- */
+/* --- Agenda de citas de hoy (slider por páginas de 3) --- */
 
-.agenda__list{
-    list-style: none;
+.panel__head-right{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.agenda__nav{
+    display: flex;
+    gap: 6px;
+}
+
+.agenda__nav[hidden]{ display: none; }
+
+.agenda__nav-btn{
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #E1E5F0;
+    border-radius: 8px;
+    background-color: #fff;
+    color: var(--dark-gray);
+    font-size: 1.15em;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.agenda__nav-btn:hover:not(:disabled){
+    background-color: var(--pale-primary);
+    color: var(--primary);
+    border-color: var(--light-primary);
+}
+
+.agenda__nav-btn:disabled{
+    opacity: .4;
+    cursor: default;
+}
+
+.agenda__viewport{
     margin-top: 16px;
+    overflow: hidden;
+}
+
+.agenda__track{
+    display: flex;
+    transition: transform .35s ease;
+}
+
+.agenda__page{
+    flex: 0 0 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 360px;
-    overflow-y: auto;
+}
+
+.agenda__dots{
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.agenda__dots:empty{ display: none; }
+
+.agenda__dot{
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #D8DCE8;
+    cursor: pointer;
+    transition: width .2s ease, background-color .2s ease, border-radius .2s ease;
+}
+
+.agenda__dot--active{
+    width: 18px;
+    border-radius: 4px;
+    background-color: var(--primary);
+}
+
+.agenda__cta{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 11px;
+    border-radius: 12px;
+    background-color: var(--pale-primary);
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9375em;
+    text-decoration: none;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.agenda__cta:hover{
+    background-color: var(--primary);
+    color: #fff;
 }
 
 .agenda__item{
@@ -229,21 +322,20 @@
     color: var(--light-gray);
 }
 
-/* --- Dos columnas cuando hay ancho suficiente --- */
+/* --- Panel de citas: ocupa el hueco junto a "Secciones Recomendadas" --- */
+
+@container sections (min-width: 870px){
+    .sections__agenda{
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* --- Donut: centrado en su tarjeta cuando hay ancho suficiente --- */
 
 @container panels (min-width: 760px){
-    .panels__grid{
-        flex-direction: row;
-        gap: 32px;
-    }
-
-    .panel--agenda{
-        flex: 1 1 58%;
-        padding-right: 32px;
-        border-right: 1px solid #EBEBEB;
-    }
-
-    .panel--donut{
-        flex: 1 1 42%;
+    .donut{
+        justify-content: center;
+        gap: 48px;
     }
 }
