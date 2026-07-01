@@ -22,6 +22,31 @@ use Dompdf\Options;
 require_once "db_connect.php";
 $conn = getConnection();
 
+// Segmento de clínica: aísla los archivos de pacientes por sede, para que los IDs
+// coincidentes entre clínicas (cada una con su propia BD) no compartan carpeta.
+$clinicSeg = 'clinica' . (int)($_SESSION['clinic_id'] ?? 0);
+
+/**
+ * Borra recursivamente un directorio, validando que quede DENTRO de uploads/pacientes.
+ * Devuelve false si no existe (nada que borrar); lanza excepción si la ruta se sale del árbol.
+ */
+function deleteDir($dir) {
+    $base = realpath(__DIR__ . '/../uploads/pacientes');
+    $real = realpath($dir);
+    if ($real === false) return false;
+    if ($base === false || strpos($real, $base) !== 0) {
+        throw new Exception('Ruta fuera de uploads/pacientes: ' . $dir);
+    }
+    $items = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($real, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($items as $it) {
+        $it->isDir() ? rmdir($it->getPathname()) : unlink($it->getPathname());
+    }
+    return rmdir($real);
+}
+
 // Resto de tu lógica: switch(GET/POST/PUT/DELETE) ...
 $table = $_GET['table'] ?? null;
 $id    = $_GET['id'] ?? null;
@@ -68,7 +93,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                       $sanitized_patient_id = uniqid('patient_');
                   }
 
-                  $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_patient_id;
+                  $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_patient_id;
 
                   if (!file_exists($folder_path)) {
                       if (mkdir($folder_path, 0777, true)) {
@@ -180,7 +205,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         $sanitized_treatment_id = uniqid('treatment_');
                     }
 
-                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
+                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
                     error_log("DEBUG - Ruta completa de la carpeta de tratamiento a crear: " . $folder_path);
 
                     if (!file_exists($folder_path)) {
@@ -337,7 +362,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $file_extension = pathinfo($original_file_name, PATHINFO_EXTENSION);
                 $unique_file_name = uniqid() . '_' . md5(microtime()) . '.' . $file_extension;
 
-                $upload_dir_relative = "uploads/pacientes/{$sanitized_client_id}/{$sanitized_treatment_id}/";
+                $upload_dir_relative = "uploads/pacientes/{$clinicSeg}/{$sanitized_client_id}/{$sanitized_treatment_id}/";
                 $target_dir = __DIR__ . "/../" . $upload_dir_relative;
                 $target_file_path_full = $target_dir . $unique_file_name;
                 $target_file_path_db = $upload_dir_relative . $unique_file_name;
@@ -1078,7 +1103,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 case 'clients':
                     // Obtener la ruta de la carpeta del cliente antes de eliminarlo de la DB
                     $sanitized_patient_id = preg_replace('/[^a-zA-Z0-9_\-.]/', '', $id);
-                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_patient_id;
+                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_patient_id;
 
                     $stmt = $conn->prepare("DELETE FROM clients WHERE id = ?");
                     $stmt->bind_param("i", $id);
@@ -1192,7 +1217,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                             $sanitized_client_id = preg_replace('/[^a-zA-Z0-9_\-.]/', '', $client_id_for_folder);
                             $sanitized_treatment_id = preg_replace('/[^a-zA-Z0-9_\-.]/', '', $id);
-                            $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
+                            $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
 
                             if (file_exists($folder_path)) {
                                 try {
