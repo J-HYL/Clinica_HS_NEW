@@ -1,23 +1,6 @@
 const servicios = [];
 
-const CLINICS = {
-  mostoles: {
-    name: "HS Dental - Móstoles",
-    nif: "B21866850",
-    address: "Calle Pintor el Greco, 2 - Bajo D, Madrid 28933",
-    phone: "678 484 539",
-    email: "hsdental00@gmail.com",
-    logo: "../../assets/images/logoCompleto.jpg"
-  },
-  alcorcon: {
-    name: "HS Dental - Alcorcón",
-    nif: "B21866850",
-    address: "Calle Mayor, 65 – 1B, Madrid 28921",
-    phone: "641265985",
-    email: "hsdental00@gmail.com",
-    logo: "../../assets/images/logoCompleto.jpg"
-  }
-};
+// Datos de clinica: fuente UNICA en clinica.js (window.Clinica). No duplicar aqui.
 
 const el = id => document.getElementById(id);
 const tbody = document.querySelector("#servicesTable tbody");
@@ -30,6 +13,8 @@ function getSelectedDiscount() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  autodetectarClinica();
+
   el("btnAdd").addEventListener("click", e => {
     e.preventDefault();
     agregarServicio();
@@ -59,6 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   actualizarTabla();
 });
+
+// Autodetecta la clinica de la SESION (via componente unico window.Clinica) y bloquea
+// el selector, para que la factura sea SIEMPRE de la clinica en la que estas logueado.
+async function autodetectarClinica() {
+  const sel = el("clinicSelect");
+  if (!sel) return;
+  const clinic = await window.Clinica.actual();
+  if (clinic) {
+    sel.value = clinic.key;
+    sel.disabled = true; // no editable: solo se factura de la clinica en la que estas
+    sel.title = "Detectada automaticamente segun tu sesion";
+  }
+}
 
 function agregarServicio() {
   const desc = el("serviceDesc").value.trim();
@@ -153,11 +151,8 @@ async function imprimirFactura() {
   const observations = el("observations").value.trim();
   const paymentMethod = el("paymentMethod").value;
   const clinicKey = el("clinicSelect").value;
-  const clinic = CLINICS[clinicKey] || CLINICS.mostoles;
-
-  let prefijoClinica = "GEN";
-  if (clinicKey === "mostoles") prefijoClinica = "M";
-  else if (clinicKey === "alcorcon") prefijoClinica = "A";
+  const clinic = window.Clinica.DATOS[clinicKey] || window.Clinica.DATOS.mostoles;
+  const prefijoClinica = clinic.inicial || "GEN";
 
   const subTotal = servicios.reduce((s, it) => s + it.precio * it.cantidad, 0);
   const descuento = getSelectedDiscount();
@@ -318,12 +313,12 @@ async function imprimirFactura() {
             <!-- Datos de la clínica -->
             <td style="padding-left: 15px; vertical-align: top">
               <h2 style="margin: 0; font-size: 18px">
-                ${escapeHtml(clinic.name)}
+                ${escapeHtml(clinic.nombre)}
               </h2>
               <p style="margin: 0">NIF: ${escapeHtml(clinic.nif)}</p>
-              <p style="margin: 0">${escapeHtml(clinic.address)}</p>
+              <p style="margin: 0">${escapeHtml(clinic.direccion)}</p>
               <p style="margin: 0">
-                Tel: ${escapeHtml(clinic.phone)} | Email:
+                Tel: ${escapeHtml(clinic.telefono)} | Email:
                 ${escapeHtml(clinic.email)}
               </p>
             </td>
@@ -392,7 +387,7 @@ async function imprimirFactura() {
           <strong>Operación exenta de IVA (art. 20.Uno.3 Ley 37/1992).</strong>
         </p>
         <p>Factura conforme al Real Decreto 1619/2012.</p>
-        <p><em>Gracias por confiar en ${escapeHtml(clinic.name)}.</em></p>
+        <p><em>Gracias por confiar en ${escapeHtml(clinic.nombre)}.</em></p>
       </footer>
     </div>
   </body>
@@ -401,7 +396,7 @@ async function imprimirFactura() {
     //const ventana = window.open("", "_blank");
     	//ventana.document.open();
     	//ventana.document.write(facturaHtml);
-    	Swal.fire("Factura guardada", `Factura HSD-${prefijoClinica}-${numeroFactura} guardada correctamente.`, "success");
+    	// aviso de exito movido a DESPUES del POST (ver comprobacion de dataPost.success mas abajo)
       //ventana.print();
       //ventana.document.close();
 
@@ -416,6 +411,11 @@ async function imprimirFactura() {
     });
     
     const dataPost = await resPost.json();
+    if (!dataPost.success) throw new Error(dataPost.error || "No se pudo guardar la factura");
+    // Numero REAL asignado por el servidor (evita desajustes con el calculado en cliente)
+    const numero = dataPost.numero || numeroFactura;
+    Swal.fire("Factura guardada", `Factura HSD-${prefijoClinica}-${numero} guardada correctamente.`, "success");
+    window.open(`/uploads/facturas/factura_HSD-${prefijoClinica}-${numero}.pdf`, "_blank");
 
 
     //if (!dataPost.success) throw new Error(dataPost.error || "Error al guardar factura");
@@ -425,7 +425,7 @@ async function imprimirFactura() {
   } catch (err) {
     console.error(err);
     //Swal.fire("Error", err.message, "error");
-    window.open(`/uploads/facturas/factura_HSD-${prefijoClinica}-${numeroFactura}.pdf`, "_blank");
+    Swal.fire("Error", "No se pudo guardar la factura: " + err.message, "error");
 
   }
 }

@@ -1,4 +1,6 @@
 let tratamientos = [];
+let clinicaActual = null; // clinica de la SESION, precargada (componente unico window.Clinica)
+(async () => { clinicaActual = await window.Clinica.actual(); })();
 
 function agregarTratamiento() {
   const tratamiento = document.getElementById("tratamiento").value;
@@ -22,29 +24,7 @@ function agregarTratamiento() {
     });
   }
 }
-function getClinicInfo() {
-  console.log("CLINIC:", window.CLINIC); // Esto imprimirá el valor en la consola
-  switch (window.CLINIC) {
-    case "clinic1":
-      return {
-        direccion: "Calle mayor 65 1B",
-        telefono: "916 43 12 12 - 641 26 59 85",
-        ciudad: "Alcorcón"
-      };
-    case "clinic2":
-      return {
-        direccion: "C/ Pintor el Greco 2 Bajo D",
-        telefono: "916 18 24 24 - 678 48 45 39",
-        ciudad: "Móstoles"
-      };
-    default:
-      return {
-        direccion: "Calle mayor 65 1B - C/ Pintor el Greco 2 Bajo D ",
-        telefono: "916 43 12 12(Alc) - 916 18 24 24(Mts)",
-        ciudad: "Alcorcón - Móstoles"
-      };
-  }
-}
+// (Datos y deteccion de clinica: componente UNICO window.Clinica — ver clinica.js)
 function eliminarTratamiento(index) {
   tratamientos.splice(index, 1);
   actualizarTabla();
@@ -81,7 +61,11 @@ function imprimirPresupuesto() {
   const observaciones = document.getElementById("observaciones").value;
   const medico = document.getElementById("medico").value;
 
-   const clinic = getClinicInfo(); // Aquí obtenemos la clínica
+   const clinic = clinicaActual; // clinica de la SESION (precargada por el componente unico)
+  if (!clinic) {
+    Swal.fire({ title: "Clínica no detectada", text: "No se pudo detectar tu clínica. Recarga la página e inténtalo de nuevo.", icon: "error" });
+    return;
+  }
   	console.log("Datos de la clínica:", clinic);
 
   const radios = document.querySelectorAll('input[name="desc"]');

@@ -57,11 +57,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         if ($table !== 'images') {
             $data = json_decode(file_get_contents("php://input"), true);
-            error_log("DEBUG - POST Request - Data received: " . print_r($data, true));
         } else {
-            $data = $_POST; 
-            error_log("DEBUG - POST Request (Images) - POST data: " . print_r($data, true));
-            error_log("DEBUG - POST Request (Images) - FILES data: " . print_r($_FILES, true));
+            $data = $_POST;
         }
         
 
@@ -412,8 +409,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 try {
                     // Insertar la visita
                     $stmt = $conn->prepare("
-                        INSERT INTO visits (client_id, treatment_id, observaciones, doctor, pago_de_visita)
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO visits (client_id, treatment_id, observaciones, doctor, pago_de_visita, fecha)
+                        VALUES (?, ?, ?, ?, ?, NOW())
                     ");
 
                     $stmt->bind_param(
@@ -506,7 +503,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 } else {
                     echo json_encode(["success" => false, "error" => $conn->error]);
                 }
-                break;
+                exit; // cerrar aqui: sin esto el flujo caia al GET y devolvia un 2o JSON
             default:
                 http_response_code(400);
                 echo json_encode(["error" => "Tabla no especificada o no manejada para POST"]);
@@ -522,7 +519,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                           c.*,
                           COALESCE(NULLIF(c.email, ''), 'No proporcionado') AS email,
                           COALESCE(NULLIF(c.alergias, ''), 'No consta') AS alergias,
-                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad
+                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad,
+                          COALESCE((SELECT SUM(t.deuda) FROM treatments t WHERE t.client_id = c.id), 0) AS Deuda
                       FROM clients c
                       WHERE id = ?
                   ");
@@ -536,7 +534,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                           c.*,
                           COALESCE(NULLIF(c.email, ''), 'No proporcionado') AS email,
                           COALESCE(NULLIF(c.alergias, ''), 'No consta') AS alergias,
-                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad
+                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad,
+                          COALESCE((SELECT SUM(t.deuda) FROM treatments t WHERE t.client_id = c.id), 0) AS Deuda
                       FROM clients c
                   ");
                   echo json_encode($result->fetch_all(MYSQLI_ASSOC));
@@ -721,6 +720,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode(["data" => $visits]);
                     $stmt->close();
                 }
+                break;
+            case 'clinica':
+                // Devuelve la clinica de la SESION (fuente de verdad) para que el
+                // cliente autodetecte en que clinica esta (p.ej. al crear facturas).
+                $mapClinica = [1 => 'alcorcon', 2 => 'mostoles'];
+                $cidSesion  = (int)($_SESSION['clinic_id'] ?? 0);
+                echo json_encode([
+                    "clinic_id" => $cidSesion,
+                    "clinic"    => $mapClinica[$cidSesion] ?? null
+                ]);
                 break;
             case 'facturas':
                 $sql = "SELECT * FROM facturas ORDER BY id DESC";

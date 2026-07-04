@@ -1,3 +1,12 @@
+<?php
+// Guardia de sesion: solo el admin de facturas (login_facturas.php) puede ver este panel.
+// Sin esto, el panel se abria directo por URL y el login era decorativo.
+session_start();
+if (empty($_SESSION['facturas_admin'])) {
+    header('Location: login_facturas.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
