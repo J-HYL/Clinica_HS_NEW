@@ -407,19 +407,23 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 error_log("DEBUG - POST Request - Handling table: visits");
 
                 try {
-                    // Insertar la visita
+                    // Insertar la visita. Si viene 'fecha' se usa (permite registrar visitas
+                    // pasadas); si no, se usa la fecha/hora actual.
+                    $fechaVisita = !empty($data["fecha"]) ? str_replace('T', ' ', $data["fecha"]) : date('Y-m-d H:i:s');
+
                     $stmt = $conn->prepare("
                         INSERT INTO visits (client_id, treatment_id, observaciones, doctor, pago_de_visita, fecha)
-                        VALUES (?, ?, ?, ?, ?, NOW())
+                        VALUES (?, ?, ?, ?, ?, ?)
                     ");
 
                     $stmt->bind_param(
-                        "iisds",
+                        "iissds",
                         $data["client_id"],
                         $data["treatment_id"],
                         $data["observaciones"],
                         $data["doctor"],
-                        $data["pago_de_visita"]
+                        $data["pago_de_visita"],
+                        $fechaVisita
                     );
 
                     if (!$stmt->execute()) {
@@ -1004,6 +1008,34 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param($types, ...$values);
                 break;
+            case 'visits':
+                error_log("DEBUG - PUT Request - Handling table: visits");
+                $sets = []; $types = ""; $values = [];
+                foreach (["client_id", "treatment_id", "doctor", "pago_de_visita", "observaciones", "fecha"] as $col) {
+                    if (isset($data[$col])) {
+                        $sets[] = "$col = ?";
+                        if (in_array($col, ["client_id", "treatment_id"])) {
+                            $types .= "i";
+                        } elseif ($col === "pago_de_visita") {
+                            $types .= "d";
+                        } else {
+                            $types .= "s";
+                        }
+                        // Normaliza el datetime-local (YYYY-MM-DDTHH:MM) a formato MySQL
+                        $values[] = ($col === "fecha") ? str_replace('T', ' ', $data[$col]) : $data[$col];
+                    }
+                }
+                if (empty($sets)) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "No hay campos para actualizar en la visita."]);
+                    break 2;
+                }
+                $types   .= "i";      // id
+                $values[] = $id;
+                $sql = "UPDATE visits SET " . implode(", ", $sets) . " WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($types, ...$values);
+                break;
             default:
                 http_response_code(400);
                 echo json_encode(["error" => "Tabla no especificada o no manejada para PUT"]);
@@ -1321,6 +1353,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     } else {
                         http_response_code(500);
                         echo json_encode(["error" => "Error al eliminar pieza: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'visits':
+                    $stmt = $conn->prepare("DELETE FROM visits WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al eliminar visita: " . $stmt->error]);
                     }
                     $stmt->close();
                     break;

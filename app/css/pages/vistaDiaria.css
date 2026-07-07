@@ -1,248 +1,399 @@
-/* Vista diaria de citas: bottom sheet del formulario (móvil) + tema del
-   calendario (FullCalendar). Mobile-first; en escritorio el formulario
-   vuelve a mostrarse inline junto al calendario. */
+/* ============================================================================
+   Vista diaria de citas — refactor profesional.
+   Dos paneles (formulario compacto + agenda), tema limpio de FullCalendar,
+   bottom-sheet en móvil. Mobile-first. Solo afecta a esta página.
+   ========================================================================== */
 
-#calendar{
-    max-width: 100vw !important;
+:root{
+  --vd-border: #E7EAF1;
+  --vd-border-strong: #D7DCE7;
+  --vd-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 14px 30px -16px rgba(16, 24, 40, .16);
+  --vd-radius: 16px;
+  --vd-ink: #1D242E;
+  --vd-muted: #667085;
+  --vd-surface-2: #F7F9FC;
 }
 
-.modal__card{
-    padding-right: 1rem;
-    padding-left: 1rem;
-}
+/* Aire alrededor del contenido */
+.wrapper{ padding-bottom: 48px; }
 
-/* ===== Botón que abre el formulario (solo móvil) ===== */
-
+/* ============================================================================
+   Botón "Crear Cita" (flotante en móvil)
+   ========================================================================== */
 .sheet__trigger{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 24px;
-    padding: 14px;
-    border: none;
-    border-radius: 14px;
-    background-color: var(--primary);
-    color: #fff;
-    font-family: inherit;
-    font-size: 1.0625em;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(43, 128, 247, .3);
-    transition: background-color .2s ease, box-shadow .2s ease, transform .15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background-color: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.0625em;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 22px -8px rgba(43, 128, 247, .5);
+  transition: background-color .2s ease, box-shadow .2s ease, transform .15s ease;
 }
-
 .sheet__trigger i{ font-size: 22px; }
-
-.sheet__trigger:hover, .sheet__trigger:focus-visible{
-    background-color: var(--dark-primary);
-    transform: translateY(-2px);
+.sheet__trigger:hover,
+.sheet__trigger:focus-visible{
+  background-color: var(--dark-primary);
+  transform: translateY(-1px);
+  outline: none;
 }
 
-/* ===== Bottom sheet (móvil) ===== */
+/* ============================================================================
+   Layout de la página
+   ========================================================================== */
+.content-layout{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 8px;
+}
 
+/* Tarjeta del calendario: hairline + sombra neutra suave (adiós glow rosa).
+   El formulario tiene su propio tratamiento: bottom-sheet en móvil, tarjeta
+   en escritorio (más abajo), para no pisar el estilo del sheet. */
+.cal-panel{
+  background-color: #fff;
+  border: 1px solid var(--vd-border);
+  border-radius: var(--vd-radius);
+  box-shadow: var(--vd-shadow);
+  max-width: none;
+  margin-top: 0;
+}
+
+/* ============================================================================
+   Panel del formulario "Crear Cita"
+   ========================================================================== */
+.form-sheet{ padding: 22px; }
+
+.sheet__head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.form-sheet .container__heading{
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--vd-ink);
+}
+.form-sheet .container__heading::after{
+  content: "Agenda una nueva cita";
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--vd-muted);
+}
+
+#event-form.form{ margin-top: 18px; gap: 16px; }
+
+.form-sheet .form__label{
+  font-weight: 600;
+  font-size: .82rem;
+  color: var(--vd-muted);
+}
+.form-sheet .form__input{ border-radius: 10px; }
+
+.form-sheet .form__buttons{ margin-top: 4px; gap: 12px; }
+.form-sheet .form__submit{
+  box-shadow: 0 6px 14px -6px rgba(43, 128, 247, .5);
+}
+.form-sheet .form__submit:hover,
+.form-sheet .form__submit:focus-visible{
+  box-shadow: 0 9px 18px -6px rgba(43, 128, 247, .55);
+}
+
+/* ============================================================================
+   Panel del calendario + leyenda de estados
+   ========================================================================== */
+.cal-panel{ padding: 20px 22px; overflow: hidden; }
+#calendar{ width: 100%; max-width: 100%; }
+
+.cal-legend{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--vd-border);
+}
+.cal-legend__item{
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--vd-muted);
+}
+.cal-legend .dot{
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.dot--pend{ background-color: #F78E2B; }
+.dot--comp{ background-color: #3CD856; }
+.dot--canc{ background-color: #DE5753; }
+
+/* ============================================================================
+   Bottom sheet (móvil)
+   ========================================================================== */
 .sheet__backdrop{
-    position: fixed;
-    inset: 0;
-    background-color: rgba(29, 36, 46, .45);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .3s ease, visibility .3s ease;
-    z-index: 90;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(29, 36, 46, .45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s ease;
+  z-index: 90;
 }
-
 .sheet__backdrop.is-open{
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 .form-sheet{
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    margin: 0;
-    padding-bottom: calc(25px + env(safe-area-inset-bottom));
-    border-radius: 24px 24px 0 0;
-    box-shadow: 0 -12px 40px rgba(29, 36, 46, .18);
-    transform: translateY(105%);
-    transition: transform .35s cubic-bezier(.32, .72, 0, 1);
-    z-index: 100;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  margin: 0;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  border: none;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -12px 40px rgba(29, 36, 46, .22);
+  transform: translateY(105%);
+  transition: transform .35s cubic-bezier(.32, .72, 0, 1);
+  z-index: 100;
 }
-
-.form-sheet.is-open{
-    transform: translateY(0);
-}
+.form-sheet.is-open{ transform: translateY(0); }
 
 .sheet__grabber{
-    display: block;
-    width: 44px;
-    height: 5px;
-    margin: 2px auto 14px;
-    border-radius: 999px;
-    background-color: #D8DCE8;
-}
-
-.sheet__head{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+  display: block;
+  width: 44px;
+  height: 5px;
+  margin: 2px auto 14px;
+  border-radius: 999px;
+  background-color: #D8DCE8;
 }
 
 .sheet__close{
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border: none;
-    border-radius: 50%;
-    background-color: var(--background);
-    color: var(--light-gray);
-    font-size: 1.3em;
-    cursor: pointer;
-    transition: background-color .2s ease, color .2s ease;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--vd-surface-2);
+  color: var(--vd-muted);
+  font-size: 1.3em;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
 }
-
 .sheet__close:hover{
-    background-color: var(--pale-pink);
-    color: var(--pink);
+  background-color: var(--pale-pink);
+  color: var(--pink);
 }
 
 body.sheet-open{ overflow: hidden; }
 
-/* ===== Tema del calendario (FullCalendar) ===== */
-
+/* ============================================================================
+   Tema de FullCalendar
+   ========================================================================== */
 .fc{
-    font-family: "Figtree", Arial, sans-serif;
-    /* Resaltado de "hoy": azul muy suave en vez del amarillo por defecto. */
-    --fc-today-bg-color: rgba(43, 128, 247, .05);
+  font-family: "Figtree", Arial, sans-serif;
+  --fc-today-bg-color: rgba(43, 128, 247, .045);
+  --fc-border-color: #EDEFF5;
+  --fc-page-bg-color: #fff;
 }
 
+/* Barra superior */
 .fc .fc-toolbar.fc-header-toolbar{
-    margin-bottom: 18px;
-    gap: 10px;
-    flex-wrap: wrap;
+  margin-bottom: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
 }
-
 .fc .fc-toolbar-title{
-    font-size: 1.15em;
-    font-weight: 700;
-    color: var(--dark-gray);
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--vd-ink);
+  text-transform: capitalize;
 }
 
-.fc .fc-button-primary{
-    background-color: var(--pale-primary);
-    border: none;
-    color: var(--primary);
-    border-radius: 10px;
-    padding: 7px 14px;
-    font-weight: 600;
-    text-transform: capitalize;
-    box-shadow: none;
-    transition: background-color .2s ease, color .2s ease;
+/* Botones: prev/next como iconos "ghost", Hoy sólido */
+.fc .fc-button{
+  border: none;
+  box-shadow: none;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.fc .fc-prev-button,
+.fc .fc-next-button{
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  background-color: #fff;
+  border: 1px solid var(--vd-border);
+  color: var(--vd-muted);
+  border-radius: 10px;
+}
+.fc .fc-prev-button:hover,
+.fc .fc-next-button:hover{
+  background-color: var(--pale-primary);
+  border-color: var(--pale-primary);
+  color: var(--primary);
+}
+.fc .fc-today-button{
+  background-color: var(--primary);
+  border: 1px solid var(--primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-weight: 600;
+  text-transform: capitalize;
+  opacity: 1;
+}
+.fc .fc-today-button:hover:not(:disabled){
+  background-color: var(--dark-primary);
+  border-color: var(--dark-primary);
+}
+.fc .fc-today-button:disabled{
+  background-color: var(--pale-primary);
+  border-color: var(--pale-primary);
+  color: var(--primary);
+  opacity: 1;
+}
+.fc .fc-button:focus,
+.fc .fc-button:focus-visible{
+  box-shadow: 0 0 0 3px rgba(43, 128, 247, .2);
+  outline: none;
 }
 
-.fc .fc-button-primary:hover{
-    background-color: var(--light-primary);
-    color: #fff;
-}
-
-.fc .fc-button-primary:disabled{
-    background-color: var(--pale-primary);
-    color: var(--pale-gray);
-    opacity: 1;
-}
-
-.fc .fc-button-primary:not(:disabled):active,
-.fc .fc-button-primary:not(:disabled).fc-button-active{
-    background-color: var(--primary);
-    color: #fff;
-}
-
-.fc .fc-button:focus{ box-shadow: 0 0 0 3px rgba(43, 128, 247, .2); }
-
-/* Cabeceras de columnas (GABINETE 1 / 2) */
+/* Cabeceras de columna (GABINETE 1 / 2) */
 .fc .fc-col-header-cell{
-    background-color: var(--pale-primary);
-    padding: 10px 4px;
+  background-color: var(--pale-primary);
+  padding: 12px 4px;
+  border-color: #DCEAF7;
 }
-
 .fc .fc-col-header-cell-cushion{
-    color: var(--primary);
-    font-weight: 700;
-    font-size: .95em;
-    text-decoration: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: .82em;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 4px;
 }
 
 /* Rejilla y etiquetas de hora */
 .fc-theme-standard td,
 .fc-theme-standard th{ border-color: #EDEFF5; }
+.fc-theme-standard .fc-scrollgrid{ border-color: #EDEFF5; }
 
-.fc .fc-timegrid-slot{ height: 2.4em; }
+.fc .fc-timegrid-slot{ height: 2.6em; }
+.fc .fc-timegrid-slot-minor{ border-top-style: dotted; }
 
 .fc .fc-timegrid-axis-cushion,
 .fc .fc-timegrid-slot-label-cushion{
-    color: var(--light-gray);
-    font-size: .8em;
+  color: var(--vd-muted);
+  font-size: .78em;
+  font-weight: 500;
 }
 
-.fc .fc-timegrid-now-indicator-line{ border-color: var(--pink); }
+.fc .fc-timegrid-now-indicator-line{ border-color: var(--pink); border-width: 2px; }
+.fc .fc-timegrid-now-indicator-arrow{ border-color: var(--pink); color: var(--pink); }
 
-/* Eventos: acento de color a la izquierda + texto legible */
+/* Eventos: chip limpio (fondo suave + borde completo + texto legible).
+   Los colores por estado los aporta el JS (coloresEstado). */
 .fc .fc-timegrid-event{
-    border-radius: 8px;
-    border-width: 0 0 0 3px;
-    box-shadow: none;
-    padding: 2px 4px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .08);
+  padding: 3px 7px;
+  transition: transform .12s ease, box-shadow .12s ease;
 }
-
+.fc .fc-timegrid-event:hover{
+  box-shadow: 0 4px 10px rgba(16, 24, 40, .14);
+}
 .fc .fc-event-title,
 .fc .fc-event-time{
-    font-weight: 600;
-    white-space: normal;
+  font-weight: 600;
+  white-space: normal;
+  line-height: 1.25;
 }
+.fc .fc-event-time{ opacity: .85; }
 
-/* ===== Escritorio: el formulario vuelve a ser una tarjeta inline ===== */
+.fc .fc-highlight{ background-color: rgba(43, 128, 247, .1); }
 
+/* ============================================================================
+   Escritorio: dos paneles lado a lado (formulario fijo + agenda amplia)
+   ========================================================================== */
 @media screen and (min-width: 744px){
-    .sheet__trigger{ display: none; }
+  .sheet__trigger{ display: none; }
 
-    .form-sheet{
-        position: static;
-        max-width: 550px;
-        max-height: none;
-        overflow-y: visible;
-        margin: 0;
-        padding-bottom: 25px;
-        border-radius: 30px;
-        box-shadow: 0 10px 60px rgba(252, 225, 255, 0.5);
-        transform: none;
-        z-index: auto;
-    }
+  .content-layout{
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    margin-top: 4px;
+  }
 
-    .sheet__grabber,
-    .sheet__close{ display: none; }
+  .form-sheet{
+    position: sticky;
+    top: 24px;
+    max-height: none;
+    overflow-y: visible;
+    padding: 24px;
+    padding-bottom: 24px;
+    border: 1px solid var(--vd-border);
+    border-radius: var(--vd-radius);
+    box-shadow: var(--vd-shadow);
+    transform: none;
+    z-index: auto;
+  }
 
-    .sheet__backdrop{ display: none; }
+  .sheet__grabber,
+  .sheet__close,
+  .sheet__backdrop{ display: none; }
 
-    body.sheet-open{ overflow: auto; }
+  body.sheet-open{ overflow: auto; }
 }
 
-/* ===== Móvil: calendario más compacto y legible ===== */
+@media screen and (min-width: 1280px){
+  .content-layout{ grid-template-columns: 380px minmax(0, 1fr); gap: 28px; }
+  .cal-panel{ padding: 24px 26px; }
+}
 
+/* ============================================================================
+   Móvil: calendario más compacto
+   ========================================================================== */
 @media screen and (max-width: 743px){
-    .fc .fc-toolbar-title{ font-size: 1em; }
-
-    .fc .fc-timegrid-slot{ height: 2em; }
-
-    .fc .fc-col-header-cell-cushion{ font-size: .8em; }
-
-    .fc .fc-event-title,
-    .fc .fc-event-time{ font-size: .72em; }
+  .cal-panel{ padding: 16px; }
+  .fc .fc-toolbar-title{ font-size: .98em; }
+  .fc .fc-timegrid-slot{ height: 2.2em; }
+  .fc .fc-col-header-cell-cushion{ font-size: .74em; }
+  .fc .fc-event-title,
+  .fc .fc-event-time{ font-size: .72em; }
+  .fc .fc-prev-button,
+  .fc .fc-next-button{ width: 34px; height: 34px; }
+  .fc .fc-today-button{ padding: 7px 14px; }
 }

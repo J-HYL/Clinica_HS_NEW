@@ -31,6 +31,27 @@ class DB {
   }
 
   /**
+   * Obtiene TODAS las visitas (todas las clínicas de la sesión), con nombre de
+   * paciente y de tratamiento incluidos. Para la vista global de visitas.
+   * @returns {Promise<Array>} Array de visitas
+   */
+  async getAllVisits() {
+    try {
+      const response = await fetch(`${this.baseUrl}?table=visits`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching all visits:', error);
+      return [];
+    }
+  }
+
+  /**
    * Obtiene una visita específica por su ID
    * @param {number} visitId - ID de la visita
    * @returns {Promise<Object|null>} Datos de la visita o null

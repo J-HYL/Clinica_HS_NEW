@@ -221,6 +221,30 @@
         text-transform: uppercase;
         color: #667085;
     }
+
+    /* ===== Pestañas Tratamientos / Visitas ===== */
+    .tabs{
+        display: flex;
+        gap: 4px;
+        border-bottom: 2px solid #e6e8ef;
+        margin-bottom: 1.5rem;
+    }
+    .tab{
+        appearance: none;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        padding: 12px 22px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #667085;
+        cursor: pointer;
+        transition: color .2s, border-color .2s;
+    }
+    .tab:hover{ color: #3b82f6; }
+    .tab--active{ color: #3b82f6; border-bottom-color: #3b82f6; }
+    .tab-panel[hidden]{ display: none; }
     </style>
 </head>
 <body>
@@ -261,6 +285,15 @@
                         <div class="item__hide">
                             <p class="item__name">Pacientes</p>
                             <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/visitas/control.html" aria-label="Ir a Visitas">
+                        <i class="ri-calendar-check-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Visitas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
@@ -330,6 +363,12 @@
         </section>
             
         <main class="container">
+            <div class="tabs" role="tablist">
+                <button type="button" class="tab tab--active" data-tab="tratamientos">Tratamientos</button>
+                <button type="button" class="tab" data-tab="visitas">Visitas</button>
+            </div>
+
+            <div class="tab-panel" id="panel-tratamientos">
             <div class="main__group">
                 <h3 class="container__heading">Tratamientos del paciente</h3>
                 <div class="main__actions">
@@ -352,6 +391,8 @@
                 <p class="empty__message">No se encontraron registros para esta sección...</p>
             </div>
             <table class="main__table" id="table"></table>
+            </div><!-- /panel-tratamientos -->
+
             <!--MODAL PARA ANADIR UN TRATAMIENTO-->
             <dialog class="modal" id="edit-modal" role="dialog"
             aria-labelledby="Crear Tratamiento"
@@ -461,7 +502,11 @@
             </div>
             </dialog>
 
-        </main> 
+            <div class="tab-panel" id="panel-visitas" hidden>
+                <section id="visitas-section"></section>
+            </div>
+
+        </main>
 
        
     </div>

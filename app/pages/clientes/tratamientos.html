@@ -94,22 +94,54 @@
     .gallery {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 12px;
         margin-top: 1rem;
     }
 
     .image-card {
-        width: 200px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+        width: 160px;
+        height: 160px;
+        border: 1px solid #e6e8ef;
+        border-radius: 10px;
         overflow: hidden;
         cursor: pointer;
+        background: #f8f9fb;
+        transition: box-shadow .2s ease, transform .2s ease;
+    }
+
+    .image-card:hover {
+        box-shadow: 0 4px 12px rgba(16, 24, 64, .12);
+        transform: translateY(-2px);
     }
 
     .image-card img {
         width: 100%;
+        height: 100%;
+        object-fit: cover;
         display: block;
-        border-radius: 8px;
+    }
+
+    /* Placeholder cuando la imagen no carga (archivo ausente) */
+    .image-card--broken {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: #98a2b3;
+        font-size: 0.8rem;
+        text-align: center;
+        cursor: default;
+        padding: 8px;
+    }
+
+    .image-card--broken:hover {
+        box-shadow: none;
+        transform: none;
+    }
+
+    .image-card--broken i {
+        font-size: 2rem;
     }
 
     /* Modal estilo básico */
@@ -294,6 +326,15 @@
                         <div class="item__hide">
                             <p class="item__name">Pacientes</p>
                             <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a href="/pages/visitas/control.html" aria-label="Ir a Visitas">
+                        <i class="ri-calendar-check-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Visitas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>

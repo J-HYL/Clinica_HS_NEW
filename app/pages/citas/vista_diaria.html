@@ -64,6 +64,15 @@
                     </a>
                 </li>
                 <li class="sidebar__item">
+                    <a href="/pages/visitas/control.html" aria-label="Ir a Visitas">
+                        <i class="ri-calendar-check-fill"></i>
+                        <div class="item__hide">
+                            <p class="item__name">Visitas</p>
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
+                        </div>
+                    </a>
+                </li>
+                <li class="sidebar__item">
                     <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
                         <i class="ri-briefcase-4-fill"></i>
                         <div class="item__hide">
@@ -178,7 +187,14 @@
                 </form>
             </main>
             <!--Calendario-->
-            <div id="calendar" class="container main"></div>
+            <section class="cal-panel">
+                <div class="cal-legend" aria-hidden="true">
+                    <span class="cal-legend__item"><span class="dot dot--pend"></span>Pendiente</span>
+                    <span class="cal-legend__item"><span class="dot dot--comp"></span>Completada</span>
+                    <span class="cal-legend__item"><span class="dot dot--canc"></span>Cancelada</span>
+                </div>
+                <div id="calendar"></div>
+            </section>
         </div>
 
         <div class="sheet__backdrop" id="sheet-backdrop"></div>

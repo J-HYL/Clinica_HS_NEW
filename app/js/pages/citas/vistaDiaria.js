@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       allDaySlot: false,
       height: 'auto',
       headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+      buttonText: { today: 'Hoy' },
       
       // ==================================================================
       // -> [NUEVO] AÑADIDO PARA PERMITIR DRAG & DROP <-

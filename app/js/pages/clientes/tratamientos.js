@@ -376,6 +376,12 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
         img.alt = "Imagen de tratamiento";
         img.style.cursor = "pointer";
 
+        // Si la imagen no carga (archivo ausente), mostrar un placeholder limpio en vez del icono roto.
+        img.addEventListener('error', () => {
+          imageCard.classList.add('image-card--broken');
+          imageCard.innerHTML = '<i class="ri-image-2-line"></i><span>Imagen no disponible</span>';
+        });
+
         // Asigna el evento click CORRECTAMENTE
         img.addEventListener('click', () => {
           const modalImg = document.getElementById("modalImage");

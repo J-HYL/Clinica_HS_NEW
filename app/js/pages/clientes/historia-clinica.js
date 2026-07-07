@@ -6,6 +6,7 @@ import {
 import { table } from "../../modules/selectores.js";
 import DB from "../../modules/classes/DB_API.js";
 import { openModal } from "../../modules/components/Modal.js";
+import { mountVisitas } from "../../modules/components/Visitas.js";
 
 const crearTratamientoBtn = document.getElementById("crear-tratamiento");
 const modal = document.getElementById("edit-modal");
@@ -199,6 +200,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await showRecords("treatments");
     applyTreatmentsTableView(patientId);
+
+    // Sección de visitas del paciente (componente reutilizable)
+    mountVisitas({ container: document.getElementById("visitas-section"), clientId: patientId });
 
   } catch (error) {
     console.error("Error al cargar datos del paciente o tratamientos:", error);
@@ -409,4 +413,21 @@ table.addEventListener("click", e => {
     return;
   }
   setTableEventsListeners(e, "treatments");
+});
+
+// ---- Pestañas Tratamientos / Visitas ----
+const tabButtons = document.querySelectorAll(".tab");
+const panelTratamientos = document.getElementById("panel-tratamientos");
+const panelVisitas = document.getElementById("panel-visitas");
+tabButtons.forEach(tab => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.tab;
+    tabButtons.forEach(t => t.classList.toggle("tab--active", t === tab));
+    if (panelTratamientos) panelTratamientos.hidden = target !== "tratamientos";
+    if (panelVisitas) panelVisitas.hidden = target !== "visitas";
+    // Al volver a Tratamientos, recalcular anchos de la DataTable (estuvo oculta).
+    if (target === "tratamientos" && window.$ && $.fn.DataTable && $.fn.DataTable.isDataTable("#table")) {
+      $("#table").DataTable().columns.adjust();
+    }
+  });
 });

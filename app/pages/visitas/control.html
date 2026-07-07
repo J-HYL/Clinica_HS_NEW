@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar Nuevo Servicio</title>
+    <title>HS Dental - Visitas</title>
 
-    <!-- Scripts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Styles -->
     <link rel="stylesheet" href="/css/pages/agregar.css">
+    <link rel="stylesheet" href="/css/pages/control.css">
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
-    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-
 </head>
 <body>
     <nav class="sidebar" id="sidebar">
@@ -37,7 +34,7 @@
                         <i class="ri-dashboard-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Principal</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
@@ -46,20 +43,20 @@
                         <i class="ri-calendar-schedule-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Citas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
                 <li class="sidebar__item">
-                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a Clientes">
+                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
                         <i class="ri-group-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Pacientes</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
-                <li class="sidebar__item">
+                <li class="sidebar__item sidebar__item--selected">
                     <a href="/pages/visitas/control.html" aria-label="Ir a Visitas">
                         <i class="ri-calendar-check-fill"></i>
                         <div class="item__hide">
@@ -68,12 +65,12 @@
                         </div>
                     </a>
                 </li>
-                <li class="sidebar__item sidebar__item--selected">
+                <li class="sidebar__item">
                     <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
                         <i class="ri-briefcase-4-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Servicios</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
@@ -82,7 +79,7 @@
                         <i class="ri-file-text-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Presupuestos</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
@@ -91,7 +88,7 @@
                         <i class="ri-receipt-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Facturas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
@@ -100,7 +97,7 @@
                         <i class="ri-admin-fill"></i>
                         <div class="item__hide">
                             <p class="item__name">Admin</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
+                            <i class="ri-arrow-right-s-line item__chevron"></i>
                         </div>
                     </a>
                 </li>
@@ -114,35 +111,17 @@
                 <button class="header__menu" aria-label="Abrir Sidebar">
                     <i class="ri-menu-line"></i>
                 </button>
-                <h1 class="header__heading">HS Dental - <span>Servicios</span></h1>
+                <h1 class="header__heading">HS Dental - <span>Visitas</span></h1>
             </div>
         </header>
 
-        <main class="container main">
-            <h3 class="container__heading">Crear Servicio</h3>
-            <form action="#" class="form">
-                <div class="form__group">
-                    <label for="nombre" class="form__label">Nombre del Servicio</label>
-                    <input type="text" id="nombre" name="nombre" class="form__input" placeholder="E.g. Diseño Web" data-required="true">
-                </div>
-                <div class="form__group">
-                    <label for="descripcion" class="form__label">Descripción</label>
-                    <input type="text" id="descripcion" name="descripcion" class="form__input" placeholder="E.g. Desarrollo de páginas webs" data-required="true">
-                </div>
-                <div class="form__group">
-                    <label for="precio" class="form__label">Precio</label>
-                    <input type="number" name="precio" id="precio" class="form__input" placeholder="E.g. 30000" data-required="true" min="0">
-                </div>
-                <div class="form__buttons">
-                    <button type="submit" class="form__submit" data-action="create">Crear Servicio <i class="ri-add-line"></i></button>
-                    <a href="control.html" class="form__return">Regresar</a>
-                </div>
-            </form>
+        <main class="container">
+            <div id="visitas-section"></div>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/main.js" type="module"></script>
-    <script src="/js/pages/servicios/agregar.js" type="module"></script>
+    <script src="/js/pages/visitas/control.js" type="module"></script>
 </body>
 </html>
