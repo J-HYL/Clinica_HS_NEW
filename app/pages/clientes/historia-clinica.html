@@ -129,6 +129,98 @@
         gap: 1rem;
         font-size: 1rem;
     }
+
+    /* ===== Modal Crear/Editar Tratamiento: encajar en pantalla + acabado profesional ===== */
+    /* Cabecera y pie fijos, cuerpo (formulario) con scroll: los botones nunca se cortan. */
+    #edit-modal .modal__card{
+        padding: 0;
+        max-height: 92vh;
+        overflow: hidden;
+    }
+    #edit-modal .modal__header{
+        flex-shrink: 0;
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(34, 34, 38, 0.08);
+    }
+    #edit-modal .modal__footer{
+        flex-shrink: 0;
+        padding: 16px 24px;
+        background-color: #fafbfc;
+    }
+    #edit-modal .form{
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 22px 24px;
+    }
+    #edit-modal .form__group{
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin: 0;
+        width: 100%;
+    }
+    #edit-modal .form__label{
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #344054;
+    }
+    #edit-modal .form__input{
+        width: 100%;
+    }
+    /* El "Abonado" es solo lectura en edición: se ve claramente no editable. */
+    #edit-modal .form__input[readonly]{
+        background-color: #f1f2f6;
+        color: #667085;
+        cursor: not-allowed;
+    }
+    /* Campo de tratamiento personalizado ("Otro...") */
+    #edit-modal #customTreatmentWrapper{
+        margin: 0;
+    }
+    #edit-modal #customTreatmentWrapper label{
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #344054;
+    }
+    /* Selector "General" como pastilla, alineado a la izquierda */
+    #edit-modal .tooth--general{
+        width: auto;
+        height: 36px;
+    }
+    #edit-modal .tooth--general input[type="checkbox"]{
+        width: auto;
+        min-width: 100px;
+        height: 36px;
+        padding: 0 18px;
+        border-radius: 999px;
+    }
+    #edit-modal .tooth--general input[type="checkbox"]::before{
+        line-height: 32px;
+    }
+    /* Bloque del odontograma con marco suave */
+    #edit-modal .odontograma{
+        margin: 2px 0 0;
+        padding: 16px;
+        gap: 10px;
+        background: #f8f9fb;
+        border: 1px solid #e6e8ef;
+        border-radius: 12px;
+        align-items: stretch;
+    }
+    #edit-modal .odontograma-label{
+        font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #667085;
+    }
     </style>
 </head>
 <body>
@@ -291,8 +383,8 @@
                             <option value="otro">Otro...</option>
                         </select>
                     </div>
-                    <div id="customTreatmentWrapper" class="form__label" style="display: none; margin-top: 10px;">
-                        <label for="customTreatmentInput">tratamiento</label>
+                    <div id="customTreatmentWrapper" class="form__group" style="display: none;">
+                        <label for="customTreatmentInput" class="form__label">Nombre del tratamiento</label>
                         <input type="text" id="customTreatmentInput" class="form__input" placeholder="Especifica el tratamiento" />
                     </div>
 
@@ -313,7 +405,7 @@
 
                     <div class="form__group">
                     <label class="form__label">Piezas afectadas</label>
-                    <div class="tooth"><input type="checkbox" name="piezas[]" value="general" data-num="  General  " style="width: fit-content;"></div>
+                    <div class="tooth tooth--general"><input type="checkbox" name="piezas[]" value="general" data-num="General"></div>
                     <div class="odontograma">
                         <div class="odontograma-label">Piezas superiores</div>
                             <div class="odontograma-scroll">

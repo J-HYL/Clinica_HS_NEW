@@ -140,6 +140,10 @@
     background-color: var(--blue);
 }
 
+.table__btn--edit-treatment{
+    background-color: var(--blue);
+}
+
 .table__btn--delete{    
     background-color: var(--red);
 }

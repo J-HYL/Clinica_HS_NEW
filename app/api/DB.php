@@ -1312,6 +1312,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     }
                     $stmt->close();
                     break;
+                case 'pieces':
+                    // Borrado individual de una pieza (usado al reconciliar el odontograma en la edición)
+                    $stmt = $conn->prepare("DELETE FROM pieces WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al eliminar pieza: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
                 default:
                     http_response_code(400);
                     echo json_encode(["error" => "Tabla no especificada o no manejada para DELETE"]);

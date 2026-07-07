@@ -156,7 +156,8 @@ Unico endpoint REST del panel. Un solo script PHP que enruta por `?table=<tabla>
 - **`modules/selectores.js`**: `querySelector` ejecutados **al importar**; en paginas sin ese elemento la export es `null`.
 - **Componentes** (`modules/components/`): `Datatables.js` (`createTableInstance`, **infiere el objectStore por nombre de archivo HTML** — renombrar el HTML rompe la tabla), `Calendar.js` (calendario mensual propio, NO FullCalendar), `Modal.js` (`<dialog>` nativos + clase `closing`), `Sidebar.js`, `Spinner.js`, `Stats.js`, `Alert.js` (wrapper Swal), `Toast.js` (Notyf), `facturas.js`, `facturasPanel.js`, `presupuestos.js`.
 - **Librerias de terceros como GLOBALES** (no import): `Swal`, `$`/`DataTable`, `FullCalendar`, `Notyf`. El codigo asume que ya estan cargadas por `<script>`/CDN.
-- **Odontograma:** numeracion FDI; `piece_status` 1 = afectado/pendiente (rojo), 0 = completado (verde); `tooth_number='General'` aplica a todas las piezas.
+- **Odontograma:** numeracion FDI; `piece_status` 1 = afectado/pendiente (rojo), 0 = completado (verde); `tooth_number='General'` aplica a todas las piezas. En el detalle (`tratamientos.html`/`tratamientos.js`) los dientes del tratamiento son clicables para alternar pendiente<->completada (llama a `PUT pieces` con `piece_status`).
+- **Editar tratamiento:** el modal de `historia-clinica.html` sirve para crear Y editar (boton lapiz `table__btn--edit-treatment` en la fila). En edicion (`historia-clinica.js`, funcion `openEditTreatment`/`guardarEdicionTratamiento`): se editan tipo, observaciones, precio y piezas; el **abonado NO se edita** (solo lectura, se gestiona desde pagos) y la `deuda`/`estado` se recalculan sobre el abonado existente. Las piezas se reconcilian por diff (`reconcilePiezas`), conservando el estado de las que se mantienen; borra piezas via `DELETE table=pieces&id=` (endpoint anadido, borrado individual).
 
 ### Modelo de datos (MySQL, 11 tablas, InnoDB / utf8mb4_general_ci)
 
@@ -235,7 +236,7 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 ## 8. Gotchas y cosas a NO hacer
 
 **Funcionamiento / bugs latentes (verificar antes de tocar):**
-- **`deleteDir()` NO esta definida** en `DB.php` ni en ningun archivo del repo, pero se invoca al borrar `clients` (linea ~1091) y `treatments` (linea ~1199). Tal cual, esos borrados darian `Call to undefined function deleteDir()`. **Verificar/definirla antes de tocar borrados.**
+- **`deleteDir()` ya esta definida** en `DB.php` (~linea 33), con validacion de que la ruta quede DENTRO de `uploads/pacientes` (lanza excepcion si se sale). Se usa al borrar `clients` y `treatments`. (Nota historica: antes no existia y los borrados petaban; ya no.)
 - **Borrado en cascada PARCIAL:** `visits` NO tiene `ON DELETE CASCADE`. Borrar un `client` o `treatment` con `visits` asociadas **FALLA por restriccion de FK**. Hay que borrar las visits primero.
 - **`Calendar.js`** llama a `DB.updateAppointmentDate(...)` tras un drop, pero ese metodo **no existe** en `DB_API.js`: mover citas en el calendario mensual no persiste y lanza error. Ademas `Calendar.js`/`Alert.js` usan un global `LocalStorage` inexistente.
 - **`configuracion.js`** esta roto (importa `LocalStorage`, `selectAvatar`, `UI.showFormUserInfo`, etc. inexistentes). La pagina de configuracion no funciona.

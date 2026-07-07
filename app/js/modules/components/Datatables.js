@@ -84,7 +84,8 @@ export function createTableInstance(records) {
 
             if (objectStore === "treatments") {
                 buttons = `
-                  <button class="table__btn table__btn--treatments" data-id="${row.id}" aria-label="Botón tratamientos"><i class="ri-eye-fill"></i></button>
+                  <button class="table__btn table__btn--treatments" data-id="${row.id}" aria-label="Ver tratamiento"><i class="ri-eye-fill"></i></button>
+                  <button class="table__btn table__btn--edit-treatment" data-id="${row.id}" aria-label="Editar tratamiento"><i class="ri-edit-box-fill"></i></button>
                   <button class="table__btn table__btn--delete" data-id="${row.id}" aria-label="Eliminar Registro"><i class="ri-delete-bin-fill"></i></button>
                 `;
             }
