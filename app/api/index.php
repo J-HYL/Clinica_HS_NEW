@@ -73,22 +73,18 @@ if (isset($_GET['clinic'])) {
         text-align:center;
     }
 
-    .mark{
-        display:inline-flex; align-items:center; gap:11px;
-        margin-bottom:44px;
+    .brand{
+        display:inline-flex;
+        justify-content:center;
+        margin-bottom:40px;
     }
-    .mark__glyph{
-        width:44px; height:44px;
-        display:grid; place-items:center;
-        border-radius:13px;
-        color:#fff;
-        background:linear-gradient(150deg, var(--primary), var(--dark-primary));
-        box-shadow:0 10px 22px rgba(43,128,247,.30);
+    .brand__logo{
+        display:block;
+        width:clamp(160px, 46vw, 230px);
+        height:auto;
+        /* Funde el fondo blanco del logo con el de la página: se ve suelto, sin caja. */
+        mix-blend-mode:multiply;
     }
-    .mark__glyph svg{ width:25px; height:25px; }
-    .mark__word{ text-align:left; line-height:1; }
-    .mark__word b{ font-size:1.24rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); }
-    .mark__word span{ display:block; font-size:.6rem; font-weight:700; letter-spacing:.34em; color:var(--faint); margin-top:5px; }
 
     h1{
         font-size:clamp(1.9rem, 5vw, 2.9rem);
@@ -212,13 +208,8 @@ if (isset($_GET['clinic'])) {
 </head>
 <body>
     <div class="shell">
-        <div class="mark">
-            <span class="mark__glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M12 3C8.5 3 6.3 5 6.3 8.2c0 2.7.7 5.6 1.6 8.9.7 2.6 2.1 4 2.7 1.7.6-2.3.8-4.5 1.4-4.5s.8 2.2 1.4 4.5c.6 2.3 2 .9 2.7-1.7.9-3.3 1.6-6.2 1.6-8.9C17.7 5 15.5 3 12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                </svg>
-            </span>
-            <span class="mark__word"><b>HS Dental</b><span>EL GRECO</span></span>
+        <div class="brand">
+            <img src="/assets/images/logoCompleto.jpg" alt="HS Dental El Greco" class="brand__logo">
         </div>
 
         <h1>Selecciona tu clínica</h1>

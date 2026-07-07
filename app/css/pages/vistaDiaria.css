@@ -94,6 +94,9 @@
   font-weight: 500;
   color: var(--vd-muted);
 }
+.form-sheet .container__heading.is-block::after{
+  content: "Marca un horario como no disponible";
+}
 
 #event-form.form{ margin-top: 18px; gap: 16px; }
 
@@ -111,6 +114,61 @@
 .form-sheet .form__submit:hover,
 .form-sheet .form__submit:focus-visible{
   box-shadow: 0 9px 18px -6px rgba(43, 128, 247, .55);
+}
+
+/* El atributo [hidden] debe ocultar aunque .form__group ponga display:flex. */
+.form__group[hidden]{ display: none; }
+
+/* ---- Conmutador Cita / Bloquear ---- */
+.form-mode{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 4px;
+  background: var(--vd-surface-2);
+  border: 1px solid var(--vd-border);
+  border-radius: 12px;
+}
+.form-mode__btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--vd-muted);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.form-mode__btn:hover{ color: var(--vd-ink); }
+.form-mode__btn.is-active{
+  background: #fff;
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .12);
+}
+.form-mode__btn i{ font-size: 1.05em; }
+
+/* ---- Interruptor "Bloquear el día completo" ---- */
+.form__switch{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--vd-ink);
+  cursor: pointer;
+}
+.form__switch input{
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
 }
 
 /* ============================================================================
@@ -211,6 +269,12 @@
 }
 
 body.sheet-open{ overflow: hidden; }
+
+/* Modal de edición de cita: padding lateral para el formulario (se conserva del diseño previo). */
+#edit-modal .modal__card{
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
 
 /* ============================================================================
    Tema de FullCalendar
@@ -340,6 +404,25 @@ body.sheet-open{ overflow: hidden; }
   line-height: 1.25;
 }
 .fc .fc-event-time{ opacity: .85; }
+
+/* Bloqueos "No disponible": gris con trama diagonal + candado. */
+.fc .fc-timegrid-event.fc-block{
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    rgba(91, 100, 114, .10) 6px,
+    rgba(91, 100, 114, .10) 12px
+  );
+  box-shadow: none;
+  cursor: pointer;
+}
+.fc .fc-block .fc-event-title{ font-weight: 600; }
+.fc .fc-block .fc-event-title::before{
+  content: "🔒";
+  margin-right: 5px;
+}
+.fc .fc-block .fc-event-time{ display: none; }
 
 .fc .fc-highlight{ background-color: rgba(43, 128, 247, .1); }
 

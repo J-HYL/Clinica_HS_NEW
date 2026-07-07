@@ -132,28 +132,43 @@
             <main class="container main form-sheet" id="form-sheet">
                 <span class="sheet__grabber" aria-hidden="true"></span>
                 <div class="sheet__head">
-                    <h3 class="container__heading">Crear Cita</h3>
+                    <h3 class="container__heading" id="form-title">Crear Cita</h3>
                     <button type="button" class="sheet__close" id="close-form" aria-label="Cerrar el formulario">
                         <i class="ri-close-line"></i>
                     </button>
                 </div>
-                <form id="event-form" class="form">
+
+                <div class="form-mode" role="tablist" aria-label="Tipo de registro">
+                    <button type="button" class="form-mode__btn is-active" data-mode="cita" role="tab" aria-selected="true">
+                        <i class="ri-calendar-2-line"></i> Nueva cita
+                    </button>
+                    <button type="button" class="form-mode__btn" data-mode="bloqueo" role="tab" aria-selected="false">
+                        <i class="ri-lock-2-line"></i> Bloquear
+                    </button>
+                </div>
+
+                <form id="event-form" class="form" data-mode="cita">
                   <!--Cliente-->
-                    <div class="form__group">
+                    <div class="form__group js-cita-field">
                         <label for="servicio" class="form__label">Paciente</label>
                         <input
                           type="text"
                           name="servicio"
-                          id="servicio"                                
+                          id="servicio"
                           class="form__input"
                           placeholder="Escribe SOLO el nombre del Cliente"
                           required
                         />
                     </div>
                     <!--Observaciones-->
-                    <div class="form__group">
+                    <div class="form__group js-cita-field">
                         <label for="cliente" class="form__label">Observaciones</label>
                         <input type="text" name="cliente" id="cliente" class="form__input" placeholder="TELEFONO, Servicio, etc..."  />
+                    </div>
+                    <!--Motivo del bloqueo-->
+                    <div class="form__group js-bloqueo-field" hidden>
+                        <label for="motivo" class="form__label">Motivo (opcional)</label>
+                        <input type="text" id="motivo" class="form__input" placeholder="Comida, día libre, reunión..." />
                     </div>
                   
 
@@ -163,11 +178,30 @@
                         <input type="datetime-local" id="fecha" name="fecha" class="form__input form__input--datetime" data-required="true" min="" required />
                     </div>
 
+                    <!--Bloqueo: todo el día-->
+                    <div class="form__group js-bloqueo-field" hidden>
+                        <label class="form__switch" for="todo-dia">
+                            <input type="checkbox" id="todo-dia"> Bloquear el día completo (09:00–21:00)
+                        </label>
+                    </div>
+                    <!--Bloqueo: duración-->
+                    <div class="form__group js-bloqueo-field" id="dur-group" hidden>
+                        <label for="duracion" class="form__label">Duración</label>
+                        <select id="duracion" class="form__input form__input--select">
+                            <option value="30">30 minutos</option>
+                            <option value="60" selected>1 hora</option>
+                            <option value="90">1 hora 30 min</option>
+                            <option value="120">2 horas</option>
+                            <option value="180">3 horas</option>
+                        </select>
+                    </div>
+
                     <div class="form__group">
                         <label for="medico" class="form__label">Gabinete</label>
                         <select  name="medico" id="medico" class="form__input form__input--select" required>
                             <option value="med1">GABINETE 1</option>
                             <option value="med2">GABINETE 2</option>
+                            <option value="ambos" hidden>Ambos gabinetes</option>
                         </select>
                     </div>
                     
@@ -181,7 +215,7 @@
                     </div>
 
                     <div class="form__buttons">
-                        <button type="submit" class="form__submit" data-action="create">Crear Cita <i class="ri-add-line"></i></button>
+                        <button type="submit" class="form__submit" id="submit-btn" data-action="create">Crear Cita <i class="ri-add-line"></i></button>
                         <a href="calendario.html" class="form__return">Regresar</a>
                     </div>
                 </form>
