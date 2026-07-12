@@ -20,4 +20,4 @@ confirmar el nombre antes de correrlo.
 
 | # | Archivo | Qué hace | Aplicado en pre | Aplicado en prod |
 |---|---|---|---|---|
-| 001 | `001_index_appointments_fecha.sql` | Índice en `appointments.fecha` (el calendario/dashboard hacían full table scan) | ☑ (2026-07-12) | ☐ — falta Alcorcón y Móstoles |
+| 001 | `001_index_appointments_fecha.sql` | Índice en `appointments.fecha` (el calendario/dashboard hacían full table scan) | ☑ (2026-07-12) | ☑ (2026-07-12) — Alcorcón y Móstoles |

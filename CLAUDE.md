@@ -254,7 +254,7 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 - `appointments.fecha` admite `'0000-00-00 00:00:00'` en datos reales; cuidado al castear.
 - `db_connect.php` tiene `session_start()` comentado: asume que el script que lo incluye ya hizo `session_start()`. Un endpoint nuevo que use `getConnection()` sin sesion fallara el chequeo de `clinic_id`.
 - **Escritura de piezas del odontograma es N peticiones secuenciales**: crear/editar un tratamiento hace un `await DB.addRegister("pieces", ...)`/`DELETE` por cada diente marcado, uno detras de otro (`historia-clinica.js`, `reconcilePiezas`). No hay endpoint batch. Funciona pero es lento con muchos dientes; si se toca, valorar `Promise.all` o un endpoint batch en `DB.php`.
-- **`appointments` y `clients` sin indices propios** (solo PK). Migracion `db/migrations/001_index_appointments_fecha.sql` **ya aplicada en PRE** (2026-07-12); **pendiente en Prod-Alcorcon y Prod-Mostoles** — ver checklist en `db/migrations/README.md`.
+- **`clients` sigue sin indices propios** (solo PK) — no urgente mientras el volumen de pacientes sea bajo. `appointments.fecha` **ya tiene indice** (`db/migrations/001_index_appointments_fecha.sql`, aplicado en pre y en ambas BD de produccion el 2026-07-12).
 
 **NO hacer:**
 - **NO romper la generacion de PDFs** ni **NO relativizar/cambiar el logo base64** de `DB.php` (perderia independencia del host; el PDF se renderiza server-side sin red). Nota: el logo en `facturas.js` (cliente) SI esta hardcodeado a `https://app.hsdental.es/...` — eso rompe mismo-origen y no carga en pre/local, pero el PDF real lo genera el servidor con el base64, asi que funciona igual.
