@@ -1,6 +1,8 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+// Nunca cachear: toda respuesta de este endpoint puede llevar datos de pacientes.
+header('Cache-Control: no-store, private');
 $allowedOrigins = ['https://app.hsdental.es', 'https://pre.hsdental.es'];
 $reqOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
 header('Access-Control-Allow-Origin: ' . (in_array($reqOrigin, $allowedOrigins, true) ? $reqOrigin : 'https://app.hsdental.es'));
