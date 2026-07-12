@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         display:flex; align-items:center; gap:12px;
         position:relative; z-index:1;
     }
-    .brand__logo{ height:40px; width:auto; display:block; }
+    .brand__logo{ height:72px; width:auto; display:block; }
 
     .brand__copy{ position:relative; z-index:1; max-width:30ch; }
     .brand__headline{
