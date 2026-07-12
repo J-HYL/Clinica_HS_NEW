@@ -5,6 +5,7 @@
 import { reloadPage } from "../funciones.js";
 import DB from "../classes/DB_API.js";
 import Alert from "./Alert.js";
+import { escapeHtml } from "../html.js";
 
 // --- Configuración de la rejilla (debe coincidir con el CSS de semana.html) ---
 const HORA_INICIO = 9;      // primera hora visible
@@ -206,7 +207,7 @@ function crearEvento(ev) {
   el.style.left = `calc(${ev.carril * ancho}% + 2px)`;
   el.style.width = `calc(${ancho}% - 4px)`;
 
-  el.innerHTML = `<span class="hora">${ev.hora}</span> ${ev.servicio ?? ""}`;
+  el.innerHTML = `<span class="hora">${escapeHtml(ev.hora)}</span> ${escapeHtml(ev.servicio ?? "")}`;
   el.title = `${ev.hora} · ${ev.servicio ?? ""}${ev.cliente ? " · " + ev.cliente : ""}`;
 
   // Arrastrar para cambiar la cita de día (conserva la hora).

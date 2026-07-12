@@ -2,6 +2,7 @@
 import DB from "../../modules/classes/DB_API.js";
 import Alert from "../../modules/components/Alert.js";
 import { reloadPage } from "../../modules/funciones.js";
+import { escapeHtml } from "../../modules/html.js";
 
 
 // El resto de tu código JS existente...
@@ -48,11 +49,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (client) {
             // Actualiza datos
             pacienteBox.querySelector('.scrollable').innerHTML = `
-                <p><strong>Nombre:</strong> ${client.nombre}</p>
-                <p><strong>Edad:</strong> ${client.edad || 'N/A'}</p>
-                <p><strong>Alergias:</strong> ${client.alergias || 'ninguna'}</p>
-                <p><strong>Teléfono:</strong> ${client.telefono || 'N/A'}</p>
-                <p><strong>Email:</strong> ${client.email || 'N/A'}</p>
+                <p><strong>Nombre:</strong> ${escapeHtml(client.nombre)}</p>
+                <p><strong>Edad:</strong> ${escapeHtml(client.edad) || 'N/A'}</p>
+                <p><strong>Alergias:</strong> ${escapeHtml(client.alergias) || 'ninguna'}</p>
+                <p><strong>Teléfono:</strong> ${escapeHtml(client.telefono) || 'N/A'}</p>
+                <p><strong>Email:</strong> ${escapeHtml(client.email) || 'N/A'}</p>
                 <p><strong>Fecha de Alta:</strong> ${client.Alta ? new Date(client.Alta).toLocaleDateString() : 'N/A'}</p>
             `;
         } else {
@@ -67,7 +68,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         if (treatments && treatments.length > 0) {
             for (const treatment of treatments) {
-                innerTreatmentsHtml += `<p><strong>${treatment.diagnostico || 'Diagnóstico sin especificar'}:</strong>`;
+                innerTreatmentsHtml += `<p><strong>${escapeHtml(treatment.diagnostico) || 'Diagnóstico sin especificar'}:</strong>`;
                 
                 
                 const pieces = await DB.getPiecesByTreatmentId(treatment.id);

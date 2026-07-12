@@ -3,6 +3,7 @@
 import DB from "../../modules/classes/DB_API.js";
 import { showRecordsP, setTableEventsListeners } from "../../modules/funciones.js";
 import { table } from "../../modules/selectores.js";
+import { escapeHtml } from "../../modules/html.js";
 
 const crearPagoBtn = document.getElementById("crear-pago");
 const modal = document.getElementById("edit-modal");
@@ -409,7 +410,7 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
     // Limpiar y añadir nuevo contenido
     fileInfo.innerHTML = `
         <span style="font-size: 1.2rem;">📄</span>
-        <span id="fileName" style="word-break: break-word; flex-grow: 1;">${file.nombre_original}</span>
+        <span id="fileName" style="word-break: break-word; flex-grow: 1;">${escapeHtml(file.nombre_original)}</span>
     `;
     
     // Botón de descarga (manteniendo tu estilo original)

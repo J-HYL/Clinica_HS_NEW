@@ -7,6 +7,7 @@
 // Inyecta su propio modal y estilos; requiere Swal (SweetAlert2) y RemixIcon en la página.
 
 import DB from "../classes/DB_API.js";
+import { escapeHtml } from "../html.js";
 
 let stylesInjected = false;
 let modalEl = null;
@@ -606,6 +607,3 @@ function formatFechaVisita(value) {
   return `${d}/${m}/${y}` + (hh && mm ? ` ${hh}:${mm}` : "");
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}

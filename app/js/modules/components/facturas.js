@@ -1,3 +1,5 @@
+import { escapeHtml } from "../html.js";
+
 const servicios = [];
 
 // Datos de clinica: fuente UNICA en clinica.js (window.Clinica). No duplicar aqui.
@@ -116,13 +118,6 @@ function actualizarTabla() {
       confirmButtonText: "Entendido",
     });
   }
-}
-
-function escapeHtml(text) {
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
 }
 
 function limpiarFormulario() {
