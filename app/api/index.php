@@ -275,5 +275,7 @@ if (isset($_GET['clinic'])) {
     </div>
 
     <footer>© HS Dental El Greco · Portal de gestión interna</footer>
+    <!-- Marquesina de aviso de entorno de pruebas (se autoinyecta solo en pre.*) -->
+    <script src="/js/entorno.js"></script>
 </body>
 </html>

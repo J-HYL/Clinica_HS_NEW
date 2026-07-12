@@ -452,5 +452,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (form.checkValidity()) btn.classList.add('is-loading');
     });
 </script>
+<!-- Marquesina de aviso de entorno de pruebas (se autoinyecta solo en pre.*) -->
+<script src="/js/entorno.js"></script>
 </body>
 </html>
