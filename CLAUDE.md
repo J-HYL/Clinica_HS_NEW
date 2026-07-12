@@ -254,7 +254,7 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 - `appointments.fecha` admite `'0000-00-00 00:00:00'` en datos reales; cuidado al castear.
 - `db_connect.php` tiene `session_start()` comentado: asume que el script que lo incluye ya hizo `session_start()`. Un endpoint nuevo que use `getConnection()` sin sesion fallara el chequeo de `clinic_id`.
 - **Escritura de piezas del odontograma es N peticiones secuenciales**: crear/editar un tratamiento hace un `await DB.addRegister("pieces", ...)`/`DELETE` por cada diente marcado, uno detras de otro (`historia-clinica.js`, `reconcilePiezas`). No hay endpoint batch. Funciona pero es lento con muchos dientes; si se toca, valorar `Promise.all` o un endpoint batch en `DB.php`.
-- **`appointments` y `clients` sin indices propios** (solo PK). Hay una migracion pendiente de aplicar en `db/migrations/001_index_appointments_fecha.sql` — ver seccion de checklist mas abajo.
+- **`appointments` y `clients` sin indices propios** (solo PK). Migracion `db/migrations/001_index_appointments_fecha.sql` **ya aplicada en PRE** (2026-07-12); **pendiente en Prod-Alcorcon y Prod-Mostoles** — ver checklist en `db/migrations/README.md`.
 
 **NO hacer:**
 - **NO romper la generacion de PDFs** ni **NO relativizar/cambiar el logo base64** de `DB.php` (perderia independencia del host; el PDF se renderiza server-side sin red). Nota: el logo en `facturas.js` (cliente) SI esta hardcodeado a `https://app.hsdental.es/...` — eso rompe mismo-origen y no carga en pre/local, pero el PDF real lo genera el servidor con el base64, asi que funciona igual.
@@ -274,6 +274,7 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 - `error_log`/`console.log` de depuracion repartidos por `DB.php` y el JS — pueden volcar datos de pacientes a logs. No romper, conviene limpiar.
 
 **Infra a tener en cuenta:**
+- **`.vscode/sftp.json` tiene su PROPIO `ignore`, independiente de `.gitignore`.** No asumas que lo que esta en `.gitignore` no se sube por SFTP — son dos mecanismos distintos. Ya se corrigio (2026-07-12) para excluir `**/*.sql` y `config.secret.php` (antes un "Sync Local -> Remote" desde la raiz podia subir el dump completo de pacientes o pisar el `config.secret.php` real del servidor). Si añades otro archivo sensible o pesado a la raiz del repo, revisa tambien este `ignore`, no solo el de git.
 - **El subdominio `www` puede no tener SSL** configurado igual que el apex; verificar el certificado antes de asumir HTTPS en `www.hsdental.es`.
 - **PRE solo tiene Alcorcon**: si una sesion llega con `clinic_id=2` en pre, `getConnection()` muere con error controlado. El bloque correspondiente debe existir en `config.secret.php`.
 - Un cambio de dominio/subdominio requiere actualizar `$allowedOrigins` en `DB.php` o las peticiones con credenciales fallaran.
