@@ -546,7 +546,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                   ");
                   echo json_encode($result->fetch_all(MYSQLI_ASSOC));
               }
-              $stmt->close();
+              if (isset($stmt)) $stmt->close();
               break;
             case 'services':
                 if ($id) {
@@ -559,7 +559,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM services");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'treatments':
                 if ($id) {
@@ -579,7 +579,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM treatments");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'appointments':
                 if ($id) {
@@ -602,7 +602,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM appointments ORDER BY fecha");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'payments':
                 if ($id) {
@@ -622,7 +622,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM payments ORDER BY fecha_pago DESC");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'images':
                 if ($id) {
@@ -642,7 +642,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM images ORDER BY fecha_subida DESC");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'pieces':
                              // <-- NUEVO CASO AÑADIDO
@@ -658,7 +658,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM pieces");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'visits':
                 if (isset($_GET['client_id'])) {
