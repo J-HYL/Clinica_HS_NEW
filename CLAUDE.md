@@ -230,6 +230,7 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 - **Secretos de `app/` SIEMPRE via `config.secret.php`** en la raiz (incluido con `require __DIR__.'/../../config.secret.php'`). Nunca hardcodear en archivos versionados.
 - **Modulos ES nativos sin bundler.** Clases `DB` y `UI` se usan como singletons importados (no se instancian).
 - Idioma espanol en UI/mensajes/codigo nuevo.
+- **Flowbite + Tailwind CSS (CDN) disponibles en `app/index.html`** (Tailwind `cdn.tailwindcss.com` + Flowbite CSS/JS `jsdelivr`, v2.5.2). Si el usuario pide un componente UI nuevo que Flowbite ya resuelve (modal, dropdown, accordion, tabs, carousel, tooltip, toast, badge, navbar, etc.) o pide explicitamente usar Tailwind/Flowbite, **usalo automaticamente sin preguntar**: copia el patron HTML de Flowbite (atributos `data-modal-toggle`, `data-dropdown-toggle`, etc. activan el JS solo) y anadelo a la pagina, replicando los `<link>`/`<script>` de `app/index.html` si la pagina destino aun no los tiene. Ver [FLOWBITE_INSTALLATION.md](FLOWBITE_INSTALLATION.md) para ejemplos. **No reescribas componentes existentes que ya funcionan** (SweetAlert2, DataTables, FullCalendar, Modal.js `<dialog>`) solo por migrarlos a Flowbite salvo que el usuario lo pida explicitamente — es aditivo, no un reemplazo forzado.
 
 ---
 
