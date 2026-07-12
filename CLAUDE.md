@@ -230,38 +230,48 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 - **Secretos de `app/` SIEMPRE via `config.secret.php`** en la raiz (incluido con `require __DIR__.'/../../config.secret.php'`). Nunca hardcodear en archivos versionados.
 - **Modulos ES nativos sin bundler.** Clases `DB` y `UI` se usan como singletons importados (no se instancian).
 - Idioma espanol en UI/mensajes/codigo nuevo.
+- **Escapar SIEMPRE datos de la BD antes de meterlos en `innerHTML`.** Usa `escapeHtml()` de `app/js/modules/html.js` (unica fuente de verdad; no dupliques esta funcion en otro archivo). Si vas a interpolar un campo que viene de `DB.getRecord*`/`DB.getRecords*` en un template `` `<div>${...}</div>` `` asignado a `innerHTML`, pasalo por `escapeHtml()`. `textContent`/`el.title` no lo necesitan (no interpretan HTML).
+- **Al pintar los datos relacionados de UNA entidad (tratamientos de un paciente, pagos de un tratamiento, etc.), usa el endpoint filtrado por id, no traigas la tabla completa y filtres en el cliente.** Ya existen `DB.getTreatmentsByClientId`, `DB.getPiecesByTreatmentId`, `DB.getPaymentsByTreatmentId`, `DB.getVisitsByClientId` en `DB_API.js`, y `showTreatmentsByClientId()` en `funciones.js` (mismo patron que `showRecords`/`showRecordsP`). `showRecords(objectStore)` sin id trae TODA la tabla de la clinica — solo usarlo para vistas de control/listado, nunca para la ficha de una sola entidad.
+- **Respuestas de `app/api/DB.php` van con `Cache-Control: no-store, private`** (ya seteado globalmente al inicio del script) porque casi todas llevan datos de pacientes. No la quites ni la sobrescribas en un endpoint nuevo.
+- **Migraciones SQL en `db/migrations/`** (numeradas, `NNN_descripcion.sql`, ver `db/migrations/README.md`). Se aplican a mano (no hay runner); documentar en el README de esa carpeta si ya se aplico en pre/prod. Es la unica excepcion a la regla `*.sql` del `.gitignore`.
 - **Flowbite + Tailwind CSS (CDN) disponibles en `app/index.html`** (Tailwind `cdn.tailwindcss.com` + Flowbite CSS/JS `jsdelivr`, v2.5.2). Si el usuario pide un componente UI nuevo que Flowbite ya resuelve (modal, dropdown, accordion, tabs, carousel, tooltip, toast, badge, navbar, etc.) o pide explicitamente usar Tailwind/Flowbite, **usalo automaticamente sin preguntar**: copia el patron HTML de Flowbite (atributos `data-modal-toggle`, `data-dropdown-toggle`, etc. activan el JS solo) y anadelo a la pagina, replicando los `<link>`/`<script>` de `app/index.html` si la pagina destino aun no los tiene. Ver [FLOWBITE_INSTALLATION.md](FLOWBITE_INSTALLATION.md) para ejemplos. **No reescribas componentes existentes que ya funcionan** (SweetAlert2, DataTables, FullCalendar, Modal.js `<dialog>`) solo por migrarlos a Flowbite salvo que el usuario lo pida explicitamente — es aditivo, no un reemplazo forzado.
 
 ---
 
 ## 8. Gotchas y cosas a NO hacer
 
+> Limpieza realizada 2026-07-12 (rama `developer`): se resolvieron varios de los
+> gotchas que antes vivian aqui (ver historial de commits de esa fecha). Lo que
+> sigue es el estado ACTUAL, no un historial — si algo te suena resuelto,
+> confirmalo leyendo el codigo antes de asumir que el gotcha sigue vigente.
+
 **Funcionamiento / bugs latentes (verificar antes de tocar):**
-- **`deleteDir()` ya esta definida** en `DB.php` (~linea 33), con validacion de que la ruta quede DENTRO de `uploads/pacientes` (lanza excepcion si se sale). Se usa al borrar `clients` y `treatments`. (Nota historica: antes no existia y los borrados petaban; ya no.)
+- **`deleteDir()` ya esta definida** en `DB.php` (~linea 33), con validacion de que la ruta quede DENTRO de `uploads/pacientes` (lanza excepcion si se sale). Se usa al borrar `clients` y `treatments`.
 - **Borrado en cascada PARCIAL:** `visits` NO tiene `ON DELETE CASCADE`. Borrar un `client` o `treatment` con `visits` asociadas **FALLA por restriccion de FK**. Hay que borrar las visits primero.
-- **`Calendar.js`** llama a `DB.updateAppointmentDate(...)` tras un drop, pero ese metodo **no existe** en `DB_API.js`: mover citas en el calendario mensual no persiste y lanza error. Ademas `Calendar.js`/`Alert.js` usan un global `LocalStorage` inexistente.
-- **`configuracion.js`** esta roto (importa `LocalStorage`, `selectAvatar`, `UI.showFormUserInfo`, etc. inexistentes). La pagina de configuracion no funciona.
-- **`facturasPanel.js`** llama `UI.showAlert(...)` en el catch, pero `UI` no define `showAlert` (TypeError si falla la carga).
 - **Inconsistencias de nombres campo cliente<->servidor:** en citas la columna "Paciente" guarda `app.servicio` y "Observaciones" guarda `app.cliente`; en pagos se envia `monto_pagado` en unos sitios y `amount`/`monto` en otros. Revisar siempre que espera `DB.php`.
 - **Fall-through del switch POST->GET en `DB.php`:** los cases POST terminan con `break 2`/`exit`. Si anades un case POST y olvidas el `break 2`/`exit`, el flujo cae al bloque GET. Patron fragil.
-- **Numeracion de facturas depende de `users.id=1`** con username `mstlsHS`/`alcrcnHS`. Renombrar/borrar ese usuario rompe el prefijo y el login de esa clinica.
+- **Numeracion de facturas depende de `users.id=1`** con username `mstlsHS`/`alcrcnHS`. Renombrar/borrar ese usuario rompe el prefijo y el login de esa clinica. Ademas, `numero_factura = MAX()+1` se calcula **sin transaccion ni lock** (`DB.php` ~linea 470): dos facturas casi simultaneas pueden pedir el mismo numero. El `UNIQUE KEY` de la tabla evita duplicarlo en BD, pero el segundo request falla sin reintento automatico — pendiente de blindar con `begin_transaction()`+`SELECT ... FOR UPDATE` o reintento.
 - `appointments.fecha` admite `'0000-00-00 00:00:00'` en datos reales; cuidado al castear.
 - `db_connect.php` tiene `session_start()` comentado: asume que el script que lo incluye ya hizo `session_start()`. Un endpoint nuevo que use `getConnection()` sin sesion fallara el chequeo de `clinic_id`.
+- **Escritura de piezas del odontograma es N peticiones secuenciales**: crear/editar un tratamiento hace un `await DB.addRegister("pieces", ...)`/`DELETE` por cada diente marcado, uno detras de otro (`historia-clinica.js`, `reconcilePiezas`). No hay endpoint batch. Funciona pero es lento con muchos dientes; si se toca, valorar `Promise.all` o un endpoint batch en `DB.php`.
+- **`appointments` y `clients` sin indices propios** (solo PK). Hay una migracion pendiente de aplicar en `db/migrations/001_index_appointments_fecha.sql` — ver seccion de checklist mas abajo.
 
 **NO hacer:**
 - **NO romper la generacion de PDFs** ni **NO relativizar/cambiar el logo base64** de `DB.php` (perderia independencia del host; el PDF se renderiza server-side sin red). Nota: el logo en `facturas.js` (cliente) SI esta hardcodeado a `https://app.hsdental.es/...` — eso rompe mismo-origen y no carga en pre/local, pero el PDF real lo genera el servidor con el base64, asi que funciona igual.
 - **NO versionar `config.secret.php`** ni dejarlo dentro de un docroot (`/app`, `/web`) — quedaria web-accesible y el `require '../../config.secret.php'` apuntaria mal.
-- **NO versionar ni subir al webspace ningun `.sql`** (p.ej. `db5017933701_hosting-data_io.sql`, ~207 KB con datos de pacientes). Esta ignorado por la regla `*.sql`; mantenerlo asi.
+- **NO versionar ni subir al webspace ningun `.sql`** salvo lo que vive en `db/migrations/` (dump de referencia con datos de pacientes ignorado por la regla `*.sql`).
 - Al reimportar el dump: **cambiar/quitar el `USE \`dbs15816600\`\`** (es la BD de PRE) para no escribir en la BD equivocada.
 
-**Seguridad / deuda tecnica (principal del proyecto):**
-- **Contrasena reutilizada en TODO:** SFTP (`.vscode/sftp.json`), BD de ambas clinicas (`web/api/db_connect_public.php`) y SMTP (`web/api/contacto.php`) usan la misma contrasena. Comprometer una compromete todo. Conviene rotar/separar.
-- **Credenciales hardcodeadas y versionadas en `web/`:** `web/api/db_connect_public.php` (BD reales de prod) y `web/api/contacto.php` (pass SMTP). El lado `web/` no usa `config.secret.php`; idealmente migrar al patron de `app/`.
-- **Archivos de test web-accesibles en produccion (eliminar):** `web/api/test_mail.php`, `web/api/test_debug.php`, `web/api/test_form_simulation.php` (envian correos reales, vuelcan errores, exponen esquema y repiten credenciales SMTP). Tambien hay un `web/api/php_error.log` versionado.
-- **CORS abierto** en `contacto.php` (`*`), sin CSRF ni rate limiting -> spam de formulario/correos.
-- Passwords SHA-256 sin sal ni bcrypt (esquema actual debil).
+**Seguridad / deuda tecnica pendiente:**
+- **Rotar la contrasena compartida** (SFTP, BD de ambas clinicas, SMTP — la misma en los 3 sitios). Sigue reutilizada en todo el proyecto Y quedo expuesta en texto plano en el historial de git (en los scripts de test que se borraron el 2026-07-12) — borrar el archivo no borra el historial. Esto requiere accion del usuario en IONOS/el panel SMTP, no es algo que se resuelva solo con un cambio de codigo. **No escribir la contrasena real en ningun archivo versionado, ni siquiera para documentar que hay que rotarla.**
+- Sin rate limiting en `login.php`: usuario predecible por clinica + SHA-256 sin sal = fuerza bruta viable. Pendiente.
+- CORS abierto (`*`) en `contacto.php`, sin CSRF ni rate limiting -> spam de formulario/correos. Pendiente (mitigacion sugerida: Cloudflare u otro WAF delante de `hsdental.es`).
+- Subida de `images` en `DB.php` sin whitelist de extension ni validacion MIME real (la extension sale de `pathinfo()` del nombre original). Si `uploads/pacientes` no tiene un `.htaccess` que desactive ejecucion PHP, es RCE potencial para un usuario ya logueado. Verificar ese `.htaccess` en el servidor real.
+- Sin verificacion de que `client_id`/`treatment_id` del body pertenezcan entre si antes de leer/escribir en `DB.php` (IDOR entre pacientes de la misma clinica). Pendiente.
+- Sesion PHP sin flags `HttpOnly`/`Secure`/`SameSite` explicitos. Pendiente.
+- `web/api/db_connect_public.php` y `contacto.php` ya leen de `config.secret.php` (migrado 2026-07-12), pero **siguen sin ser `currentEnv()`-aware**: usan siempre el bloque `prod` sin importar el host. Cambiarlo a environment-aware requiere antes confirmar que la BD de PRE (solo Alcorcon) tiene la tabla `contactos`, si no el formulario publico en `pre.hsdental.es` empezaria a fallar para esa clinica.
+- Passwords de usuarios SHA-256 sin sal ni bcrypt (esquema actual debil).
 - `error_log`/`console.log` de depuracion repartidos por `DB.php` y el JS — pueden volcar datos de pacientes a logs. No romper, conviene limpiar.
-- Archivos ajenos al proyecto en el docroot publico: `web/AURORA.c`, `web/auroora.jpg`, `web/pages/aurora.html`.
 
 **Infra a tener en cuenta:**
 - **El subdominio `www` puede no tener SSL** configurado igual que el apex; verificar el certificado antes de asumir HTTPS en `www.hsdental.es`.
