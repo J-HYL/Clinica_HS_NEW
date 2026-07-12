@@ -1,5 +1,5 @@
 import { createTableInstance } from "../components/Datatables.js";
-import UI from "../classes/UI.js";
+import Alert from "../components/Alert.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -35,6 +35,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       
     } catch (err) {
         console.error("Error cargando facturas:", err);
-        UI.showAlert("Error al cargar facturas: " + err.message, "error");
+        Alert.showStatusAlert("error", "¡Error!", "Error al cargar facturas: " + err.message);
     }
 });
