@@ -3,24 +3,23 @@
  * HSDental · db_connect_public.php
  * Conexión a bases de datos según clínica
  * Sin sesiones - Todo público
+ *
+ * Credenciales en config.secret.php (raiz, fuera de docroot, gitignored),
+ * bajo db.prod.<clinica> — el mismo bloque que ya usa app/ en produccion,
+ * porque `contactos` vive en la misma BD fisica por clinica que el resto
+ * de tablas del panel (ver CLAUDE.md).
+ *
+ * NOTA: hoy usa siempre el bloque 'prod' independientemente del entorno
+ * (pre.hsdental.es tambien escribe en la BD de produccion). Es el mismo
+ * comportamiento que tenia antes con las credenciales hardcodeadas; no se
+ * ha cambiado a currentEnv()-aware en esta limpieza porque PRE solo tiene
+ * la clinica Alcorcon habilitada y falta confirmar que su BD tenga la
+ * tabla `contactos` antes de enrutar el formulario publico alli.
  */
 
 function getConnectionByClinic($clinic) {
-    // Configuración de clínicas
-    $clinics = [
-        'mostoles' => [
-            'host' => 'db5018426857.hosting-data.io',
-            'user' => 'dbu1523504',
-            'pass' => 'Jjbinks1999$',
-            'db'   => 'dbs14654471'
-        ],
-        'alcorcon' => [
-            'host' => 'db5017933701.hosting-data.io',
-            'user' => 'dbu943630',
-            'pass' => 'Jjbinks1999$',
-            'db'   => 'dbs14273934'
-        ]
-    ];
+    $secrets = require __DIR__ . '/../../config.secret.php';
+    $clinics = $secrets['db']['prod'] ?? [];
 
     // Normalizar el nombre de la clínica (minúsculas + quitar tildes)
     $clinic = strtolower(trim($clinic));

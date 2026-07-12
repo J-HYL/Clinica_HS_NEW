@@ -36,17 +36,20 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 function sendEmail($to, $subject, $body) {
+    $secrets = require __DIR__ . '/../../config.secret.php';
+    $smtp    = $secrets['smtp'];
+
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.ionos.es';
+        $mail->Host       = $smtp['host'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'avisos@hsdental.es';
-        $mail->Password   = 'Jjbinks1999$';
+        $mail->Username   = $smtp['user'];
+        $mail->Password   = $smtp['pass'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Port       = $smtp['port'];
         $mail->CharSet    = 'UTF-8';
-        $mail->setFrom('avisos@hsdental.es', 'HSDental');
+        $mail->setFrom($smtp['user'], 'HSDental');
         $mail->addAddress($to);
         $mail->isHTML(true);
         $mail->Subject = $subject;
