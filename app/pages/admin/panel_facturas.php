@@ -42,9 +42,8 @@ if (empty($_SESSION['facturas_admin'])) {
         </button>
         <div class="sidebar__content">
             <div class="sidebar__logo">
-                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
-                <div class="item__hide item__hide--logo">
-                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
+                <div class="sidebar__logo-clip">
+                    <img src="../../assets/images/logoCompleto.jpg" alt="HS Dental El Greco" class="sidebar__logo-img">
                 </div>
             </div>
             <ul class="sidebar__links">
