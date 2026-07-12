@@ -202,20 +202,32 @@ Landing estatica de una pagina (`web/index.html` + `web/styles.css` + `web/scrip
 
 ## 6. Despliegue
 
-### SFTP (`.vscode/sftp.json`, extension vscode-sftp)
+### Automatico: GitHub Actions (2026-07-12)
+
+- `.github/workflows/deploy-pre.yml`: push a la rama **`preproduccion`** -> sube por SFTP a `/pre` (pre.hsdental.es).
+- `.github/workflows/deploy-prod.yml`: push a la rama **`master`** -> sube por SFTP a `/` (produccion), **sin paso de aprobacion manual** (deliberado, replica el flujo que ya usaba el equipo).
+- Ambos usan la action `wlixcc/SFTP-Deploy-Action`, con **`delete_remote_files: false` siempre** — critico, porque `uploads/pacientes`, `uploads/facturas` y `config.secret.php` viven SOLO en el servidor (no estan en git); un deploy que borre antes de subir se los llevaria por delante.
+- Secrets necesarios en GitHub (`Settings -> Secrets and variables -> Actions`, los añade quien tenga acceso al repo, nunca se escriben en el codigo): `SFTP_HOST`, `SFTP_USERNAME`, `SFTP_PASSWORD`.
+- El runner de GitHub Actions solo tiene lo que esta en git (via `actions/checkout`) — a diferencia del SFTP local de VS Code, aqui no hay riesgo de subir sin querer el dump de pacientes o `config.secret.php` local, porque ni siquiera estan en el checkout.
+
+### Manual: SFTP local (`.vscode/sftp.json`, extension vscode-sftp)
+
+Sigue disponible para trabajar suelto sin depender de un push, pero el flujo principal ahora es el de GitHub Actions de arriba.
 
 - Host `access-5017879741.webspace-host.com`, sftp, puerto 22, usuario `a1405365`. **Contrasena en claro** en el archivo (gitignored, pero existe en disco).
 - `defaultProfile: 'pre'`.
 - Perfil **`pre`**: `remotePath '/pre'`, **`uploadOnSave: true`** (cada guardado sube a preproduccion).
 - Perfil **`produccion`**: `remotePath '/'`, `uploadOnSave: false` (subida manual y deliberada).
-- `ignore`: `.vscode`, `.git`, `app/uploads`, `appWeb.zip`, `*.log`.
+- `ignore`: `.vscode`, `.git`, `app/uploads`, `appWeb.zip`, `*.log`, `*.sql`, `config.secret.php` (las dos ultimas añadidas el 2026-07-12).
 
 ### Ramas git y flujo
 
-- `master` = produccion. `developer` = cambios en curso (rama actual).
-- Flujo: trabajar en **`developer`** -> con perfil SFTP `pre` (auto) sube a `pre.hsdental.es` -> validar en PRE -> merge `developer` a `master` -> con perfil `produccion` subir manualmente (`/`) a produccion.
+- `master` = produccion (push -> deploy automatico).
+- `preproduccion` = rama de trabajo que despliega a PRE (push -> deploy automatico). Creada el 2026-07-12 a partir de `developer`.
+- `developer` sigue existiendo en el remoto sin borrar (decision pendiente del usuario); no tiene ningun workflow de deploy enganchado, un push ahi no hace nada por si solo.
+- Flujo: trabajar en **`preproduccion`** -> push -> GitHub Actions sube a `pre.hsdental.es` -> validar en PRE -> merge `preproduccion` a `master` -> push -> GitHub Actions sube a produccion automaticamente.
 
-`.gitignore` excluye: `.vscode/sftp.json`, `config.secret.php`, `app/uploads`, `*.log`, `*.sql`, `appWeb.zip`.
+`.gitignore` excluye: `.vscode/sftp.json`, `config.secret.php`, `app/uploads`, `*.log`, `*.sql` (con excepcion de `db/migrations/*.sql`), `appWeb.zip`.
 
 ---
 
