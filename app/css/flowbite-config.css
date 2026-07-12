@@ -1,0 +1,9 @@
+/**
+ * Flowbite CDN Configuration
+ *
+ * Este archivo carga Tailwind CSS y Flowbite por CDN.
+ * Los componentes de Flowbite se activarán automáticamente
+ * cuando uses las clases CSS correspondientes en el HTML.
+ */
+
+/* Nota: Los CDNs se cargan en los <link> del HTML head, no aquí */
