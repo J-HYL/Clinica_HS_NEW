@@ -172,6 +172,14 @@ export function showRecordsP(objectStore, id = null) {
         .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
 }
 
+// Trae solo los tratamientos del paciente (en vez de la tabla completa de la
+// clinica) para la vista de historia clinica.
+export function showTreatmentsByClientId(clientId) {
+    return DB.getTreatmentsByClientId(clientId)
+        .then(records => displayRecordsInTable(records))
+        .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
+}
+
 export function getAppointments(callback = displayRecordsInTable) {
   DB.getRecords("appointments")
     .then(appointments => {

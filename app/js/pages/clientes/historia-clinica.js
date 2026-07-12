@@ -1,6 +1,6 @@
 import {
   setTableEventsListeners,
-  showRecords,
+  showTreatmentsByClientId,
   formatFecha
 } from "../../modules/funciones.js";
 import { table } from "../../modules/selectores.js";
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('edad').textContent = ' ' + pacienteData.edad || 'No disponible';
     document.title = `Historia Clínica - ${pacienteData.nombre}`;
 
-    await showRecords("treatments");
+    await showTreatmentsByClientId(patientId);
     applyTreatmentsTableView(patientId);
 
     // Sección de visitas del paciente (componente reutilizable)
@@ -309,7 +309,7 @@ async function guardarNuevoTratamiento() {
     modal.close();
     setCreateMode();
 
-    await showRecords("treatments");
+    await showTreatmentsByClientId(patientId);
     applyTreatmentsTableView(patientId);
 
   } catch (err) {
@@ -363,7 +363,7 @@ async function guardarEdicionTratamiento() {
     modal.close();
     setCreateMode();
 
-    await showRecords("treatments");
+    await showTreatmentsByClientId(patientId);
     applyTreatmentsTableView(patientId);
 
     Swal.fire({
