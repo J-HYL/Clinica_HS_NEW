@@ -142,17 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         display:flex; align-items:center; gap:12px;
         position:relative; z-index:1;
     }
-    .brand__glyph{
-        width:38px; height:38px;
-        display:grid; place-items:center;
-        border-radius:11px;
-        background:rgba(255,255,255,.16);
-        border:1px solid rgba(255,255,255,.28);
-        backdrop-filter:blur(2px);
-    }
-    .brand__glyph svg{ width:22px; height:22px; color:#fff; }
-    .brand__word{ font-size:1.18rem; font-weight:800; letter-spacing:-.01em; line-height:1; }
-    .brand__word small{ display:block; font-size:.62rem; font-weight:600; letter-spacing:.32em; opacity:.8; margin-top:4px; }
+    .brand__logo{ height:40px; width:auto; display:block; }
 
     .brand__copy{ position:relative; z-index:1; max-width:30ch; }
     .brand__headline{
@@ -369,12 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </svg>
 
         <div class="brand__mark">
-            <span class="brand__glyph" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M12 3C8.5 3 6.3 5 6.3 8.2c0 2.7.7 5.6 1.6 8.9.7 2.6 2.1 4 2.7 1.7.6-2.3.8-4.5 1.4-4.5s.8 2.2 1.4 4.5c.6 2.3 2 .9 2.7-1.7.9-3.3 1.6-6.2 1.6-8.9C17.7 5 15.5 3 12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                </svg>
-            </span>
-            <span class="brand__word">HS Dental<small>EL GRECO</small></span>
+            <img src="/assets/images/logoHSBlanco.png" alt="HS Dental" class="brand__logo">
         </div>
 
         <div class="brand__copy">
