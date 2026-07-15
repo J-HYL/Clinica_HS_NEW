@@ -21,13 +21,11 @@ confirmar el nombre antes de correrlo.
 | # | Archivo | Qué hace | Aplicado en pre | Aplicado en prod |
 |---|---|---|---|---|
 | 001 | `001_index_appointments_fecha.sql` | Índice en `appointments.fecha` (el calendario/dashboard hacían full table scan) | ☑ (2026-07-12) | ☑ (2026-07-12) — Alcorcón y Móstoles |
-| 002 | `002_create_inventario.sql` | Crea la tabla `inventario` (elementos clínicos: stock, ubicación, foto...) para la sección nueva de Inventario | ☑ (2026-07-15) | ☐ |
-| 003 | `003_inventario_codigo.sql` | Añade `inventario.codigo` (UNIQUE): el código de barras o QR que se escanea para abrir el elemento | ☐ | ☐ |
+| 002 | `002_create_inventario.sql` | Crea la tabla `inventario` (elementos clínicos: stock, ubicación, foto...) para la sección nueva de Inventario | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
+| 003 | `003_inventario_codigo.sql` | Añade `inventario.codigo` (UNIQUE): el código de barras o QR que se escanea para abrir el elemento | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
 
-> **Pendiente: 002 en producción, y 003 en pre y en producción.** La sección de
-> Inventario no funciona en un entorno hasta que se ejecute allí la 002 (la API
-> responderá error de tabla inexistente), y el escaneo de códigos necesita
-> además la 003. La 003 va después de la 002: añade una columna a esa tabla.
-> Recordatorio: en producción son **dos** BD (Alcorcón y Móstoles) y hay que
-> correr los scripts en las dos. Aplicadas en local el 2026-07-14 (002) y el
-> 2026-07-15 (003).
+**No hay migraciones pendientes.** La sección de Inventario y el escaneo de
+códigos funcionan en los tres entornos. La 002 y la 003 se aplicaron en
+producción con el script combinado (las dos juntas en un solo `CREATE TABLE` ya
+con la columna `codigo`), por eso comparten fecha. En local se aplicaron el
+2026-07-14 (002) y el 2026-07-15 (003), por separado.
