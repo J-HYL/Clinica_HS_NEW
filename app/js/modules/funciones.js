@@ -152,7 +152,7 @@ export function showSelectRecords(){
 
 //* Datatables Functions
 
-export function displayRecordsInTable(records){
+function displayRecordsInTable(records){
   if ($.fn.DataTable.isDataTable('#table')) {
     $('#table').DataTable().clear().destroy();
   }
@@ -162,7 +162,7 @@ export function displayRecordsInTable(records){
 
 //Function to show the records in the datatable
 export function showRecords(objectStore) {
-    return DB.getRecords(objectStore)
+    DB.getRecords(objectStore)
         .then(records => displayRecordsInTable(records))
         .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
 }

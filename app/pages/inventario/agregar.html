@@ -119,7 +119,13 @@
         </header>
 
         <main class="container main main--ancho">
-            <h3 class="container__heading">Crear Elemento</h3>
+            <div class="main__titulo">
+                <h3 class="container__heading">Crear Elemento</h3>
+                <button type="button" class="ayuda" id="como-funciona">
+                    <i class="ri-question-line"></i>
+                    <span class="ayuda__texto">¿Cómo funciona?</span>
+                </button>
+            </div>
             <form action="#" class="form">
 
                 <!-- El capturador de foto se pinta aquí desde FotoCaptura.js -->
@@ -135,6 +141,19 @@
                 <div class="form__group">
                     <label for="categoria" class="form__label">Categoría</label>
                     <select id="categoria" name="categoria" class="form__input"></select>
+                </div>
+
+                <div class="form__group">
+                    <label for="codigo" class="form__label">Código (barras o QR)</label>
+                    <div class="codigo">
+                        <input type="text" id="codigo" name="codigo" class="form__input" placeholder="Escanea el código del producto o genera uno propio" autocomplete="off">
+                        <div class="codigo__actions">
+                            <button type="button" class="codigo__btn" id="codigo-escanear"><i class="ri-qr-scan-2-line"></i> Escanear</button>
+                            <button type="button" class="codigo__btn" id="codigo-generar"><i class="ri-qr-code-line"></i> Generar QR propio</button>
+                            <button type="button" class="codigo__btn" id="codigo-imprimir" hidden><i class="ri-printer-line"></i> Imprimir etiqueta</button>
+                        </div>
+                        <img class="codigo__qr" id="codigo-qr" alt="Vista previa del código QR" hidden>
+                    </div>
                 </div>
                 <div class="form__group">
                     <label for="descripcion" class="form__label">Descripción</label>
@@ -211,6 +230,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Lector de códigos (cámara) y generador de QR: globales Html5Qrcode y QRCode -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/inventario/agregar.js" type="module"></script>
 </body>

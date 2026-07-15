@@ -43,6 +43,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#191fbe">
 <title>Acceso · HS Dental — <?= htmlspecialchars($clinicName) ?></title>
+
+<!-- PWA: ver api/index.php. El manifest debe ir en todas las paginas de entrada. -->
+<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96"/>
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HS Dental">
+<script src="/js/pwa.js" defer></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">

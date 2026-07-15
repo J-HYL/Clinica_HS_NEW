@@ -96,6 +96,25 @@ function guardarFotoInventario(array $file, $clinicSeg) {
 }
 
 /**
+ * Devuelve true si el codigo ya lo tiene OTRO elemento del inventario.
+ * $idActual excluye el propio elemento (al editarlo conserva su codigo).
+ * La columna es UNIQUE: esto es solo para poder responder un error claro.
+ */
+function codigoInventarioEnUso(mysqli $conn, $codigo, $idActual = null) {
+    $sql = "SELECT id FROM inventario WHERE codigo = ?" . ($idActual ? " AND id <> ?" : "") . " LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    if ($idActual) {
+        $stmt->bind_param("si", $codigo, $idActual);
+    } else {
+        $stmt->bind_param("s", $codigo);
+    }
+    $stmt->execute();
+    $enUso = (bool)$stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $enUso;
+}
+
+/**
  * Borra del disco una foto de inventario, validando que la ruta quede DENTRO
  * de uploads/inventario (misma proteccion que deleteDir()).
  */
@@ -241,6 +260,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     break 2;
                 }
 
+                $codigo = valorOrNull($data["codigo"] ?? null);
+                if ($codigo !== null && codigoInventarioEnUso($conn, $codigo)) {
+                    http_response_code(409);
+                    echo json_encode(["error" => "Ese codigo ya esta asignado a otro elemento."]);
+                    break 2;
+                }
+
                 $categoria    = valorOrNull($data["categoria"] ?? null) ?: 'otros';
                 $descripcion  = valorOrNull($data["descripcion"] ?? null);
                 $marca        = valorOrNull($data["marca"] ?? null);
@@ -261,13 +287,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                 $stmt = $conn->prepare("
                     INSERT INTO inventario
-                        (nombre, categoria, descripcion, marca, modelo, numero_serie, ubicacion,
+                        (nombre, codigo, categoria, descripcion, marca, modelo, numero_serie, ubicacion,
                          proveedor, stock, stock_minimo, unidad, precio, caducidad, estado, notas)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->bind_param(
-                    "ssssssssiisdsss",
-                    $nombre, $categoria, $descripcion, $marca, $modelo, $numero_serie, $ubicacion,
+                    "sssssssssiisdsss",
+                    $nombre, $codigo, $categoria, $descripcion, $marca, $modelo, $numero_serie, $ubicacion,
                     $proveedor, $stock, $stock_minimo, $unidad, $precio, $caducidad, $estado, $notas
                 );
 
@@ -719,6 +745,25 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 if (isset($stmt)) $stmt->close();
                 break;
             case 'inventario':
+                // Busqueda por codigo escaneado (barras o QR). 404 explicito para
+                // que el cliente pueda ofrecer asignarlo a un elemento.
+                $codigoBuscado = valorOrNull($_GET['codigo'] ?? null);
+                if ($codigoBuscado !== null) {
+                    $stmt = $conn->prepare("SELECT * FROM inventario WHERE codigo = ? LIMIT 1");
+                    $stmt->bind_param("s", $codigoBuscado);
+                    $stmt->execute();
+                    $elemento = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    if ($elemento) {
+                        echo json_encode($elemento);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(["error" => "No hay ningun elemento con ese codigo."]);
+                    }
+                    break;
+                }
+
                 if ($id) {
                     $stmt = $conn->prepare("SELECT * FROM inventario WHERE id = ?");
                     $stmt->bind_param("i", $id);
@@ -995,10 +1040,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 break;
             case 'inventario':
                 // Actualizar inventario (la foto va por su propio endpoint, no por aqui)
+                if (isset($data["codigo"])) {
+                    $codigoNuevo = valorOrNull($data["codigo"]);
+                    if ($codigoNuevo !== null && codigoInventarioEnUso($conn, $codigoNuevo, $id)) {
+                        http_response_code(409);
+                        echo json_encode(["error" => "Ese codigo ya esta asignado a otro elemento."]);
+                        break 2;
+                    }
+                }
+
                 $sets = []; $types = ""; $values = [];
                 $noNulables = ["nombre", "categoria", "unidad", "estado", "stock", "stock_minimo"];
 
-                foreach (["nombre", "categoria", "descripcion", "marca", "modelo", "numero_serie",
+                foreach (["nombre", "codigo", "categoria", "descripcion", "marca", "modelo", "numero_serie",
                           "ubicacion", "proveedor", "stock", "stock_minimo", "unidad", "precio",
                           "caducidad", "estado", "notas"] as $col) {
                     if (!isset($data[$col])) continue;

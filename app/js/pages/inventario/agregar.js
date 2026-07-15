@@ -2,6 +2,10 @@ import { getFormData, getURLId, goToControlPage, validateForm, validateInput } f
 import { form, formHeading, formSubmit } from "../../modules/selectores.js";
 import { initFotoCaptura } from "../../modules/components/FotoCaptura.js";
 import { CATEGORIAS, ESTADOS, UNIDADES, rellenarSelect } from "../../modules/components/inventario.js";
+import { generarCodigoPropio, imprimirEtiqueta, pintarQR } from "../../modules/components/CodigoQR.js";
+import { abrirEscaner } from "../../modules/components/Escaner.js";
+import { abrirComoFunciona } from "../../modules/components/ComoFunciona.js";
+import { GUIA_FORMULARIO } from "../../modules/components/guiaInventario.js";
 import Alert from "../../modules/components/Alert.js";
 import DB from "../../modules/classes/DB_API.js";
 
@@ -12,6 +16,11 @@ const stockMinimoInput = document.querySelector("#stock_minimo");
 const categoriaInput = document.querySelector("#categoria");
 const unidadInput = document.querySelector("#unidad");
 const estadoInput = document.querySelector("#estado");
+const ubicacionInput = document.querySelector("#ubicacion");
+
+const codigoInput = document.querySelector("#codigo");
+const codigoQR = document.querySelector("#codigo-qr");
+const botonImprimir = document.querySelector("#codigo-imprimir");
 
 const foto = initFotoCaptura(document.querySelector("#foto"));
 
@@ -22,6 +31,16 @@ nombreInput.addEventListener("blur", validateInput);
 stockInput.addEventListener("blur", validateInput);
 stockMinimoInput.addEventListener("blur", validateInput);
 
+document.querySelector("#como-funciona").addEventListener("click", () => abrirComoFunciona(GUIA_FORMULARIO));
+
+codigoInput.addEventListener("input", refrescarQR);
+document.querySelector("#codigo-escanear").addEventListener("click", escanearCodigo);
+document.querySelector("#codigo-generar").addEventListener("click", () => {
+    codigoInput.value = generarCodigoPropio();
+    refrescarQR();
+});
+botonImprimir.addEventListener("click", imprimirCodigo);
+
 async function iniciar() {
     rellenarSelect(categoriaInput, CATEGORIAS);
     rellenarSelect(unidadInput, UNIDADES);
@@ -29,6 +48,49 @@ async function iniciar() {
 
     const id = getURLId();
     if (id) await prepararModoEdicion(id);
+}
+
+//* Código escaneable
+
+// Escanear el código de fábrica es más fiable que teclear un EAN de 13 dígitos.
+async function escanearCodigo() {
+    const codigo = await abrirEscaner();
+    if (!codigo) return;
+    codigoInput.value = codigo;
+    refrescarQR();
+}
+
+// El QR se pinta para cualquier código, no solo para los generados aquí: así se
+// puede pegar una etiqueta legible también a un producto cuyo código de barras
+// esté impreso en un sitio incómodo de escanear.
+function refrescarQR() {
+    const codigo = codigoInput.value.trim();
+    const hayCodigo = codigo !== "";
+
+    codigoQR.hidden = !hayCodigo;
+    botonImprimir.hidden = !hayCodigo;
+    if (!hayCodigo) return;
+
+    try {
+        pintarQR(codigoQR, codigo);
+    } catch {
+        // Sin la librería de QR (CDN caído) el código sigue siendo válido:
+        // solo se queda sin vista previa ni etiqueta.
+        codigoQR.hidden = true;
+        botonImprimir.hidden = true;
+    }
+}
+
+function imprimirCodigo() {
+    try {
+        imprimirEtiqueta({
+            codigo: codigoInput.value.trim(),
+            nombre: nombreInput.value.trim() || "Elemento sin nombre",
+            ubicacion: ubicacionInput.value.trim()
+        });
+    } catch (error) {
+        Alert.showStatusAlert("error", "¡Error!", error.message);
+    }
 }
 
 // No se usa UI.showFormEditMode porque aquí hace falta, con una sola lectura,
@@ -47,6 +109,7 @@ async function prepararModoEdicion(id) {
             if (valor !== undefined && valor !== null) campo.value = valor;
         });
         foto.mostrarFotoExistente(elemento.foto);
+        refrescarQR();
     } catch (error) {
         Alert.showStatusAlert("error", "¡Error!", error.message, goToControlPage);
     }

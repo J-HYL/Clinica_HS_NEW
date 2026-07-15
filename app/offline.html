@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#191fbe">
+<title>Sin conexion · HS Dental</title>
+<!-- Sin fuentes ni CSS externos: esta pagina se sirve desde el service worker
+     cuando NO hay red, asi que todo tiene que ir embebido. -->
+<style>
+    :root{
+        --dark-primary:#191fbe;
+        --bg:#FAFBFF;
+        --ink:#1D242E;
+        --muted:#6D6D6D;
+        --line:#DCE0EA;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+        font-family:"Figtree",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+        background:var(--bg);
+        color:var(--ink);
+        min-height:100dvh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:24px;
+        text-align:center;
+        -webkit-font-smoothing:antialiased;
+    }
+    .card{
+        background:#fff;
+        border:1px solid var(--line);
+        border-radius:16px;
+        padding:40px 32px;
+        max-width:380px;
+        width:100%;
+    }
+    img{ width:88px; height:88px; border-radius:50%; margin-bottom:20px; }
+    h1{ font-size:1.25rem; margin-bottom:10px; }
+    p{ color:var(--muted); font-size:.95rem; line-height:1.5; margin-bottom:24px; }
+    button{
+        font:inherit;
+        font-weight:600;
+        color:#fff;
+        background:var(--dark-primary);
+        border:0;
+        border-radius:10px;
+        padding:12px 24px;
+        cursor:pointer;
+    }
+    button:hover{ opacity:.9; }
+</style>
+</head>
+<body>
+    <div class="card">
+        <img src="/assets/favicon/web-app-manifest-192x192.png" alt="HS Dental">
+        <h1>Sin conexion</h1>
+        <p>No hay conexion a internet. Comprueba la red y vuelve a intentarlo.</p>
+        <button type="button" onclick="location.reload()">Reintentar</button>
+    </div>
+</body>
+</html>

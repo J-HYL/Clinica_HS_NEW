@@ -114,6 +114,19 @@ class DB {
     return record;
   }
 
+  /**
+   * Busca un elemento de inventario por su código escaneado (barras o QR).
+   * @param {string} codigo
+   * @returns {Promise<Object|null>} null si no hay ninguno con ese código
+   */
+  async getInventarioByCodigo(codigo) {
+    const params = new URLSearchParams({ table: 'inventario', codigo });
+    const res = await fetch(`${this.baseUrl}?${params}`, { credentials: 'include' });
+    if (res.status === 404) return null;   // código sin asignar: no es un error
+    if (!res.ok) throw new Error('Error al buscar el código en el inventario');
+    return res.json();
+  }
+
   async addRegister(table, payload) {
     const url = `${this.baseUrl}?table=${table}`;
     const res = await fetch(url, {
