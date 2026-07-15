@@ -21,3 +21,9 @@ confirmar el nombre antes de correrlo.
 | # | Archivo | Qué hace | Aplicado en pre | Aplicado en prod |
 |---|---|---|---|---|
 | 001 | `001_index_appointments_fecha.sql` | Índice en `appointments.fecha` (el calendario/dashboard hacían full table scan) | ☑ (2026-07-12) | ☑ (2026-07-12) — Alcorcón y Móstoles |
+| 002 | `002_create_inventario.sql` | Crea la tabla `inventario` (elementos clínicos: stock, ubicación, foto...) para la sección nueva de Inventario | ☐ | ☐ |
+
+> **002 está pendiente de aplicar.** La sección de Inventario no funciona en un
+> entorno hasta que se ejecute allí (la API responderá error de tabla inexistente).
+> Aplicado en local el 2026-07-14. Recordatorio: en producción son **dos** BD
+> (Alcorcón y Móstoles); en pre solo existe Alcorcón.

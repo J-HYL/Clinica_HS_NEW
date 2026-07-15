@@ -49,6 +49,64 @@ function deleteDir($dir) {
     return rmdir($real);
 }
 
+/** Devuelve el valor recortado, o NULL si viene vacio (el formulario manda ""). */
+function valorOrNull($valor) {
+    if (!isset($valor)) return null;
+    $valor = trim((string)$valor);
+    return $valor === '' ? null : $valor;
+}
+
+/**
+ * Valida y guarda la foto de un elemento de inventario en uploads/inventario/<clinica>/.
+ * Devuelve la ruta relativa guardada; lanza excepcion con el motivo si no es valida.
+ */
+function guardarFotoInventario(array $file, $clinicSeg) {
+    if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('No se recibio la foto correctamente (codigo ' . ($file['error'] ?? '?') . ').');
+    }
+    if ($file['size'] > 8 * 1024 * 1024) {
+        throw new Exception('La foto supera el tamano maximo de 8 MB.');
+    }
+
+    // El tipo REAL del contenido manda: la extension del nombre original no es de fiar.
+    $info = @getimagesize($file['tmp_name']);
+    $permitidos = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'];
+    if ($info === false || !isset($permitidos[$info[2]])) {
+        throw new Exception('El archivo no es una imagen valida (JPG, PNG o WEBP).');
+    }
+
+    $dirRelativo = "uploads/inventario/{$clinicSeg}/";
+    $dirAbsoluto = __DIR__ . '/../' . $dirRelativo;
+    if (!is_dir($dirAbsoluto) && !mkdir($dirAbsoluto, 0775, true)) {
+        throw new Exception('No se pudo crear el directorio de subida.');
+    }
+
+    // uploads/ no esta en git: el .htaccess que impide ejecutar codigo en la
+    // carpeta se escribe aqui, para que exista igual en local, pre y produccion.
+    $htaccess = $dirAbsoluto . '.htaccess';
+    if (!file_exists($htaccess)) {
+        file_put_contents($htaccess, "php_flag engine off\nRemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8\nRemoveType .php .phtml .php3 .php4 .php5 .php7 .php8\n");
+    }
+
+    $rutaRelativa = $dirRelativo . uniqid('inv_', true) . '.' . $permitidos[$info[2]];
+    if (!move_uploaded_file($file['tmp_name'], __DIR__ . '/../' . $rutaRelativa)) {
+        throw new Exception('No se pudo guardar la foto en el servidor.');
+    }
+    return $rutaRelativa;
+}
+
+/**
+ * Borra del disco una foto de inventario, validando que la ruta quede DENTRO
+ * de uploads/inventario (misma proteccion que deleteDir()).
+ */
+function borrarFotoInventario($rutaRelativa) {
+    if (empty($rutaRelativa)) return;
+    $base = realpath(__DIR__ . '/../uploads/inventario');
+    $real = realpath(__DIR__ . '/../' . $rutaRelativa);
+    if ($base === false || $real === false || strpos($real, $base) !== 0) return;
+    if (is_file($real)) unlink($real);
+}
+
 // Resto de tu lógica: switch(GET/POST/PUT/DELETE) ...
 $table = $_GET['table'] ?? null;
 $id    = $_GET['id'] ?? null;
@@ -57,7 +115,8 @@ $end   = $_GET['end'] ?? null;
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
-        if ($table !== 'images') {
+        // Tablas que suben ficheros: el body llega como multipart, no como JSON.
+        if (!in_array($table, ['images', 'inventario_foto'], true)) {
             $data = json_decode(file_get_contents("php://input"), true);
         } else {
             $data = $_POST;
@@ -169,6 +228,104 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 } else {
                     http_response_code(500);
                     echo json_encode(["error" => "Error al insertar servicio: " . $stmt->error]);
+                }
+
+                $stmt->close();
+                break 2;
+
+            case 'inventario':
+                $nombre = valorOrNull($data["nombre"] ?? null);
+                if ($nombre === null) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "El nombre del elemento es obligatorio."]);
+                    break 2;
+                }
+
+                $categoria    = valorOrNull($data["categoria"] ?? null) ?: 'otros';
+                $descripcion  = valorOrNull($data["descripcion"] ?? null);
+                $marca        = valorOrNull($data["marca"] ?? null);
+                $modelo       = valorOrNull($data["modelo"] ?? null);
+                $numero_serie = valorOrNull($data["numero_serie"] ?? null);
+                $ubicacion    = valorOrNull($data["ubicacion"] ?? null);
+                $proveedor    = valorOrNull($data["proveedor"] ?? null);
+                $stock        = (int)($data["stock"] ?? 0);
+                $stock_minimo = (int)($data["stock_minimo"] ?? 0);
+                $unidad       = valorOrNull($data["unidad"] ?? null) ?: 'ud';
+                $precio       = valorOrNull($data["precio"] ?? null);
+                $precio       = $precio === null ? null : (float)$precio;
+                $caducidad    = valorOrNull($data["caducidad"] ?? null);
+                $notas        = valorOrNull($data["notas"] ?? null);
+                $estado       = in_array($data["estado"] ?? '', ['operativo', 'revision', 'baja'], true)
+                    ? $data["estado"]
+                    : 'operativo';
+
+                $stmt = $conn->prepare("
+                    INSERT INTO inventario
+                        (nombre, categoria, descripcion, marca, modelo, numero_serie, ubicacion,
+                         proveedor, stock, stock_minimo, unidad, precio, caducidad, estado, notas)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->bind_param(
+                    "ssssssssiisdsss",
+                    $nombre, $categoria, $descripcion, $marca, $modelo, $numero_serie, $ubicacion,
+                    $proveedor, $stock, $stock_minimo, $unidad, $precio, $caducidad, $estado, $notas
+                );
+
+                if ($stmt->execute()) {
+                    echo json_encode(["success" => true, "id" => $conn->insert_id]);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(["error" => "Error al insertar el elemento: " . $stmt->error]);
+                }
+
+                $stmt->close();
+                break 2;
+
+            case 'inventario_foto':
+                // Sube (o reemplaza) la foto de un elemento ya creado: multipart con
+                // 'inventario_id' + 'file'. La foto anterior solo se borra si la nueva cuaja.
+                $inventario_id = (int)($data['inventario_id'] ?? 0);
+                if ($inventario_id <= 0) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Falta el id del elemento de inventario."]);
+                    break 2;
+                }
+                if (!isset($_FILES['file'])) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "No se recibio ninguna foto."]);
+                    break 2;
+                }
+
+                $stmt = $conn->prepare("SELECT foto FROM inventario WHERE id = ?");
+                $stmt->bind_param("i", $inventario_id);
+                $stmt->execute();
+                $elemento = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+
+                if (!$elemento) {
+                    http_response_code(404);
+                    echo json_encode(["error" => "El elemento de inventario no existe."]);
+                    break 2;
+                }
+
+                try {
+                    $rutaFoto = guardarFotoInventario($_FILES['file'], $clinicSeg);
+                } catch (Exception $e) {
+                    http_response_code(400);
+                    echo json_encode(["error" => $e->getMessage()]);
+                    break 2;
+                }
+
+                $stmt = $conn->prepare("UPDATE inventario SET foto = ? WHERE id = ?");
+                $stmt->bind_param("si", $rutaFoto, $inventario_id);
+
+                if ($stmt->execute()) {
+                    borrarFotoInventario($elemento['foto']);
+                    echo json_encode(["success" => true, "id" => $inventario_id, "foto" => $rutaFoto]);
+                } else {
+                    borrarFotoInventario($rutaFoto); // no dejar el fichero huerfano
+                    http_response_code(500);
+                    echo json_encode(["error" => "Error al registrar la foto: " . $stmt->error]);
                 }
 
                 $stmt->close();
@@ -561,6 +718,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 }
                 if (isset($stmt)) $stmt->close();
                 break;
+            case 'inventario':
+                if ($id) {
+                    $stmt = $conn->prepare("SELECT * FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    echo json_encode($result->fetch_assoc() ?: (object)[]);
+                } else {
+                    $result = $conn->query("SELECT * FROM inventario ORDER BY nombre ASC");
+                    echo json_encode($result->fetch_all(MYSQLI_ASSOC));
+                }
+                if (isset($stmt)) $stmt->close();
+                break;
             case 'treatments':
                 if ($id) {
                     $stmt = $conn->prepare("SELECT * FROM treatments WHERE id = ?");
@@ -820,6 +990,47 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $sql = "UPDATE services SET " . implode(", ", $sets) . " WHERE id = ?";
                 // DEBUG: Log de la consulta SQL para PUT services
                 error_log("DEBUG - PUT Request - SQL Query for services: " . $sql);
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($types, ...$values);
+                break;
+            case 'inventario':
+                // Actualizar inventario (la foto va por su propio endpoint, no por aqui)
+                $sets = []; $types = ""; $values = [];
+                $noNulables = ["nombre", "categoria", "unidad", "estado", "stock", "stock_minimo"];
+
+                foreach (["nombre", "categoria", "descripcion", "marca", "modelo", "numero_serie",
+                          "ubicacion", "proveedor", "stock", "stock_minimo", "unidad", "precio",
+                          "caducidad", "estado", "notas"] as $col) {
+                    if (!isset($data[$col])) continue;
+
+                    $valor = valorOrNull($data[$col]);
+                    // Un "" del formulario no debe pisar una columna NOT NULL.
+                    if ($valor === null && in_array($col, $noNulables, true)) continue;
+                    // Estado fuera del enum: se ignora en vez de romper el UPDATE entero.
+                    if ($col === "estado" && !in_array($valor, ["operativo", "revision", "baja"], true)) continue;
+
+                    $sets[] = "$col = ?";
+                    if (in_array($col, ["stock", "stock_minimo"], true)) {
+                        $types   .= "i";
+                        $values[] = (int)$valor;
+                    } elseif ($col === "precio") {
+                        $types   .= "d";
+                        $values[] = $valor === null ? null : (float)$valor;
+                    } else {
+                        $types   .= "s";
+                        $values[] = $valor;
+                    }
+                }
+
+                if (empty($sets)) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "No hay campos para actualizar en el elemento."]);
+                    break 2;
+                }
+
+                $types   .= "i";      // id
+                $values[] = $id;
+                $sql = "UPDATE inventario SET " . implode(", ", $sets) . " WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param($types, ...$values);
                 break;
@@ -1184,6 +1395,50 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     } else {
                         http_response_code(500);
                         echo json_encode(["error" => "Error al eliminar servicio: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'inventario':
+                    // Se lee la foto antes de borrar la fila, para poder limpiar el fichero.
+                    $stmt = $conn->prepare("SELECT foto FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $elemento = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    $stmt = $conn->prepare("DELETE FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        if ($elemento) borrarFotoInventario($elemento['foto']);
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al eliminar el elemento: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'inventario_foto':
+                    // Quita solo la foto; el elemento se conserva. ?id = id del elemento.
+                    $stmt = $conn->prepare("SELECT foto FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $elemento = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    if (!$elemento) {
+                        http_response_code(404);
+                        echo json_encode(["error" => "El elemento de inventario no existe."]);
+                        break;
+                    }
+
+                    $stmt = $conn->prepare("UPDATE inventario SET foto = NULL WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        borrarFotoInventario($elemento['foto']);
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al quitar la foto: " . $stmt->error]);
                     }
                     $stmt->close();
                     break;

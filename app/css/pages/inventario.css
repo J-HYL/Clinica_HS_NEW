@@ -1,0 +1,273 @@
+/* Estilos propios del inventario. Se carga JUNTO a control.css o agregar.css,
+   que son los que traen base.css (paleta y tipografía) y el resto de componentes:
+   aquí solo va lo que no existe ya, reutilizando las variables de base.css. */
+
+/* El formulario de inventario tiene bastantes más campos que los del resto de
+   secciones, así que necesita más ancho que los 550px que fija form.css. */
+.main--ancho{
+    max-width: 760px;
+}
+
+.form__row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.form__row .form__group{
+    flex: 1 1 160px;
+}
+
+/* --- Filtros del control --- */
+
+.filtros{
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.filtros__group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filtros__label{
+    font-weight: 500;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+}
+
+.filtros__input{
+    min-width: 220px;
+    padding: 10px 14px;
+    background-color: #fff;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+}
+
+.filtros__check{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+    cursor: pointer;
+}
+
+.filtros__check input{
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* --- Celdas propias de la tabla de inventario --- */
+
+.table__foto{
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #DCE0EA;
+    background-color: #fff;
+}
+
+.table__foto--vacia{
+    display: grid;
+    place-items: center;
+    color: var(--pale-gray);
+}
+
+.table__stock{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.table__stock--bajo{
+    color: var(--red);
+}
+
+/* Etiqueta de situación: mismos colores que .table__status (citas), pero sin
+   ser un botón, porque aquí el estado no abre ningún modal. */
+.table__tag{
+    display: inline-block;
+    width: min-content;
+    padding: 4px 12px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.table__tag--operativo{
+    border-color: var(--green-status);
+    color: var(--green-status);
+    background-color: var(--light-green-status);
+}
+
+.table__tag--revision{
+    border-color: var(--orange-status);
+    color: var(--orange-status-text-color);
+    background-color: var(--light-orange-status);
+}
+
+.table__tag--baja{
+    border-color: var(--red);
+    color: var(--red);
+    background-color: var(--light-red-status);
+}
+
+/* --- Capturador de foto (FotoCaptura.js) --- */
+
+.foto{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+.foto__preview{
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    border: 1px dashed #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.foto__img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.foto__placeholder{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    color: var(--pale-gray);
+    font-size: 0.75em;
+}
+
+.foto__placeholder i{
+    font-size: 24px;
+}
+
+.foto__actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.foto__btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    background-color: #fff;
+    color: var(--dark-gray);
+    font-size: 0.875em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.foto__btn:hover, .foto__btn:focus-visible{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.foto__btn--camara{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.foto__btn--camara:hover, .foto__btn--camara:focus-visible{
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+    color: #fff;
+}
+
+.foto__btn--quitar:hover, .foto__btn--quitar:focus-visible{
+    border-color: var(--red);
+    color: var(--red);
+}
+
+/* --- Modal de cámara --- */
+
+.camara{
+    width: min(560px, 92vw);
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background-color: #fff;
+}
+
+.camara::backdrop{
+    background-color: rgba(29, 36, 46, .6);
+}
+
+.camara__video{
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    background-color: var(--dark-gray);
+    object-fit: cover;
+}
+
+.camara__aviso{
+    margin-top: 8px;
+    font-size: 0.875em;
+    color: var(--orange-status-text-color);
+}
+
+.camara__actions{
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.camara__btn{
+    flex-grow: 1;
+    height: 44px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    color: var(--light-gray);
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.camara__btn--disparar{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.camara__btn--disparar:hover, .camara__btn--disparar:focus-visible{
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+}

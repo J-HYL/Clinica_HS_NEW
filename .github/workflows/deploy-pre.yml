@@ -23,4 +23,4 @@ jobs:
           local_path: "./*"
           remote_path: "/pre"
           delete_remote_files: false
-          rsyncArgs: "--exclude=.git --exclude=.github --exclude=.vscode --exclude=db --exclude=*.md --exclude=config.secret.example.php"
+          rsyncArgs: "--exclude=.git --exclude=.github --exclude=.vscode --exclude=db --exclude=*.md --exclude=config.secret.example.php --exclude=setup-local.ps1"

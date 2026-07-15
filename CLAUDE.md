@@ -135,6 +135,8 @@ Unico endpoint REST del panel. Un solo script PHP que enruta por `?table=<tabla>
 - **Estado del tratamiento** (derivado de la deuda, logica DUPLICADA en POST/PUT/DELETE de payments): `deuda==0 -> 'pagado'`, `monto_pagado==0 -> 'pendiente'`, si no `'parcial'`.
 - **Ficheros de paciente:** `uploads/pacientes/<client_id>/<treatment_id>/`; ids sanitizados con `preg_replace('/[^a-zA-Z0-9_\-.]/','',...)`.
 
+**Inventario** (`table=inventario` + `table=inventario_foto`): CRUD normal por JSON para el elemento, y un endpoint **aparte** para la foto porque necesita el id del elemento y viaja como multipart. `POST inventario_foto` (campos `inventario_id` + `file`) sube/reemplaza la foto y borra la anterior solo si la nueva cuaja; `DELETE inventario_foto&id=<id del elemento>` quita solo la foto. A diferencia de `images`, aqui **si** hay validacion real del contenido (`getimagesize`, whitelist JPG/PNG/WEBP, 8 MB) y el nombre original del fichero se descarta. Las fotos van a `uploads/inventario/clinica{id}/`, aisladas por sede, y el `.htaccess` que desactiva PHP en esa carpeta lo escribe el propio `DB.php` al crearla (uploads/ no esta en git, asi que no se puede versionar). En el cliente, la captura de foto es `app/js/modules/components/FotoCaptura.js` (camara via getUserMedia con respaldo a selector de archivo; redimensiona a 1280px y recomprime a JPEG antes de subir) y los catalogos (categorias/unidades/estados) viven SOLO en `app/js/modules/components/inventario.js`.
+
 **Generacion de PDF de facturas** (POST `table=facturas`, ~lineas 425-484): prefijo de numero leyendo `users.username` de `id=1` (`mstlsHS`->`M`, `alcrcnHS`->`A`, si no `GEN`); `numero_factura = MAX+1`. Crea `uploads/facturas/factura_HSD-<inicial>-<numero>.pdf`. Dompdf con `isRemoteEnabled=true`, A4 portrait. **Inyeccion del logo en base64** (lineas ~456-466): lee `assets/images/logoCompleto.jpg` de disco, lo codifica como `data:image/jpeg;base64,...` y con `preg_replace_callback` sustituye cualquier `src="...logoCompleto.jpg"` del HTML. Asi dompdf (que renderiza en servidor sin base href ni red) no depende del host. Registra en `facturas` y responde `{"success":true,"numero","ruta"}`.
 
 **Formas de respuesta JSON (NO hay envoltura unica):**
@@ -172,6 +174,7 @@ Nucleo relacional: **`clients` (1) -> `treatments` (N) -> `payments`/`pieces`/`i
 | `contactos` | Web publica. `clinic` **varchar** (unica tabla con noción de clinica embebida), `created_at`. Sin FKs. |
 | `facturas` | `numero_factura` int UNIQUE correlativo por BD, `nombre_paciente`, `fecha`, `ruta` (al PDF). Sin FKs. |
 | `images` | `tratamiento_id` (en **espanol**), `ruta`, `tipo` enum(imagen,pdf), `fecha_subida`, `nombre_original`. FK -> treatments CASCADE. |
+| `inventario` | Elementos clinicos (material/instrumental). `nombre`, `categoria`, `stock`/`stock_minimo`/`unidad`, `ubicacion`, `proveedor`, `precio`, `caducidad` date, `estado` enum(operativo,revision,baja), `foto` (ruta), `notas`, `fecha_alta`, `fecha_actualizacion`. Sin FKs. Creada por `db/migrations/002`. |
 | `payments` | `client_id`, `treatment_id`, `monto`, `fecha_pago`, `metodo_pago`, `notas`. FKs -> clients y treatments, **CASCADE**. |
 | `pieces` | `treatment_id`, `tooth_number` varchar, `piece_status` tinyint. FK -> treatments CASCADE. |
 | `services` | `descripcion`, `nombre`, `precio`. Catalogo (casi vacio en el dump). |
