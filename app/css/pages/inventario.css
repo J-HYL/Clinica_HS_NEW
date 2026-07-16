@@ -849,14 +849,13 @@ button.main__action{
     display: none;
 }
 
-/* html5-qrcode inyecta su propio <video> y le fija el ancho en línea, en píxeles,
-   una sola vez. Ese ancho se queda viejo en cuanto el modal cambia de tamaño
-   (girar el móvil, teclado, barra de Safari), así que se le manda seguir al
-   contenedor. El alto va por proporción: el vídeo tiene que salir sin deformar o
-   Escaner.js lo decodificaría estirado. */
+/* El <video> lo crea Escaner.js. Aquí solo se le da tamaño de presentación: se
+   decodifica del fotograma a resolución nativa (video.videoWidth), no de lo que
+   se ve, así que estos píxeles NO afectan a la lectura. Se puede cambiar el
+   tamaño del visor sin miedo a romper el escaneo. */
 .escaner__camara video{
-    width: 100% !important;
-    height: auto !important;
+    width: 100%;
+    height: auto;
     display: block;
 }
 

@@ -1,22 +1,44 @@
 // modules/components/Escaner.js
 // Lector de codigos reutilizable: abre un modal con la camara y devuelve el
-// texto del codigo escaneado (QR o codigo de barras).
+// texto del codigo (QR o codigo de barras) EN CUANTO lo detecta, sin que el
+// usuario pulse nada.
 //
 // Tres formas de meter el codigo, todas a la vez y sin que el usuario elija:
-//   1. Camara del movil/tablet (html5-qrcode).
+//   1. Camara del movil/tablet: deteccion automatica, sola.
 //   2. Pistola lectora USB/Bluetooth: se comporta como un teclado, "teclea" el
-//      codigo y pulsa Enter, asi que cae en el input, que esta siempre enfocado.
+//      codigo y pulsa Enter, asi que cae en el input.
 //   3. A mano, escribiendo el codigo.
-// Si no hay camara, se deniega el permiso o la libreria no carga, el modal
+// Si no hay camara, se deniega el permiso o el decodificador no carga, el modal
 // sigue sirviendo para 2 y 3 en vez de quedarse inutil.
 //
-// Html5Qrcode viene de un <script> CDN (global), como Swal o DataTables.
+// POR QUE NO SE USA html5-qrcode: decodificaba sobre un lienzo del tamano CSS
+// del <video> (~343 px de ancho en un movil), no de la resolucion real de la
+// camara. Un EAN-13 son 95 barras: a 343 px salen menos de 2 px por barra y no
+// queda nada que leer. Medido con un EAN-13 real sobre un fotograma 1280x720:
+// a resolucion nativa se lee aunque el codigo ocupe solo el 15% del ancho;
+// reducido a 343 px hace falta que ocupe el 40-60%. De ahi que leyera los QR
+// (tienen mucha mas redundancia) y no los codigos de barras. Aqui el fotograma
+// se decodifica a RESOLUCION NATIVA, que es lo unico que arregla eso.
 
 const CONTENEDOR_CAMARA = "escaner-camara";
+const ZBAR = "https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.11.0/dist/index.mjs";
+
+// Los que se usan en una clinica: el QR propio y los codigos de barras
+// habituales de producto.
+const FORMATOS = ["qr_code", "ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "itf"];
 
 let dialogo = null;
-let escaner = null;      // instancia de Html5Qrcode mientras la camara esta activa
 let resolver = null;     // resolve de la promesa del abrirEscaner() en curso
+let stream = null;       // MediaStream mientras la camara esta encendida
+let video = null;
+let lienzo = null;
+let escaneando = false;
+let detectar = null;     // decodificador ya resuelto (se reutiliza entre aperturas)
+// Sube en cada arranque y en cada parada. Arrancar la camara tarda (permiso del
+// usuario + descarga del decodificador), y en ese hueco se puede cerrar el modal:
+// sirve para que un arranque a medias se de cuenta de que ya no pinta nada y se
+// apague solo, en vez de encender la camara despues de haber cerrado.
+let generacion = 0;
 
 /**
  * Abre el lector y resuelve con el codigo escaneado, o con null si se cancela.
@@ -30,71 +52,131 @@ export function abrirEscaner() {
         const input = dialogo.querySelector(".escaner__input");
         input.value = "";
         dialogo.showModal();
-        // En un movil NO se enfoca: enfocar abre el teclado en pantalla, que tapa
-        // la camara y ademas reajusta el alto del modal (100dvh) justo mientras la
-        // libreria mide el video. Donde hay pistola hay teclado fisico, y ahi el
-        // foco de entrada si interesa. Si la camara falla se enfoca igualmente
-        // (ver mostrarAviso), que es cuando escribir a mano es la unica salida.
+        // En un movil NO se enfoca: enfocar abre el teclado en pantalla y tapa la
+        // camara. Donde hay pistola hay teclado fisico, y ahi el foco si interesa.
+        // Si la camara falla se enfoca igualmente (ver mostrarAviso), que es
+        // cuando escribir a mano es la unica salida.
         if (!esTactil()) input.focus();
         arrancarCamara();
     });
 }
 
-// Puntero grueso y sin hover = movil/tablet a dedo. En un iPad con pistola
-// Bluetooth hay teclado fisico, y iOS ya no saca el teclado en pantalla al
-// enfocar, asi que no se pierde nada por no enfocar aqui.
+// Puntero grueso = movil/tablet a dedo. En un iPad con pistola Bluetooth hay
+// teclado fisico, y iOS ya no saca el teclado en pantalla al enfocar, asi que no
+// se pierde nada por no enfocar aqui.
 function esTactil() {
     return window.matchMedia("(pointer: coarse)").matches;
 }
 
 async function arrancarCamara() {
     const contenedor = dialogo.querySelector("#" + CONTENEDOR_CAMARA);
-
-    if (typeof Html5Qrcode === "undefined") {
-        mostrarAviso("No se pudo cargar el lector de camara. Puedes escanear con la pistola o escribir el codigo.");
-        return;
-    }
-
-    // El contenedor tiene que estar VISIBLE ANTES de start(): html5-qrcode mide
-    // su ancho para dimensionar el visor, y oculto mide 0 y no arranca.
     contenedor.hidden = false;
     dialogo.querySelector(".escaner__aviso").hidden = true;
 
+    const mia = ++generacion;
+
     try {
-        escaner = new Html5Qrcode(CONTENEDOR_CAMARA, {
-            formatsToSupport: formatosSoportados(),
-            // Usa el lector nativo del navegador cuando existe (Android/Chrome):
-            // es bastante mas rapido que el decodificador en JS.
-            experimentalFeatures: { useBarCodeDetectorIfSupported: true },
-            verbose: false
+        const recien = await navigator.mediaDevices.getUserMedia({
+            // 1280x720 es lo que se midio: suficiente para leer un codigo pequeno
+            // dentro del fotograma sin que decodificar cueste demasiado.
+            video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false
         });
 
-        // SIN qrbox A PROPOSITO: se lee el fotograma entero (como hace ML Kit en
-        // nativo). No es solo comodidad de apuntado, es correccion. html5-qrcode
-        // calcula la zona a decodificar UNA vez, en el evento "playing" del video
-        // y en las medidas que tenia el video en ese instante; luego, en cada
-        // fotograma, la reescala dividiendo por las medidas ACTUALES del video
-        // (foreverScan: videoWidth/clientWidth). Si el video cambia de tamano
-        // despues de "playing" -- y en el movil cambia: teclado, giro, barra de
-        // Safari, todos mueven el 100dvh del modal -- esa zona queda desfasada y
-        // acaba recortando un trozo del video que no es el que se ve, o incluso
-        // fuera de el: la camara sigue dando imagen y no se decodifica nada nunca.
-        // Sin qrbox, qrRegion pasa a ser el fotograma completo y la reescala sale
-        // exacta pase lo que pase con el layout.
-        await escaner.start(
-            { facingMode: "environment" },
-            { fps: 10 },
-            texto => cerrar(texto),
-            () => {}   // sin lectura en este fotograma: es lo normal, no es un error
-        );
+        // Cerrado mientras se pedia permiso: hay que apagar esto a mano, porque
+        // pararCamara() ya paso cuando stream todavia era null.
+        if (mia !== generacion) return apagarPistas(recien);
+        stream = recien;
+
+        video = document.createElement("video");
+        // playsInline es obligatorio en iOS: sin el, Safari se lleva el video a su
+        // reproductor a pantalla completa y aqui no queda nada que escanear.
+        video.playsInline = true;
+        video.setAttribute("playsinline", "");
+        video.muted = true;
+        video.srcObject = stream;
+        contenedor.replaceChildren(video);
+        await video.play();
+        if (mia !== generacion) return pararCamara();
+
+        // La primera vez esto descarga el decodificador: el hueco mas largo, y
+        // por tanto donde mas facil es que al usuario le de tiempo a cerrar.
+        if (!detectar) detectar = await crearDetector();
+        if (mia !== generacion) return pararCamara();
+        if (!lienzo) lienzo = document.createElement("canvas");
+
+        escaneando = true;
+        bucle();
     } catch (error) {
+        await pararCamara();
         // Sin camara, sin permiso, o en http: getUserMedia solo va en contexto
         // seguro (https o localhost). Desde el movil por IP local no habra camara.
-        escaner = null;
-        // El motivo real se pierde si no se arrastra hasta aqui: sin esto, no hay
-        // permiso, no hay camara y la camara esta ocupada dan el mismo mensaje.
+        // El motivo real se pierde si no se arrastra hasta aqui.
         mostrarAviso("No se pudo abrir la camara. Escanea con la pistola o escribe el codigo.", error);
     }
+}
+
+async function bucle() {
+    if (!escaneando || !video) return;
+
+    // EL PUNTO CLAVE: el lienzo va a la resolucion REAL de la camara
+    // (video.videoWidth), no a la que el video ocupa en pantalla. Da igual como
+    // de grande o pequeno se vea el visor: se decodifica el fotograma entero,
+    // completo y sin reducir.
+    if (video.videoWidth && lienzo.width !== video.videoWidth) {
+        lienzo.width = video.videoWidth;
+        lienzo.height = video.videoHeight;
+    }
+
+    if (lienzo.width) {
+        const ctx = lienzo.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(video, 0, 0);
+        try {
+            const codigo = await detectar(lienzo, ctx);
+            if (codigo) return cerrar(codigo);
+        } catch {
+            // Fotograma ilegible (movido, desenfocado): es lo normal, no es error.
+        }
+    }
+
+    if (escaneando) siguienteFotograma();
+}
+
+// requestVideoFrameCallback despierta solo cuando hay fotograma nuevo, sin
+// escanear dos veces el mismo. Donde no exista, un timeout corto basta: el
+// propio decodificador ya marca el ritmo (~70 ms por fotograma).
+function siguienteFotograma() {
+    if (video?.requestVideoFrameCallback) video.requestVideoFrameCallback(() => bucle());
+    else setTimeout(() => bucle(), 100);
+}
+
+async function crearDetector() {
+    // Chrome de Android: BarcodeDetector ES ML Kit por debajo. Nativo y lo mas
+    // rapido que hay, asi que se usa siempre que exista.
+    if ("BarcodeDetector" in window) {
+        try {
+            const disponibles = await window.BarcodeDetector.getSupportedFormats();
+            const formats = FORMATOS.filter(formato => disponibles.includes(formato));
+            if (formats.length) {
+                const nativo = new window.BarcodeDetector({ formats });
+                return async fuente => {
+                    const [hallado] = await nativo.detect(fuente);
+                    return hallado?.rawValue ?? null;
+                };
+            }
+        } catch {
+            // Existe pero no arranca: se cae a ZBar, que funciona en todas partes.
+        }
+    }
+
+    // Safari/iOS no tiene BarcodeDetector. ZBar compilado a WebAssembly lee tanto
+    // QR como codigos de barras, y es el equivalente mas cercano a ML Kit en web.
+    const zbar = await import(ZBAR);
+    return async (fuente, ctx) => {
+        const imagen = ctx.getImageData(0, 0, fuente.width, fuente.height);
+        const simbolos = await zbar.scanImageData(imagen);
+        return simbolos.length ? simbolos[0].decode() : null;
+    };
 }
 
 function mostrarAviso(mensaje, error) {
@@ -111,15 +193,19 @@ function mostrarAviso(mensaje, error) {
     dialogo.querySelector(".escaner__input").focus();
 }
 
+function apagarPistas(cual) {
+    cual?.getTracks().forEach(pista => pista.stop());
+}
+
 async function pararCamara() {
-    if (!escaner) return;
-    try {
-        await escaner.stop();
-        escaner.clear();
-    } catch {
-        // Ya estaba parada: no hay nada que hacer.
+    escaneando = false;
+    generacion++;             // invalida cualquier arranque que siga a medias
+    apagarPistas(stream);
+    stream = null;
+    if (video) {
+        video.srcObject = null;
+        video = null;
     }
-    escaner = null;
 }
 
 async function cerrar(codigo) {
@@ -137,7 +223,7 @@ function construirDialogo() {
     dialogo.className = "escaner";
     dialogo.innerHTML = `
         <h3 class="escaner__titulo">Escanear código</h3>
-        <p class="escaner__ayuda">Apunta con la cámara al código de barras o QR del elemento.</p>
+        <p class="escaner__ayuda">Apunta con la cámara al código de barras o QR: se lee solo.</p>
         <div id="${CONTENEDOR_CAMARA}" class="escaner__camara" hidden></div>
         <p class="escaner__aviso" hidden></p>
         <form class="escaner__manual">
@@ -160,11 +246,4 @@ function construirDialogo() {
     dialogo.querySelector(".escaner__btn--cerrar").addEventListener("click", () => cerrar(null));
     // Cerrar con ESC tiene que apagar la camara igual que el boton.
     dialogo.addEventListener("close", () => cerrar(null));
-}
-
-function formatosSoportados() {
-    const F = Html5QrcodeSupportedFormats;
-    // Solo los que se usan en una clinica: el QR propio y los codigos de barras
-    // habituales de producto. Menos formatos = decodificacion mas rapida.
-    return [F.QR_CODE, F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.ITF];
 }
