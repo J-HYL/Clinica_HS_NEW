@@ -230,8 +230,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Lector de códigos (cámara) y generador de QR: globales Html5Qrcode y QRCode -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+    <!-- Generador de QR (etiquetas imprimibles): global qrcode. El lector de la
+         cámara ya no necesita <script>: Escaner.js carga su decodificador solo. -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/inventario/agregar.js" type="module"></script>
