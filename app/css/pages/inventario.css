@@ -849,9 +849,11 @@ button.main__action{
     display: none;
 }
 
-/* html5-qrcode inyecta su propio <video> y le pone medidas en línea; se le deja
-   el ancho del contenedor y que el alto lo marque su proporción, para no
-   descuadrar el marco de lectura que dibuja encima. */
+/* html5-qrcode inyecta su propio <video> y le fija el ancho en línea, en píxeles,
+   una sola vez. Ese ancho se queda viejo en cuanto el modal cambia de tamaño
+   (girar el móvil, teclado, barra de Safari), así que se le manda seguir al
+   contenedor. El alto va por proporción: el vídeo tiene que salir sin deformar o
+   Escaner.js lo decodificaría estirado. */
 .escaner__camara video{
     width: 100% !important;
     height: auto !important;

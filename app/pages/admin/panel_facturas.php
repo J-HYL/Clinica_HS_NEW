@@ -43,7 +43,7 @@ if (empty($_SESSION['facturas_admin'])) {
         <div class="sidebar__content">
             <div class="sidebar__logo">
                 <div class="sidebar__logo-clip">
-                    <img src="../../assets/images/logoCompleto.jpg" alt="HS Dental El Greco" class="sidebar__logo-img">
+                    <img src="../../assets/images/logoCompleto.svg" alt="HS Dental El Greco" class="sidebar__logo-img">
                 </div>
             </div>
             <ul class="sidebar__links">
