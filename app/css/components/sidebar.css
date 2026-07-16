@@ -48,7 +48,7 @@ body:has(.preloader--hidden) .sidebar{
 .sidebar__logo-clip{
     height: 50px;
     width: 104px;
-    background: url("../../assets/images/logoCompleto.jpg") left center / auto 50px no-repeat;
+    background: url("../../assets/images/logoCompleto.svg") left center / auto 50px no-repeat;
 }
 
 .sidebar__logo-img{ display: none; }

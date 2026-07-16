@@ -30,9 +30,21 @@ export function abrirEscaner() {
         const input = dialogo.querySelector(".escaner__input");
         input.value = "";
         dialogo.showModal();
-        input.focus();   // para que la pistola lectora "escriba" aqui
+        // En un movil NO se enfoca: enfocar abre el teclado en pantalla, que tapa
+        // la camara y ademas reajusta el alto del modal (100dvh) justo mientras la
+        // libreria mide el video. Donde hay pistola hay teclado fisico, y ahi el
+        // foco de entrada si interesa. Si la camara falla se enfoca igualmente
+        // (ver mostrarAviso), que es cuando escribir a mano es la unica salida.
+        if (!esTactil()) input.focus();
         arrancarCamara();
     });
+}
+
+// Puntero grueso y sin hover = movil/tablet a dedo. En un iPad con pistola
+// Bluetooth hay teclado fisico, y iOS ya no saca el teclado en pantalla al
+// enfocar, asi que no se pierde nada por no enfocar aqui.
+function esTactil() {
+    return window.matchMedia("(pointer: coarse)").matches;
 }
 
 async function arrancarCamara() {
@@ -57,37 +69,46 @@ async function arrancarCamara() {
             verbose: false
         });
 
+        // SIN qrbox A PROPOSITO: se lee el fotograma entero (como hace ML Kit en
+        // nativo). No es solo comodidad de apuntado, es correccion. html5-qrcode
+        // calcula la zona a decodificar UNA vez, en el evento "playing" del video
+        // y en las medidas que tenia el video en ese instante; luego, en cada
+        // fotograma, la reescala dividiendo por las medidas ACTUALES del video
+        // (foreverScan: videoWidth/clientWidth). Si el video cambia de tamano
+        // despues de "playing" -- y en el movil cambia: teclado, giro, barra de
+        // Safari, todos mueven el 100dvh del modal -- esa zona queda desfasada y
+        // acaba recortando un trozo del video que no es el que se ve, o incluso
+        // fuera de el: la camara sigue dando imagen y no se decodifica nada nunca.
+        // Sin qrbox, qrRegion pasa a ser el fotograma completo y la reescala sale
+        // exacta pase lo que pase con el layout.
         await escaner.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: calcularVisor },
+            { fps: 10 },
             texto => cerrar(texto),
             () => {}   // sin lectura en este fotograma: es lo normal, no es un error
         );
-    } catch {
+    } catch (error) {
         // Sin camara, sin permiso, o en http: getUserMedia solo va en contexto
         // seguro (https o localhost). Desde el movil por IP local no habra camara.
         escaner = null;
-        mostrarAviso("No se pudo abrir la camara. Escanea con la pistola o escribe el codigo.");
+        // El motivo real se pierde si no se arrastra hasta aqui: sin esto, no hay
+        // permiso, no hay camara y la camara esta ocupada dan el mismo mensaje.
+        mostrarAviso("No se pudo abrir la camara. Escanea con la pistola o escribe el codigo.", error);
     }
 }
 
-/**
- * Ventana de lectura proporcional al visor real, en vez de un tamano fijo: el
- * modal es casi toda la pantalla en el movil y una tarjeta en escritorio.
- * Apaisada porque los codigos de barras son mas anchos que altos.
- */
-function calcularVisor(anchoVisor, altoVisor) {
-    const ancho = Math.floor(Math.min(anchoVisor * 0.85, 320));
-    const alto = Math.floor(Math.min(ancho * 0.62, altoVisor * 0.75));
-    return { width: ancho, height: alto };
-}
-
-function mostrarAviso(mensaje) {
+function mostrarAviso(mensaje, error) {
     const aviso = dialogo.querySelector(".escaner__aviso");
     aviso.textContent = mensaje;
     aviso.hidden = false;
+    if (error) {
+        console.error("[Escaner] La camara no arranco:", error);
+        aviso.title = String(error?.message ?? error);
+    }
     // Sin camara no tiene sentido dejar el hueco negro del visor ocupando sitio.
     dialogo.querySelector("#" + CONTENEDOR_CAMARA).hidden = true;
+    // Escribir o disparar la pistola es lo unico que queda: el foco va aqui.
+    dialogo.querySelector(".escaner__input").focus();
 }
 
 async function pararCamara() {
