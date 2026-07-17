@@ -44,6 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Delegacion: el boton de borrar servicio ya no usa onclick inline (este archivo
+  // se carga como modulo ES, asi que eliminarServicio no es global).
+  tbody.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".btn-eliminar-servicio");
+    if (!btn) return;
+    eliminarServicio(parseInt(btn.dataset.index, 10));
+  });
+
   actualizarTabla();
 });
 
@@ -95,7 +103,7 @@ function actualizarTabla() {
       <td style="text-align:center">${s.cantidad}</td>
       <td style="text-align:right">€${s.precio.toFixed(2)}</td>
       <td style="text-align:right">€${totalLinea.toFixed(2)}</td>
-      <td class="actions"><button onclick="eliminarServicio(${i})" title="Eliminar" style="background:#e53935;border:none;color:#fff;padding:6px;border-radius:4px;cursor:pointer"><i class="ri-delete-bin-6-line"></i></button></td>
+      <td class="actions"><button data-index="${i}" class="btn-eliminar-servicio" title="Eliminar" style="background:#e53935;border:none;color:#fff;padding:6px;border-radius:4px;cursor:pointer"><i class="ri-delete-bin-6-line"></i></button></td>
     `;
     tbody.appendChild(tr);
   });

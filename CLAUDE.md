@@ -302,3 +302,67 @@ Sigue disponible para trabajar suelto sin depender de un push, pero el flujo pri
 - **PRE solo tiene Alcorcon**: si una sesion llega con `clinic_id=2` en pre, `getConnection()` muere con error controlado. El bloque correspondiente debe existir en `config.secret.php`.
 - Un cambio de dominio/subdominio requiere actualizar `$allowedOrigins` en `DB.php` o las peticiones con credenciales fallaran.
 - Los enlaces del sidebar de `index.html` y `baseUrl` de la API son absolutos-de-raiz (`/...`): dependen de que la app este en el docroot raiz del subdominio.
+
+---
+
+## 9. Roadmap / funcionalidades pendientes (comparativa con Vevi Clinic)
+
+Analisis 2026-07-17 frente a **Vevi Clinic** (software comercial de referencia que usa/mira el cliente). El **nucleo clinico ya esta cubierto** (citas + calendario, pacientes + historia clinica, tratamientos + odontograma, pagos/deuda, facturas PDF, presupuestos, servicios, visitas, inventario con escaner, adjuntos, dashboard, multi-clinica). Los huecos NO estan en la ficha del paciente, sino **alrededor del paciente y del negocio**. Lista por impacto/esfuerzo (lo primero es lo que mas aporta reaprovechando lo que ya hay):
+
+1. **Recordatorios de cita al paciente** (el de mayor retorno: reduce ausencias). **Tecnicamente cercano**: ya existe PHPMailer funcionando y la mecanica de cron (`app/api/cron_gabinete1_mostoles.php` sirve de plantilla — hoy manda la agenda del dia a la CLINICA, no recordatorios al paciente), y las citas tienen `fecha` + el paciente tiene `email`/`telefono`. Falta un cron que mande "recuerda tu cita manana" al paciente. WhatsApp seria lo ideal (mas apertura) pero requiere API/proveedor externo; email/SMS ya aporta. Ojo: `appointments.cliente` es texto libre, NO FK a `clients` — para cruzar cita->email del paciente hay que resolver esa union (o casar por nombre/telefono, fragil).
+2. **Consentimientos informados + firma**. Obligacion legal en Espana; hoy solo se puede adjuntar un PDF a mano. **NO requiere hardware**: la firma se captura con el dedo en la tablet/movil que ya se usa, via `<canvas>` (mismo patron que `app/js/modules/components/FotoCaptura.js`), se incrusta en un PDF y se guarda como adjunto del tratamiento (mismo mecanismo que `images`). Es firma manuscrita digitalizada, valida legalmente. No hace falta pad Wacom (solo funciona en escritorio, seria un estorbo).
+3. **Informes de negocio** (ingresos por periodo/doctor/tratamiento, cobros pendientes agregados, produccion mensual). Los datos ya estan en la BD; es cuestion de consultas + pantalla. Existe ya un dashboard con stats basicas (`DashboardPanels.js`, `Stats.js`) sobre el que ampliar.
+4. **Trazabilidad de lotes**. Extension natural del inventario ya existente: vincular el lote de material usado a cada tratamiento/paciente (relevante sanitariamente: si retiran un lote, saber a quien se uso). Es justo lo que Vevi destaca de su almacen.
+5. **Proveedores, pedidos y gastos**. Hoy `inventario.proveedor` es un simple campo de texto; no hay entidad proveedor, ni pedidos, ni control de gasto.
+6. **Portal del paciente** (login usuario/contrasena; ver tratamientos, deudas, citas; pedir cita). Lo mas ambicioso y lo ultimo. **Diseno YA DECIDIDO con el cliente el 2026-07-17 — ver el plan detallado en la seccion 10.** Resumen de decisiones: cuenta creada **por invitacion desde la clinica** (no auto-registro), **pedir cita = solicitud que la clinica confirma** (no reserva directa), contrasenas con `password_hash()` (bcrypt/Argon2, NO el SHA-256 sin sal del personal). La tabla `clients` NO tiene campo de login y los pacientes NO son `users` (esa tabla es solo personal de clinica): el portal necesita auth propia. Existe ya `app/pages/client/vista-consultorio.html` (vista interna de gabinete), NO es un portal de paciente.
+
+**NO hace falta app movil nativa.** La web responsive ya funciona en el movil (el escaner de inventario es la prueba). Una app nativa solo aportaria notificaciones push, y eso lo resuelve un recordatorio por WhatsApp/email sin el coste de mantener apps en dos tiendas.
+
+**Para disenar el portal / informes NO hace falta acceso a la BD de produccion** (no hay credenciales en el repo, viven solo en `config.secret.php` del servidor): el esquema es el mismo en todas las clinicas/entornos y esta en el dump de referencia (`db5017933701_hosting-data_io.sql`, la BD de PRE) + en la seccion 4 de este documento.
+
+---
+
+## 10. Plan del portal de pacientes (decidido 2026-07-17, SIN implementar aun)
+
+Portal donde cada paciente entra con **usuario/contrasena** y ve sus tratamientos, deudas y citas, y puede **pedir cita**. Es la funcionalidad 6 del roadmap (seccion 9). Decisiones cerradas con el cliente: **cuenta por invitacion desde la clinica** (no auto-registro), **pedir cita = solicitud que la clinica confirma** (no reserva directa en huecos). Todavia NO hay codigo: esto es el plan para arrancarlo.
+
+### Donde vive
+
+**Tercera app PHP independiente**, hermana de `app/` y `web/`, en su propio docroot/subdominio: `pacientes.hsdental.es` -> `/portal` (prod) y `pre.pacientes.hsdental.es` (o similar) -> `/pre/portal`. Carpeta nueva `portal/` en el repo. Separada del panel a proposito: es superficie de cara al paciente, con otra responsabilidad de seguridad; no debe compartir sesion ni codigo de auth con `app/`.
+- **Reutiliza** `config.secret.php` (mismos bloques de BD por clinica), `currentEnv()`/`getConnection()` (adaptar la deteccion de host para `pacientes.*` y `pre.pacientes.*`), PHPMailer (invitaciones/reset, SMTP ya en config), dompdf (si hace falta PDF), y los patrones de front (modulos ES, `escapeHtml`, `Modal.js`, `Alert`/`Toast`).
+- API del portal en su MISMO subdominio (mismo-origen) -> no necesita CORS ni tocar `$allowedOrigins` de `app/DB.php`. El portal NO llama a la API del panel.
+
+### Los tres problemas de diseno (y como los resuelve lo decidido)
+
+1. **De que clinica es el paciente (2 BDs, sin `clinic_id`).** Como **la clinica invita**, al generar la invitacion YA se sabe la clinica, y la cuenta se crea en la BD de esa clinica. En login: buscar el email en las dos BDs de `portal_users` (solo son 2, es barato); el que lo tenga define la clinica y se fija `clinic_id` en sesion (igual que el panel). Caso raro: misma persona paciente en las dos sedes con el mismo email -> documentar y resolver eligiendo sede o la mas reciente.
+2. **Las citas no enganchan con el paciente** (`appointments.cliente` es texto libre, NO FK — ver seccion 4 y el gotcha de nombres). Hay que **anadir columna nullable `client_id` FK a `appointments`** (migracion). Las citas nuevas (panel y portal) la rellenan; las viejas quedan sin enlazar (backfill opcional casando nombre/telefono, fragil). "Mis citas" = `appointments WHERE client_id = <paciente en sesion>`. Los tratamientos SI enganchan ya (`treatments.client_id`), asi que "mis tratamientos/deudas" es directo.
+3. **"Pedir cita" no es solo leer y no hay motor de agenda.** Flujo **solicitud -> confirmacion**: el paciente crea una solicitud (dia/franja preferida, servicio, notas); la clinica la ve en el panel y la confirma (crea la cita real y avisa) o propone otra. Sin disponibilidad en tiempo real (horarios/gabinetes) — eso seria otro proyecto.
+
+### Cambios de esquema (migraciones nuevas en `db/migrations/`, por clinica)
+
+- **`portal_users`** (cuentas de paciente, una fila por paciente con acceso): `id`, `client_id` (FK -> `clients`, UNIQUE), `email` (login, UNIQUE, el verificado en la invitacion), `password_hash` (de `password_hash()`), `estado` (invitado/activo), `invite_token_hash` (nullable), `invite_expira` (datetime), `reset_token_hash`/`reset_expira` (nullable), `created_at`. OJO: `clients.email` es nullable y en datos reales hay filas con `'No proporcionado'` como texto -> el email de login se captura/verifica en la invitacion, no se asume el de `clients`.
+- **`appointments.client_id`** nullable + FK (problema 2).
+- **`solicitudes_cita`** (Fase 2): `id`, `client_id` (FK), `fecha_preferida`/`franja`, `servicio`, `notas`, `estado` (solicitada/confirmada/rechazada), `appointment_id` (nullable, la cita creada al confirmar), `created_at`. Tabla aparte para no ensuciar `appointments` hasta que la clinica confirme.
+
+### Fases
+
+- **Fase 1 — login + ver (read-only).** Invitacion desde el panel (`app/`): accion nueva en la ficha del cliente "Invitar al portal" -> genera token, guarda `invite_token_hash`, manda email con enlace `pacientes.hsdental.es/activar?token=...`. El paciente abre el enlace, pone contrasena, `estado=activo`. Dentro: resumen (proxima cita + deuda total), mis tratamientos (`treatments` por `client_id`), mis deudas/pagos, mis citas (`appointments` por el nuevo `client_id`). Es el ~70% del valor y lo mas seguro.
+- **Fase 2 — pedir cita.** Solicitud (`solicitudes_cita`) + pantalla en el panel para confirmar/rechazar + aviso al paciente. Encaja con los recordatorios (roadmap #1).
+- **Fase 3 — extras.** Descargar facturas/consentimientos, documentos, etc.
+
+### Seguridad (OBLIGATORIO desde el principio — es PII medica de cara al publico)
+
+- **Todas** las consultas de datos scoped SERVER-SIDE al `client_id` de la sesion; NUNCA fiarse de un id del cliente (URL/body). Es el riesgo #1 (un paciente viendo datos de otro) y el panel ya arrastra IDOR (seccion 8) — el portal NO puede repetirlo.
+- Contrasenas con `password_hash()`/`password_verify()` (bcrypt/Argon2), **no** el SHA-256 sin sal del personal.
+- Sesion con cookies `HttpOnly` + `Secure` + `SameSite=Lax` (el panel no las fija; aqui SI).
+- Rate limiting en login y en activacion/reset (fuerza bruta).
+- Reset de contrasena por email (token aleatorio, hasheado en reposo, un solo uso, caduca). Igual los `invite_token`.
+- `Cache-Control: no-store, private` en toda respuesta con datos del paciente (como ya hace `DB.php`).
+- Escapar SIEMPRE datos de BD en `innerHTML` (`escapeHtml`, seccion 7).
+- Solo HTTPS. No meter PII en URLs/logs.
+
+### Infra / despliegue
+
+- Alta del subdominio `pacientes.hsdental.es` en IONOS apuntando a `/portal`; replica en `/pre/portal`. Anadir mapeo en GitHub Actions (o SFTP) para esa carpeta, con `delete_remote_files: false` como el resto.
+- `currentEnv()` debe reconocer los hosts nuevos (`pacientes.*` -> prod, `pre.pacientes.*`/`pre.*` -> pre).
+- Regla de oro (cabecera de este documento): agnostico del entorno, URLs mismo-origen, secretos por `config.secret.php`. Funciona igual en pre y prod sin ajustes.
