@@ -1,0 +1,21 @@
+{
+  "name": "HS Dental · Portal del paciente",
+  "short_name": "HS Dental",
+  "description": "Tus tratamientos, pagos y citas de HS Dental.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f2f7",
+  "theme_color": "#5671eb",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["health", "medical"],
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/assets/icon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}
