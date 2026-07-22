@@ -23,9 +23,16 @@ confirmar el nombre antes de correrlo.
 | 001 | `001_index_appointments_fecha.sql` | Índice en `appointments.fecha` (el calendario/dashboard hacían full table scan) | ☑ (2026-07-12) | ☑ (2026-07-12) — Alcorcón y Móstoles |
 | 002 | `002_create_inventario.sql` | Crea la tabla `inventario` (elementos clínicos: stock, ubicación, foto...) para la sección nueva de Inventario | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
 | 003 | `003_inventario_codigo.sql` | Añade `inventario.codigo` (UNIQUE): el código de barras o QR que se escanea para abrir el elemento | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
+| 004 | `004_portal_users.sql` | Crea la tabla `portal_users` (cuentas del Portal de Pacientes: login por email, `password_hash`, tokens de invitación/reset, rate-limit) | ☐ pendiente | ☐ pendiente |
+| 005 | `005_appointments_client_id.sql` | Añade `appointments.client_id` (FK nullable → `clients`) para enlazar cada cita con su paciente (necesario para "mis citas" del portal) | ☐ pendiente | ☐ pendiente |
 
-**No hay migraciones pendientes.** La sección de Inventario y el escaneo de
-códigos funcionan en los tres entornos. La 002 y la 003 se aplicaron en
-producción con el script combinado (las dos juntas en un solo `CREATE TABLE` ya
-con la columna `codigo`), por eso comparten fecha. En local se aplicaron el
-2026-07-14 (002) y el 2026-07-15 (003), por separado.
+**Migraciones 004 y 005: PENDIENTES de aplicar** (Portal de Pacientes, Fase 1).
+Se aplican en el mismo orden que el resto (primero `pre` = Alcorcón; luego
+`prod` en las DOS BD, Alcorcón y Móstoles). La 004 y la 005 son independientes
+entre sí; se pueden ejecutar en cualquier orden. Marca aquí la casilla y la
+fecha cuando las apliques en cada entorno.
+
+Las 001–003 (Inventario) ya funcionan en los tres entornos. La 002 y la 003 se
+aplicaron en producción con el script combinado (las dos juntas en un solo
+`CREATE TABLE` ya con la columna `codigo`), por eso comparten fecha. En local se
+aplicaron el 2026-07-14 (002) y el 2026-07-15 (003), por separado.
