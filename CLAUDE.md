@@ -322,9 +322,20 @@ Analisis 2026-07-17 frente a **Vevi Clinic** (software comercial de referencia q
 
 ---
 
-## 10. Plan del portal de pacientes (decidido 2026-07-17, SIN implementar aun)
+## 10. Portal de pacientes — Fase 1 IMPLEMENTADA (2026-07-21)
 
-Portal donde cada paciente entra con **usuario/contrasena** y ve sus tratamientos, deudas y citas, y puede **pedir cita**. Es la funcionalidad 6 del roadmap (seccion 9). Decisiones cerradas con el cliente: **cuenta por invitacion desde la clinica** (no auto-registro), **pedir cita = solicitud que la clinica confirma** (no reserva directa en huecos). Todavia NO hay codigo: esto es el plan para arrancarlo.
+> **La app del portal ya existe en `portal/`. Su documentacion viva y autoritativa
+> es [`portal/CLAUDE.md`](portal/CLAUDE.md) — leela para trabajar en el portal.**
+> Lo de abajo es el plan original (2026-07-17) que se conserva como referencia.
+>
+> **Estado actual:** Fase 1 hecha (login por invitacion + ver tratamientos/pagos/
+> citas + perfil editable + PWA instalable + boton "Invitar al portal" en el panel).
+> Migraciones **004 (`portal_users`) y 005 (`appointments.client_id`) PENDIENTES de
+> aplicar** en pre y prod. Fase 2 (pedir cita, modelo hibrido solicitud->confirmacion)
+> diseñada pero SIN implementar — detalles en `portal/CLAUDE.md` §7. Falta tambien
+> el alta del subdominio `pacientes.hsdental.es` -> `/portal` en IONOS.
+
+Portal donde cada paciente entra con **usuario/contrasena** y ve sus tratamientos, deudas y citas, y puede **pedir cita**. Es la funcionalidad 6 del roadmap (seccion 9). Decisiones cerradas con el cliente: **cuenta por invitacion desde la clinica** (no auto-registro), **pedir cita = solicitud que la clinica confirma** (no reserva directa en huecos).
 
 ### Donde vive
 

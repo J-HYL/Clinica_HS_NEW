@@ -43,7 +43,8 @@ param(
     [string]$DbUser    = 'root',
     [string]$DbPass    = '',
     [int]$PuertoApp    = 8080,
-    [int]$PuertoWeb    = 8081
+    [int]$PuertoWeb    = 8081,
+    [int]$PuertoPortal = 8082
 )
 
 $ErrorActionPreference = 'Stop'
@@ -160,6 +161,7 @@ $marcaIni
 # Generado automaticamente. Para regenerarlo, ejecuta setup-local.ps1 de nuevo.
 Listen $PuertoApp
 Listen $PuertoWeb
+Listen $PuertoPortal
 
 <VirtualHost *:$PuertoApp>
     DocumentRoot "$repoFwd/app"
@@ -172,6 +174,14 @@ Listen $PuertoWeb
 <VirtualHost *:$PuertoWeb>
     DocumentRoot "$repoFwd/web"
     <Directory "$repoFwd/web">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:$PuertoPortal>
+    DocumentRoot "$repoFwd/portal"
+    <Directory "$repoFwd/portal">
         AllowOverride All
         Require all granted
     </Directory>
@@ -191,7 +201,7 @@ $yaNuestro = ($i -ge 0 -and $j -gt $i)
 # bloque), paramos: es mejor eso que dejar el Apache del PC sin arrancar.
 $resto = if ($yaNuestro) { $conf.Substring(0, $i) + $conf.Substring($j + $marcaFin.Length) } else { $conf }
 $conflicto = $false
-foreach ($p in @($PuertoApp, $PuertoWeb)) {
+foreach ($p in @($PuertoApp, $PuertoWeb, $PuertoPortal)) {
     if ($resto -match "(?m)^\s*Listen\s+$p\s*$" -or $resto -match "(?m)^\s*<VirtualHost\s+[^>]*:$p\s*>") {
         Fallo "httpd-vhosts.conf ya tiene configuracion propia para el puerto $p."
         $conflicto = $true
@@ -214,14 +224,14 @@ Escribir-Texto $vhosts $conf
 
 # Lo mismo, pero en httpd.conf (ahi solo avisamos: no es nuestro archivo).
 $httpd = Leer-Texto $httpdCnf
-foreach ($p in @($PuertoApp, $PuertoWeb)) {
+foreach ($p in @($PuertoApp, $PuertoWeb, $PuertoPortal)) {
     if ($httpd -match "(?m)^\s*Listen\s+$p\s*$") {
         Aviso "httpd.conf ya tiene 'Listen $p'. Quitalo de ahi o Apache no arrancara."
     }
 }
 
 # Y avisamos si otro programa ocupa los puertos (Apache mismo no cuenta).
-foreach ($p in @($PuertoApp, $PuertoWeb)) {
+foreach ($p in @($PuertoApp, $PuertoWeb, $PuertoPortal)) {
     $con = Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($con) {
         $proc = (Get-Process -Id $con.OwningProcess -ErrorAction SilentlyContinue).ProcessName
@@ -382,6 +392,7 @@ Write-Host ""
 if ($errores -eq 0 -and $listo) {
     Write-Host "  Listo. Entra en http://localhost:$PuertoApp y elige clinica." -ForegroundColor Green
     Write-Host "  La web publica esta en http://localhost:$PuertoWeb" -ForegroundColor DarkGray
+    Write-Host "  El portal de pacientes esta en http://localhost:$PuertoPortal" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Si no sabes la contrasena del panel, ponte una en local:" -ForegroundColor DarkGray
     Write-Host "    UPDATE users SET password = SHA2('loquesea', 256) WHERE username = 'alcrcnHS';" -ForegroundColor DarkGray
