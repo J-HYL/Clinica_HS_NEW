@@ -80,6 +80,7 @@ export function createTableInstance(records) {
             
             if (objectStore === "clients") {
                 buttons += `<button class="table__btn table__btn--extra" data-id="${row.id}" aria-label="Botón extra"><i class="ri-survey-fill"></i></i></button>`;
+                buttons += `<button class="table__btn table__btn--invite" data-id="${row.id}" aria-label="Invitar al portal del paciente"><i class="ri-mail-send-line"></i></button>`;
             }
 
             if (objectStore === "treatments") {

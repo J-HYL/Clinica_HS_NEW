@@ -229,6 +229,54 @@ export function setTableEventsListeners(e, objectStore, foreignKeyPropertie = nu
   }else if (button.classList.contains("table__btn--print")){
     //aqui hay q implementar la funcionalidad de imprimir comprobante de pago
     printPaymentReceipt(id);
+  } else if (button.classList.contains("table__btn--invite")) {
+    invitarPortal(id);
+  }
+}
+
+// Invita a un paciente al Portal de Pacientes: confirma y llama a
+// /api/invitar_portal.php, que crea la cuenta y envia el email de activacion.
+async function invitarPortal(clientId) {
+  let cliente;
+  try {
+    cliente = await DB.getRecord("clients", clientId);
+  } catch (e) {
+    Swal.fire("Error", "No se pudo cargar el paciente.", "error");
+    return;
+  }
+  const email = (cliente && cliente.email ? String(cliente.email) : "").trim();
+  if (!email || email === "No proporcionado") {
+    Swal.fire({
+      icon: "warning",
+      title: "Sin email",
+      text: "Este paciente no tiene email. Añádelo en su ficha antes de invitarlo al portal.",
+    });
+    return;
+  }
+  const conf = await Swal.fire({
+    icon: "question",
+    title: "Invitar al portal",
+    text: `Se enviará un email de acceso al portal a ${cliente.nombre || "el paciente"} (${email}).`,
+    showCancelButton: true,
+    confirmButtonText: "Enviar invitación",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#5671eb",
+  });
+  if (!conf.isConfirmed) return;
+
+  Swal.fire({ title: "Enviando invitación…", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  try {
+    const res = await fetch("/api/invitar_portal.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ client_id: Number(clientId) }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) throw new Error(data.error || "No se pudo enviar la invitación.");
+    Swal.fire({ icon: "success", title: "¡Listo!", text: data.message || "Invitación enviada." });
+  } catch (e) {
+    Swal.fire("Error", e.message, "error");
   }
 }
 
