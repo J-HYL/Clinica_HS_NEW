@@ -7,7 +7,7 @@
 // Al publicar cambios en el shell, SUBE la version del cache (CACHE) para que
 // los clientes reciban la nueva versión (el activate borra las anteriores).
 
-const CACHE = "hsd-portal-v1";
+const CACHE = "hsd-portal-v4";
 
 const SHELL = [
   "/",
@@ -27,6 +27,8 @@ const SHELL = [
   "/js/views/tratamientos.js",
   "/js/views/citas.js",
   "/js/views/perfil.js",
+  "/js/views/pedirCita.js",
+  "/js/views/notificaciones.js",
   "/assets/icon.svg",
   "/assets/icon-192.png",
   "/assets/icon-512.png",
@@ -66,19 +68,17 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Recursos estaticos (css/js/iconos): cache primero + revalidacion en segundo plano.
+  // Recursos estaticos (css/js/iconos): RED primero, para que los cambios de
+  // codigo se vean al instante; la cache queda como respaldo offline.
   e.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req))
   );
 });

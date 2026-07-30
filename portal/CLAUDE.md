@@ -171,7 +171,28 @@ Por clinica, mismo esquema en todas (ver `db/migrations/`):
 
 ---
 
-## 7. Cables sueltos — Fase 2: PEDIR CITA (decidido, SIN implementar)
+## 7. Fase 2 — PEDIR CITA + NOTIFICACIONES (IMPLEMENTADA 2026-07-22)
+
+> **Ya está implementada.** Portal: pantalla "Pedir cita" (huecos orientativos) +
+> apartado "Notificaciones" (campana con badge). Panel: sección "Solicitudes de
+> cita" (aceptar / rechazar / ofrecer otra hora). Al **aceptar** se crea la cita
+> con `client_id`, se envía **email** al paciente y se crea una **notificación**
+> en el portal; rechazar/ofrecer también avisan. Endpoints: `portal/api/solicitudes.php`
+> (paciente) y `app/api/solicitudes.php` (clínica). En el panel NO hay página
+> dedicada: se gestiona con la **campana global** (`app/js/modules/components/Notificaciones.js`,
+> cargada por `main.js` en todas las pantallas, con badge de pendientes) y con el
+> **historial de solicitudes en la ficha del paciente** (`app/js/pages/clientes/solicitudes-ficha.js`),
+> donde también se acepta/rechaza/ofrece. La campana enlaza cada solicitud a su
+> ficha. La ficha tiene además un botón **"Dar cita"** (`dar-cita.js` → `?accion=dar-cita`).
+> Horario **por sede**: mañana 09:30–13:00 (ambas); tarde 16:30–**19:30 Móstoles**
+> / 16:30–**20:00 Alcorcón** (slots de 30 min, 2 gabinetes). Definido en
+> `horariosSede()` de `portal/api/solicitudes.php` (portal) y en el endpoint
+> `?accion=horarios` de `app/api/solicitudes.php` (que consume el selector de cita
+> del panel, `SelectorCita.js`). Migraciones
+> **006 (`solicitudes_cita`) y 007 (`notificaciones`) PENDIENTES en pre/prod**
+> (aplicadas en local). Lo de abajo es el diseño original, como referencia.
+
+## 7 (referencia). Cables sueltos — Fase 2: PEDIR CITA
 
 Decision del usuario (2026-07-21): **modelo hibrido, SIN reserva directa.** El
 paciente elige dia/hora en el portal, pero eso NO crea la cita: crea una

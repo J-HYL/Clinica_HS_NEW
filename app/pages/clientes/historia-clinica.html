@@ -356,10 +356,17 @@
                         <div><strong>Alergias:</strong><span id="alergias"></span></div>
                         <div><strong>Edad:</strong><span id="edad"></span></div>
                     </div>
+                    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+                        <button type="button" id="dar-cita" class="main__action" style="border:none;cursor:pointer">
+                            <span>Dar cita</span> <i class="ri-calendar-todo-line"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
             
+        <section class="container" id="solicitudes-ficha-wrap"></section>
+
         <main class="container">
             <div class="tabs" role="tablist">
                 <button type="button" class="tab tab--active" data-tab="tratamientos">Tratamientos</button>
@@ -514,6 +521,8 @@
     <script src="/js/lib/datatables.min.js"></script>
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/clientes/historia-clinica.js" type="module"></script>
+    <script src="/js/pages/clientes/dar-cita.js" type="module"></script>
+    <script src="/js/pages/clientes/solicitudes-ficha.js" type="module"></script>
 
 </body>
 </html>

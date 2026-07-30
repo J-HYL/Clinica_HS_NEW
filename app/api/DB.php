@@ -675,7 +675,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         $html
                     );
                 }
-                $dompdf->loadHtml($html);
+                $dompdf->loadHtml($html, 'UTF-8');
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
                 file_put_contents($ruta_absoluta, $dompdf->output());

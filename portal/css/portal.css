@@ -304,4 +304,54 @@ dialog.sheet::backdrop { background: rgba(0,0,0,.4); -webkit-backdrop-filter: bl
 .acc-chev { color: var(--text-3); flex: 0 0 auto; }
 .acc-chev svg { width: 20px; height: 20px; }
 
+/* --- Fase 2: pedir cita + notificaciones --- */
+.subhead { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.subhead__back { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--brand); background: var(--card); box-shadow: var(--shadow); flex: 0 0 auto; }
+.subhead__back svg { width: 22px; height: 22px; }
+.subhead h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 8px; margin-top: 4px; }
+.slot { padding: 11px 6px; border-radius: 12px; border: 1px solid var(--separator); background: var(--card); font-size: 15px; font-weight: 600; text-align: center; color: var(--text); transition: transform .08s; }
+.slot:active { transform: scale(.96); }
+.slot:disabled { opacity: .35; text-decoration: line-through; cursor: default; }
+.slot--sel { background: var(--brand); color: #fff; border-color: var(--brand); }
+.slots-hint { font-size: 13px; color: var(--text-3); margin-top: 10px; }
+
+.topbar__btn { position: relative; }
+.badge-dot { position: absolute; top: 3px; right: 3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--bg); }
+/* Campana resaltada cuando hay notificaciones sin leer. */
+.topbar__btn.has { color: var(--danger); animation: bell-shake 2.4s ease-in-out infinite; transform-origin: top center; }
+.topbar__btn.has .badge-dot { box-shadow: 0 0 0 2px var(--bg), 0 0 0 5px rgba(255,59,48,.28); }
+@keyframes bell-shake { 0%, 84%, 100% { transform: rotate(0); } 86% { transform: rotate(13deg); } 88% { transform: rotate(-11deg); } 90% { transform: rotate(9deg); } 92% { transform: rotate(-6deg); } 94% { transform: rotate(3deg); } }
+
+.notif { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 12px; display: flex; gap: 12px; }
+.notif--unread { border-left: 3px solid var(--brand); }
+.notif__ic { width: 38px; height: 38px; border-radius: 11px; flex: 0 0 auto; display: grid; place-items: center; }
+.notif__ic svg { width: 20px; height: 20px; }
+.notif__ic--ok { background: rgba(52,199,89,.15); color: #1e8e3e; }
+.notif__ic--no { background: rgba(255,59,48,.12); color: #c62a22; }
+.notif__ic--wait { background: rgba(255,159,10,.16); color: #b46a00; }
+.notif__body { flex: 1; min-width: 0; }
+.notif__title { font-size: 15px; font-weight: 700; }
+.notif__msg { font-size: 14px; color: var(--text-2); margin-top: 2px; }
+.notif__time { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+.notif__actions { display: flex; gap: 8px; margin-top: 12px; }
+.notif__actions .btn { min-height: 38px; font-size: 14px; width: auto; flex: 1; }
+
+/* calendario (pedir cita) */
+.cal { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 14px 10px; }
+.cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal__title { font-size: 17px; font-weight: 800; letter-spacing: -.01em; text-transform: capitalize; }
+.cal__nav { display: flex; gap: 6px; }
+.cal__nav button { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); color: var(--brand); }
+.cal__nav button:disabled { opacity: .35; }
+.cal__nav svg { width: 20px; height: 20px; }
+.cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal__dow { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-3); padding: 4px 0; }
+.cal__day { aspect-ratio: 1 / 1; border: none; background: transparent; border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text); display: grid; place-items: center; transition: background .12s, transform .08s; }
+.cal__day:not(:disabled):hover { background: var(--brand-soft); }
+.cal__day:not(:disabled):active { transform: scale(.92); }
+.cal__day:disabled { color: var(--text-3); opacity: .35; }
+.cal__day--today { box-shadow: inset 0 0 0 1.5px var(--brand); color: var(--brand); }
+
 .util-hidden { display: none !important; }

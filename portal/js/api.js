@@ -47,4 +47,11 @@ export const api = {
   citas:           ()               => req("GET",  "/datos.php?recurso=citas"),
   perfil:          ()               => req("GET",  "/datos.php?recurso=perfil"),
   guardarPerfil:   (data)           => req("PUT",  "/datos.php?recurso=perfil", data),
+
+  // Fase 2: pedir cita + notificaciones
+  huecos:          (fecha)          => req("GET",  "/solicitudes.php?accion=huecos&fecha=" + encodeURIComponent(fecha)),
+  crearSolicitud:  (data)           => req("POST", "/solicitudes.php?accion=crear", data),
+  notificaciones:  ()               => req("GET",  "/solicitudes.php?accion=notificaciones"),
+  marcarLeidas:    ()               => req("POST", "/solicitudes.php?accion=marcar-leidas", {}),
+  responderContraoferta: (id, acepta) => req("POST", "/solicitudes.php?accion=responder-contraoferta", { solicitud_id: id, acepta }),
 };

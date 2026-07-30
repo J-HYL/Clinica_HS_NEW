@@ -25,12 +25,15 @@ confirmar el nombre antes de correrlo.
 | 003 | `003_inventario_codigo.sql` | Añade `inventario.codigo` (UNIQUE): el código de barras o QR que se escanea para abrir el elemento | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
 | 004 | `004_portal_users.sql` | Crea la tabla `portal_users` (cuentas del Portal de Pacientes: login por email, `password_hash`, tokens de invitación/reset, rate-limit) | ☐ pendiente | ☐ pendiente |
 | 005 | `005_appointments_client_id.sql` | Añade `appointments.client_id` (FK nullable → `clients`) para enlazar cada cita con su paciente (necesario para "mis citas" del portal) | ☐ pendiente | ☐ pendiente |
+| 006 | `006_solicitudes_cita.sql` | Crea `solicitudes_cita` (peticiones de cita del portal: solicitada/confirmada/rechazada/contraoferta/cancelada) — Fase 2 | ☐ pendiente | ☐ pendiente |
+| 007 | `007_notificaciones.sql` | Crea `notificaciones` (avisos al paciente en el portal: cita confirmada/rechazada/otra hora) — Fase 2 | ☐ pendiente | ☐ pendiente |
 
-**Migraciones 004 y 005: PENDIENTES de aplicar** (Portal de Pacientes, Fase 1).
-Se aplican en el mismo orden que el resto (primero `pre` = Alcorcón; luego
-`prod` en las DOS BD, Alcorcón y Móstoles). La 004 y la 005 son independientes
-entre sí; se pueden ejecutar en cualquier orden. Marca aquí la casilla y la
-fecha cuando las apliques en cada entorno.
+**Migraciones 004–007: PENDIENTES de aplicar en pre y prod** (Portal de Pacientes).
+Orden de dependencias al aplicarlas: **005 → 006 → 007** (la 006 tiene FK a
+`appointments`, la 007 a `solicitudes_cita`); la 004 es independiente. Primero
+`pre` (Alcorcón), luego `prod` en las DOS BD (Alcorcón y Móstoles). En LOCAL ya
+están aplicadas las cuatro (004/005 + 006/007). Marca la casilla y la fecha al
+aplicarlas en pre/prod.
 
 Las 001–003 (Inventario) ya funcionan en los tres entornos. La 002 y la 003 se
 aplicaron en producción con el script combinado (las dos juntas en un solo

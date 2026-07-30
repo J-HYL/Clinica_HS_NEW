@@ -189,10 +189,11 @@ async function imprimirFactura() {
     const facturaHtml = `
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>
       Factura - HSD-${escapeHtml(prefijoClinica)}-${escapeHtml(numeroFactura)}
     </title>
-    <style>
+    <style> 
       body {
         font-family: "Segoe UI", Arial, sans-serif;
         color: #333;
