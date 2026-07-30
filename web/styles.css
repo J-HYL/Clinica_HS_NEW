@@ -1275,6 +1275,11 @@
     color: var(--clr-text-sec);
   }
 
+  /* El atributo hidden debe ganar al display:flex de arriba (mayor especificidad) */
+  .clinic-map__placeholder[hidden] {
+    display: none;
+  }
+
   .clinic-map__placeholder svg {
     color: var(--clr-accent);
   }

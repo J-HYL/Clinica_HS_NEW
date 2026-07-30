@@ -55,21 +55,30 @@
     }
 
     /* ---------------------------------------------------------------
-       Aplicar el consentimiento al contenido bloqueado (Google Maps)
+       Aplicar el estado de consentimiento al contenido bloqueado (Google Maps).
+       Funciona en ambos sentidos: carga el mapa y oculta el placeholder si se
+       consiente; descarga el mapa y muestra el placeholder si se retira.
        --------------------------------------------------------------- */
-    function loadBlockedContent() {
-        if (!consentState.maps) return;
-        document.querySelectorAll('iframe[data-cookieconsent="google-maps"]').forEach(function (iframe) {
-            var src = iframe.getAttribute('data-src');
-            if (src && !iframe.getAttribute('src')) {
-                iframe.setAttribute('src', src);
-            }
-            iframe.hidden = false;
-        });
-        // Oculta los placeholders una vez cargados los mapas.
-        document.querySelectorAll('[data-cookie-placeholder]').forEach(function (ph) {
-            ph.hidden = true;
-        });
+    function applyMapsState() {
+        var iframes = document.querySelectorAll('iframe[data-cookieconsent="google-maps"]');
+        var placeholders = document.querySelectorAll('[data-cookie-placeholder]');
+
+        if (consentState.maps) {
+            iframes.forEach(function (iframe) {
+                var src = iframe.getAttribute('data-src');
+                if (src && !iframe.getAttribute('src')) {
+                    iframe.setAttribute('src', src);
+                }
+                iframe.hidden = false;
+            });
+            placeholders.forEach(function (ph) { ph.hidden = true; });
+        } else {
+            iframes.forEach(function (iframe) {
+                iframe.removeAttribute('src');
+                iframe.hidden = true;
+            });
+            placeholders.forEach(function (ph) { ph.hidden = false; });
+        }
     }
 
     /* ---------------------------------------------------------------
@@ -100,13 +109,14 @@
         consentState = { accepted: true, analytics: true, maps: true, timestamp: null };
         saveConsent();
         hideBanner();
-        loadBlockedContent();
+        applyMapsState();
     }
 
     function rejectAll() {
         consentState = { accepted: true, analytics: false, maps: false, timestamp: null };
         saveConsent();
         hideBanner();
+        applyMapsState();
     }
 
     function saveConfiguration() {
@@ -120,7 +130,7 @@
         };
         saveConsent();
         hideBanner();
-        loadBlockedContent();
+        applyMapsState();
     }
 
     // Aceptar únicamente los mapas (botón del propio placeholder del mapa).
@@ -129,7 +139,7 @@
         consentState.maps = true;
         saveConsent();
         hideBanner();
-        loadBlockedContent();
+        applyMapsState();
     }
 
     function showConfigPanel() {
@@ -169,9 +179,8 @@
         var styles = document.createElement('style');
         styles.id = 'cookie-banner-styles';
         styles.textContent = [
-            '.cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;font-family:"Montserrat",sans-serif;}',
-            '.cookie-banner__overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);opacity:0;animation:cookieFadeIn .3s ease forwards;}',
-            '.cookie-banner__content,.cookie-banner__panel{position:relative;background:#fff;margin:16px auto;padding:24px;border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.2);max-width:560px;}',
+            '.cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;font-family:"Montserrat",sans-serif;pointer-events:none;}',
+            '.cookie-banner__content,.cookie-banner__panel{position:relative;pointer-events:auto;background:#fff;margin:16px auto;padding:24px;border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.2);max-width:560px;}',
             '.cookie-banner__content{animation:cookieSlideUp .4s cubic-bezier(.4,0,.2,1);}',
             '.cookie-banner__icon{width:64px;height:64px;background:linear-gradient(135deg,#5671eb 0%,#3f57cc 100%);border-radius:16px;display:grid;place-items:center;margin:0 auto 16px;color:#fff;}',
             '.cookie-banner__title{font-size:1.25rem;font-weight:700;color:#272626;text-align:center;margin-bottom:12px;}',
@@ -211,7 +220,6 @@
             '.cookie-option__toggle input:checked + .cookie-option__switch::before{transform:translateX(20px);}',
             '.cookie-option__toggle input:focus-visible + .cookie-option__switch{outline:2px solid #3f57cc;outline-offset:2px;}',
             '.cookie-banner__panel-footer{padding-top:16px;border-top:1px solid #c3d0f8;display:grid;grid-template-columns:1fr 1fr;gap:12px;}',
-            '@keyframes cookieFadeIn{from{opacity:0;}to{opacity:1;}}',
             '@keyframes cookieSlideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}',
             '.cookie-banner--hidden{animation:cookieFadeOut .3s ease forwards;}',
             '@keyframes cookieFadeOut{from{opacity:1;}to{opacity:0;}}',
@@ -233,11 +241,10 @@
         banner.id = 'cookie-banner';
         banner.className = 'cookie-banner';
         banner.setAttribute('role', 'dialog');
-        banner.setAttribute('aria-modal', 'true');
+        banner.setAttribute('aria-label', 'Aviso de cookies');
         banner.setAttribute('aria-labelledby', 'cookie-banner-title');
         banner.setAttribute('aria-describedby', 'cookie-banner-desc');
         banner.innerHTML = [
-            '<div class="cookie-banner__overlay"></div>',
             '<div class="cookie-banner__content">',
             '  <div class="cookie-banner__icon">',
             '    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
@@ -339,7 +346,7 @@
         var stored = getStoredConsent();
         if (stored && !isExpired(stored)) {
             consentState = Object.assign(emptyState(), stored);
-            loadBlockedContent();
+            applyMapsState();
             return; // Ya hay consentimiento vigente: no mostrar el banner.
         }
 
