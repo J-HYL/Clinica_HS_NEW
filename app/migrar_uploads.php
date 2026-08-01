@@ -1,23 +1,4 @@
 <?php
-/**
- * migrar_uploads.php  —  MIGRACIÓN DE UNA SOLA VEZ (borrar del servidor tras usarlo).
- *
- * Mueve los archivos de pacientes YA existentes al nuevo esquema por clínica:
- *     uploads/pacientes/{client_id}/...  ->  uploads/pacientes/clinica{clinic_id}/{client_id}/...
- * y actualiza images.ruta en la BD de la CLÍNICA CON LA SESIÓN INICIADA.
- *
- * USO (por CADA clínica, y por CADA entorno):
- *   0) Haz BACKUP antes: carpeta uploads/pacientes/ (SFTP) + volcado de la tabla `images`.
- *   1) Inicia sesión en la app de la clínica que quieres migrar (ej. Alcorcón).
- *   2) Abre  /migrar_uploads.php        -> SIMULACRO (no cambia nada, solo lista).
- *   3) Revisa el listado.
- *   4) Abre  /migrar_uploads.php?dry=0  -> EJECUTA de verdad.
- *   5) Comprueba en el panel que las imágenes/PDF se ven.
- *   6) BORRA este archivo del servidor.
- *
- * Es IDEMPOTENTE: si se re-ejecuta, ignora lo que ya está bajo clinica{n}/.
- * Cada clínica toca SOLO su propia BD (la que da su sesión), nunca la de la otra.
- */
 
 session_start();
 require_once __DIR__ . '/api/db_connect.php';

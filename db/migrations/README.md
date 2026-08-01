@@ -23,22 +23,19 @@ confirmar el nombre antes de correrlo.
 | 001 | `001_index_appointments_fecha.sql` | Índice en `appointments.fecha` (el calendario/dashboard hacían full table scan) | ☑ (2026-07-12) | ☑ (2026-07-12) — Alcorcón y Móstoles |
 | 002 | `002_create_inventario.sql` | Crea la tabla `inventario` (elementos clínicos: stock, ubicación, foto...) para la sección nueva de Inventario | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
 | 003 | `003_inventario_codigo.sql` | Añade `inventario.codigo` (UNIQUE): el código de barras o QR que se escanea para abrir el elemento | ☑ (2026-07-15) | ☑ (2026-07-15) — Alcorcón y Móstoles |
-| 004 | `004_portal_users.sql` | Crea la tabla `portal_users` (cuentas del Portal de Pacientes: login por email, `password_hash`, tokens de invitación/reset, rate-limit) | ☐ pendiente | ☐ pendiente |
-| 005 | `005_appointments_client_id.sql` | Añade `appointments.client_id` (FK nullable → `clients`) para enlazar cada cita con su paciente (necesario para "mis citas" del portal) | ☐ pendiente | ☐ pendiente |
-| 006 | `006_solicitudes_cita.sql` | Crea `solicitudes_cita` (peticiones de cita del portal: solicitada/confirmada/rechazada/contraoferta/cancelada) — Fase 2 | ☐ pendiente | ☐ pendiente |
-| 007 | `007_notificaciones.sql` | Crea `notificaciones` (avisos al paciente en el portal: cita confirmada/rechazada/otra hora) — Fase 2 | ☐ pendiente | ☐ pendiente |
-| 008 | `008_solicitudes_factura.sql` | Crea `solicitudes_factura` (el paciente pide la factura de un pago desde el portal; la clínica la genera y avisa) — Facturas portal | ☐ pendiente | ☐ pendiente |
-| 009 | `009_notificaciones_payment_id.sql` | Añade `notificaciones.payment_id` (FK nullable → `payments`) para el deep-link: la notificación de factura abre el detalle del pago en el portal | ☐ pendiente | ☐ pendiente |
+| 004 | `004_portal_users.sql` | Crea la tabla `portal_users` (cuentas del Portal de Pacientes: login por email, `password_hash`, tokens de invitación/reset, rate-limit) | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
+| 005 | `005_appointments_client_id.sql` | Añade `appointments.client_id` (FK nullable → `clients`) para enlazar cada cita con su paciente (necesario para "mis citas" del portal) | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
+| 006 | `006_solicitudes_cita.sql` | Crea `solicitudes_cita` (peticiones de cita del portal: solicitada/confirmada/rechazada/contraoferta/cancelada) — Fase 2 | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
+| 007 | `007_notificaciones.sql` | Crea `notificaciones` (avisos al paciente en el portal: cita confirmada/rechazada/otra hora) — Fase 2 | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
+| 008 | `008_solicitudes_factura.sql` | Crea `solicitudes_factura` (el paciente pide la factura de un pago desde el portal; la clínica la genera y avisa) — Facturas portal | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
+| 009 | `009_notificaciones_payment_id.sql` | Añade `notificaciones.payment_id` (FK nullable → `payments`) para el deep-link: la notificación de factura abre el detalle del pago en el portal | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
 
-**Migraciones 004–009: PENDIENTES de aplicar en pre y prod** (Portal de Pacientes).
-Orden de dependencias al aplicarlas: **005 → 006 → 007** (la 006 tiene FK a
-`appointments`, la 007 a `solicitudes_cita`); la **008** tiene FK a `payments` y a
-`facturas` (que ya existen), así que puede ir después de la 004; la **009** tiene
-FK a `payments` (independiente, va después de la 008); la 004 es independiente.
-Primero `pre` (Alcorcón), luego `prod` en las DOS BD (Alcorcón y Móstoles). En
-LOCAL ya están aplicadas la 004–007; aplica también la **008** y la **009** en
-local antes de probar la feature de facturas/descarga. Marca la casilla y la fecha al
-aplicarlas en pre/prod.
+**Migraciones 004–009: APLICADAS en pre y en prod** (Portal de Pacientes) el
+**2026-08-01**; en prod se corrieron en las DOS BD (Alcorcón y Móstoles). En LOCAL
+también están aplicadas todas. **Ya no queda ninguna migración pendiente en ningún
+entorno.** Orden de dependencias con el que se aplicaron: **005 → 006 → 007** (la
+006 tiene FK a `appointments`, la 007 a `solicitudes_cita`); la **008** (FK a
+`payments`/`facturas`) y la **009** (FK a `payments`) después; la 004 es independiente.
 
 Las 001–003 (Inventario) ya funcionan en los tres entornos. La 002 y la 003 se
 aplicaron en producción con el script combinado (las dos juntas en un solo

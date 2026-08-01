@@ -7,7 +7,7 @@
 // Al publicar cambios en el shell, SUBE la version del cache (CACHE) para que
 // los clientes reciban la nueva versión (el activate borra las anteriores).
 
-const CACHE = "hsd-portal-v8";
+const CACHE = "hsd-portal-v9";
 
 const SHELL = [
   "/",
@@ -33,6 +33,7 @@ const SHELL = [
   "/assets/icon.svg",
   "/assets/icon-192.png",
   "/assets/icon-512.png",
+  "/assets/logoHSBlanco.png",
 ];
 
 self.addEventListener("install", (e) => {
