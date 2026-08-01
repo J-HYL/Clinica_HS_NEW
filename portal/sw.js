@@ -7,7 +7,7 @@
 // Al publicar cambios en el shell, SUBE la version del cache (CACHE) para que
 // los clientes reciban la nueva versión (el activate borra las anteriores).
 
-const CACHE = "hsd-portal-v4";
+const CACHE = "hsd-portal-v8";
 
 const SHELL = [
   "/",
@@ -29,6 +29,7 @@ const SHELL = [
   "/js/views/perfil.js",
   "/js/views/pedirCita.js",
   "/js/views/notificaciones.js",
+  "/js/views/tratamientoDetalle.js",
   "/assets/icon.svg",
   "/assets/icon-192.png",
   "/assets/icon-512.png",

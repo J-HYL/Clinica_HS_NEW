@@ -8,10 +8,11 @@ import * as citas from "./views/citas.js";
 import * as perfil from "./views/perfil.js";
 import * as pedirCita from "./views/pedirCita.js";
 import * as notificaciones from "./views/notificaciones.js";
+import * as tratamientoDetalle from "./views/tratamientoDetalle.js";
 
-// inicio/tratamientos/citas/perfil son pestañas; pedirCita/notificaciones son
-// vistas secundarias (se abren desde botones, sin pestaña propia).
-const VIEWS = { inicio, tratamientos, citas, perfil, pedirCita, notificaciones };
+// inicio/tratamientos/citas/perfil son pestañas; pedirCita/notificaciones/
+// tratamientoDetalle son vistas secundarias (se abren desde botones, sin pestaña).
+const VIEWS = { inicio, tratamientos, citas, perfil, pedirCita, notificaciones, tratamientoDetalle };
 
 const viewEl = document.getElementById("view");
 let ctx;
@@ -30,6 +31,8 @@ async function boot() {
     go: (tab) => selectTab(tab),
     pedirCita: () => selectTab("pedirCita"),
     verNotificaciones: () => selectTab("notificaciones"),
+    // Abre el detalle de un tratamiento; opts.pago = id del pago a desplegar.
+    verTratamiento: (id, opts = {}) => { ctx.detalle = { id, ...opts }; selectTab("tratamientoDetalle"); },
     refreshBadge,
     openInstall,
     logout: hacerLogout,

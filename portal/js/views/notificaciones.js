@@ -36,6 +36,10 @@ export async function render(root, ctx) {
         }
       };
     });
+    // Aviso de factura -> abre el detalle del tratamiento con ese pago desplegado.
+    body.querySelectorAll("[data-verfactura]").forEach((b) => {
+      b.onclick = () => ctx.verTratamiento(Number(b.dataset.tid), { pago: Number(b.dataset.pid) });
+    });
   } catch (e) {
     body.innerHTML = `<div class="card"><p style="color:var(--danger)">${escapeHtml(e.message)}</p></div>`;
   }
@@ -45,6 +49,7 @@ function iconFor(tipo) {
   if (tipo === "cita_confirmada") return `<span class="notif__ic notif__ic--ok">${ICON.check}</span>`;
   if (tipo === "cita_rechazada") return `<span class="notif__ic notif__ic--no">${ICON.x}</span>`;
   if (tipo === "cita_contraoferta") return `<span class="notif__ic notif__ic--wait">${ICON.clock}</span>`;
+  if (tipo === "factura_emitida") return `<span class="notif__ic notif__ic--ok">${ICON.treat}</span>`;
   return `<span class="notif__ic notif__ic--wait">${ICON.bell}</span>`;
 }
 
@@ -59,6 +64,10 @@ function card(n) {
       <div class="notif__actions">
         <button class="btn" data-acc data-id="${n.solicitud_id}" data-si="1">Aceptar</button>
         <button class="btn btn--ghost" data-acc data-id="${n.solicitud_id}" data-si="0">Rechazar</button>
+      </div>`;
+  } else if (n.tipo === "factura_emitida" && n.payment_id && n.treatment_id) {
+    extra = `<div class="notif__actions">
+        <button class="btn" data-verfactura data-tid="${n.treatment_id}" data-pid="${n.payment_id}">Ver mi factura</button>
       </div>`;
   }
   return `<div class="notif ${n.leida ? "" : "notif--unread"}">

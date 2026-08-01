@@ -54,4 +54,9 @@ export const api = {
   notificaciones:  ()               => req("GET",  "/solicitudes.php?accion=notificaciones"),
   marcarLeidas:    ()               => req("POST", "/solicitudes.php?accion=marcar-leidas", {}),
   responderContraoferta: (id, acepta) => req("POST", "/solicitudes.php?accion=responder-contraoferta", { solicitud_id: id, acepta }),
+
+  // Facturas: el paciente pide la factura de un pago concreto.
+  solicitarFactura: (payment_id)    => req("POST", "/facturas.php?accion=solicitar", { payment_id }),
+  // URL de descarga del PDF (para window.open; el servidor la valida por sesion).
+  facturaUrl:       (payment_id)    => `${BASE}/facturas.php?accion=descargar&payment_id=${encodeURIComponent(payment_id)}`,
 };

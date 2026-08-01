@@ -89,9 +89,17 @@ function recurso_tratamientos($client_id) {
     $stmt->close();
 
     // Pagos del paciente, agrupados por tratamiento (sin 'notas': pueden ser internas).
+    // `factura_estado` (null | solicitada | generada | ...) indica si el paciente ya
+    // pidio la factura de ese pago. Antes de aplicar la migracion 008 la tabla puede
+    // no existir: en ese caso se devuelve NULL sin romper la vista.
+    $tieneSolF = ($chk = $conn->query("SHOW TABLES LIKE 'solicitudes_factura'")) && $chk->num_rows > 0;
+    $estadoExpr = $tieneSolF
+        ? "(SELECT sf.estado FROM solicitudes_factura sf WHERE sf.payment_id = p.id ORDER BY sf.id DESC LIMIT 1)"
+        : "NULL";
     $stmt = $conn->prepare(
-        "SELECT treatment_id, monto, fecha_pago, metodo_pago
-         FROM payments WHERE client_id = ? ORDER BY fecha_pago ASC"
+        "SELECT p.id, p.treatment_id, p.monto, p.fecha_pago, p.metodo_pago,
+                $estadoExpr AS factura_estado
+         FROM payments p WHERE p.client_id = ? ORDER BY p.fecha_pago ASC"
     );
     $stmt->bind_param('i', $client_id);
     $stmt->execute();
@@ -100,9 +108,11 @@ function recurso_tratamientos($client_id) {
         $tid = (int) $p['treatment_id'];
         if (isset($indexById[$tid])) {
             $tratamientos[$indexById[$tid]]['pagos'][] = [
-                'monto'       => (float) $p['monto'],
-                'fecha_pago'  => $p['fecha_pago'],
-                'metodo_pago' => $p['metodo_pago'],
+                'id'             => (int) $p['id'],
+                'monto'          => (float) $p['monto'],
+                'fecha_pago'     => $p['fecha_pago'],
+                'metodo_pago'    => $p['metodo_pago'],
+                'factura_estado' => $p['factura_estado'],
             ];
         }
     }
@@ -128,9 +138,27 @@ function recurso_citas($client_id) {
     $res = $stmt->get_result();
     $citas = [];
     while ($row = $res->fetch_assoc()) {
-        $citas[] = ['fecha' => $row['fecha'], 'estado' => $row['estado']];
+        $citas[] = ['fecha' => $row['fecha'], 'estado' => $row['estado'], 'solicitud' => false];
     }
     $stmt->close();
+
+    // Solicitudes de cita AÚN sin confirmar -> se muestran como "Pendiente de
+    // aprobación" (no son citas reales todavía; al confirmarlas la clínica crea la
+    // cita real). Guardado por si la migración 006 no está aplicada.
+    $tieneSol = ($chk = $conn->query("SHOW TABLES LIKE 'solicitudes_cita'")) && $chk->num_rows > 0;
+    if ($tieneSol) {
+        $stmt = $conn->prepare(
+            "SELECT COALESCE(fecha_propuesta, fecha_preferida) AS fecha
+             FROM solicitudes_cita WHERE client_id = ? AND estado IN ('solicitada','contraoferta')"
+        );
+        $stmt->bind_param('i', $client_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $citas[] = ['fecha' => $row['fecha'], 'estado' => 'Pendiente de aprobación', 'solicitud' => true];
+        }
+        $stmt->close();
+    }
     $conn->close();
 
     json_out(['citas' => $citas]);

@@ -154,11 +154,18 @@ function recurso_crear($client_id) {
 function recurso_notificaciones($client_id) {
     only_methods(['GET']);
     $conn = getConnection();
+    // payment_id (migracion 009) permite el deep-link de la notificacion de factura
+    // al detalle del pago. Guardado por si la 009 aun no esta aplicada.
+    $tienePago = ($chk = $conn->query("SHOW COLUMNS FROM notificaciones LIKE 'payment_id'")) && $chk->num_rows > 0;
+    $pagoSel  = $tienePago ? "n.payment_id, p.treatment_id" : "NULL AS payment_id, NULL AS treatment_id";
+    $pagoJoin = $tienePago ? "LEFT JOIN payments p ON n.payment_id = p.id" : "";
     $stmt = $conn->prepare(
         "SELECT n.id, n.tipo, n.titulo, n.mensaje, n.leida, n.created_at, n.solicitud_id,
-                s.estado AS solicitud_estado, s.fecha_propuesta
+                s.estado AS solicitud_estado, s.fecha_propuesta,
+                $pagoSel
          FROM notificaciones n
          LEFT JOIN solicitudes_cita s ON n.solicitud_id = s.id
+         $pagoJoin
          WHERE n.client_id = ? ORDER BY n.created_at DESC LIMIT 50"
     );
     $stmt->bind_param('i', $client_id);
@@ -179,6 +186,9 @@ function recurso_notificaciones($client_id) {
             // Solo es accionable si sigue siendo una contraoferta abierta.
             'accionable'      => ($r['tipo'] === 'cita_contraoferta' && $r['solicitud_estado'] === 'contraoferta'),
             'fecha_propuesta' => $r['fecha_propuesta'],
+            // Deep-link de la factura al detalle del pago (aviso 'factura_emitida').
+            'payment_id'      => isset($r['payment_id'])   && $r['payment_id']   !== null ? (int) $r['payment_id']   : null,
+            'treatment_id'    => isset($r['treatment_id']) && $r['treatment_id'] !== null ? (int) $r['treatment_id'] : null,
         ];
     }
     $stmt->close();

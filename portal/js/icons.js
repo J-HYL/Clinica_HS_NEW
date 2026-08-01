@@ -13,6 +13,8 @@ export const ICON = {
   user:  s('<circle cx="12" cy="8" r="4"/><path d="M4.5 20c1.4-3.6 4.2-5 7.5-5s6.1 1.4 7.5 5"/>'),
   logout: s('<path d="M15 5.5H6.5A2.5 2.5 0 0 0 4 8v8a2.5 2.5 0 0 0 2.5 2.5H15"/><path d="M18 8l4 4-4 4"/><path d="M22 12H10"/>'),
   share: s('<path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/>'),
+  download: s('<path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 20h14"/>'),
+  doc: s('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>'),
   chevron: s('<path d="M9 6l6 6-6 6"/>'),
   edit:  s('<path d="M4 20h4l10-10a2 2 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/>'),
   check: s('<path d="M5 12.5l4.5 4.5L19 7"/>'),

@@ -35,8 +35,11 @@ export async function render(root, ctx) {
 
 function item(c) {
   const est = (c.estado || "").toLowerCase();
-  const dot = est.includes("cancel") ? "tl__dot--cancel" : est.includes("complet") ? "tl__dot--done" : "";
-  const badge = est.includes("cancel")
+  const esSolicitud = !!c.solicitud || est.includes("aprobac");
+  const dot = esSolicitud ? "tl__dot--wait" : est.includes("cancel") ? "tl__dot--cancel" : est.includes("complet") ? "tl__dot--done" : "";
+  const badge = esSolicitud
+    ? '<span class="badge badge--parcial">Pendiente de aprobación</span>'
+    : est.includes("cancel")
     ? '<span class="badge badge--pendiente">Cancelada</span>'
     : est.includes("complet")
     ? '<span class="badge badge--pagado">Completada</span>'
