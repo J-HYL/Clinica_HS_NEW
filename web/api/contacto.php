@@ -90,6 +90,16 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+// Bloqueo anti-spam: remitentes vetados. Se descarta en SILENCIO (respuesta OK
+// falsa) para no dar pistas al bot y que no reintente ni ajuste el payload.
+// No guarda en BD ni envia emails. Añade aqui mas direcciones si hace falta.
+$remitentesVetados = ['soporte@esdisystems.es'];
+if (in_array(strtolower($email), $remitentesVetados, true)) {
+    ob_end_clean();
+    echo json_encode(['success' => true]);
+    exit;
+}
+
 $conn = getConnectionByClinic($clinic);
 if (!$conn) {
     ob_end_clean();
