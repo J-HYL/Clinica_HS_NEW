@@ -1,15 +1,9 @@
 // vistaDiaria.js
 import { getFormData } from '../../modules/funciones.js';
 import DB from '../../modules/classes/DB_API.js';
-import { openSidebar, closeSidebar } from "../../modules/components/Sidebar.js";
+import "../../modules/components/SidebarNav.js"; // sidebar del panel (se autoinicializa y cablea abrir/cerrar)
 
-// --- 1) Sidebar ---
-const btnAbrirSidebar = document.querySelector('.header__menu');
-const btnCerrarSidebar = document.querySelector('.sidebar__close');
-btnAbrirSidebar.addEventListener('click', () => openSidebar());
-btnCerrarSidebar.addEventListener('click', () => closeSidebar());
-
-// --- 2) Parámetros ---
+// --- Parámetros ---
 const params = new URLSearchParams(window.location.search);
 const dateParam = params.get('date');
 const hoy = new Date().toISOString().slice(0, 10);

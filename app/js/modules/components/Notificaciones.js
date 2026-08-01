@@ -9,6 +9,7 @@
  */
 
 const ENDPOINT = "/api/solicitudes.php";
+const ENDPOINT_FACT = "/api/facturas_solicitudes.php";
 const POLL_MS = 60000;
 
 function injectStyles() {
@@ -47,6 +48,7 @@ function injectStyles() {
   .hs-notif-ic{flex:0 0 auto;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
     background:#eef1fe;color:#3a56d4;}
   .hs-notif-ic.wait{background:#fff4e5;color:#b46a00;}
+  .hs-notif-ic.fact{background:#e7f8ee;color:#1e8e3e;}
   .hs-notif-ic svg{width:19px;height:19px;}
   .hs-notif-name{font-size:14px;font-weight:700;color:#1e2a5e;}
   .hs-notif-when{font-size:12.5px;color:#6b7280;margin-top:2px;}
@@ -58,21 +60,22 @@ function injectStyles() {
 }
 
 const BELL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+const DOC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>`;
 
 function buildWidget() {
   if (document.getElementById("hs-notif-root")) return;
   const root = document.createElement("div");
   root.id = "hs-notif-root";
   root.innerHTML = `
-    <button class="hs-notif-fab" id="hs-notif-fab" type="button" aria-label="Solicitudes de cita">
+    <button class="hs-notif-fab" id="hs-notif-fab" type="button" aria-label="Avisos">
       ${BELL}<span class="hs-notif-badge" id="hs-notif-badge">0</span>
     </button>
     <div class="hs-notif-panel" id="hs-notif-panel" role="dialog">
-      <div class="hs-notif-head">Solicitudes de cita
+      <div class="hs-notif-head">Avisos
         <button class="hs-notif-close" id="hs-notif-close" aria-label="Cerrar">&times;</button>
       </div>
       <div class="hs-notif-list" id="hs-notif-list"></div>
-      <div class="hs-notif-foot" style="font-size:12px;color:#9ca3af">Pulsa una solicitud para abrir la ficha del paciente</div>
+      <div class="hs-notif-foot" style="font-size:12px;color:#9ca3af">Pulsa un aviso para gestionarlo</div>
     </div>`;
   document.body.appendChild(root);
   wire();
@@ -90,9 +93,11 @@ function esc(v) {
 
 async function refreshCount() {
   try {
-    const res = await fetch(ENDPOINT + "?accion=count", { credentials: "include" });
-    if (!res.ok) return;
-    const { count } = await res.json();
+    const results = await Promise.all([
+      fetch(ENDPOINT + "?accion=count", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch(ENDPOINT_FACT + "?accion=count", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]);
+    const count = results.reduce((n, d) => n + (d && d.count ? d.count : 0), 0);
     const fab = document.getElementById("hs-notif-fab");
     const badge = document.getElementById("hs-notif-badge");
     if (!fab || !badge) return;
@@ -111,26 +116,40 @@ async function loadList() {
   const list = document.getElementById("hs-notif-list");
   list.innerHTML = `<div class="hs-notif-empty">Cargando…</div>`;
   try {
-    const res = await fetch(ENDPOINT + "?accion=pendientes", { credentials: "include" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Error");
-    const items = data.solicitudes || [];
-    if (!items.length) {
-      list.innerHTML = `<div class="hs-notif-empty">No hay solicitudes pendientes 🎉</div>`;
+    const [citasData, factData] = await Promise.all([
+      fetch(ENDPOINT + "?accion=pendientes", { credentials: "include" }).then((r) => r.json()).catch(() => ({})),
+      fetch(ENDPOINT_FACT + "?accion=pendientes", { credentials: "include" }).then((r) => r.json()).catch(() => ({})),
+    ]);
+    const citas = (citasData && citasData.solicitudes) || [];
+    const facturas = (factData && factData.solicitudes) || [];
+    if (!citas.length && !facturas.length) {
+      list.innerHTML = `<div class="hs-notif-empty">No hay avisos pendientes 🎉</div>`;
       return;
     }
-    list.innerHTML = items.map((s) => {
+    // Cita -> ficha del paciente. Factura -> ese pago dentro del tratamiento.
+    const citasHtml = citas.map((s) => {
       const wait = s.estado === "contraoferta";
-      return `<div class="hs-notif-item" data-client="${s.client_id}">
+      return `<div class="hs-notif-item" data-goto="/pages/clientes/historia-clinica.html?id=${s.client_id}&tab=solicitudes">
         <div class="hs-notif-ic ${wait ? "wait" : ""}">${BELL}</div>
         <div>
           <div class="hs-notif-name">${esc(s.nombre)}</div>
-          <div class="hs-notif-when">${wait ? "Esperando respuesta · " : "Pide: "}${esc(fmtFecha(s.fecha_preferida))}</div>
+          <div class="hs-notif-when">${wait ? "Esperando respuesta · " : "Pide cita: "}${esc(fmtFecha(s.fecha_preferida))}</div>
         </div>
       </div>`;
     }).join("");
-    list.querySelectorAll("[data-client]").forEach((el) => {
-      el.onclick = () => { location.href = "/pages/clientes/historia-clinica.html?id=" + el.dataset.client; };
+    const factHtml = facturas.map((s) => {
+      const importe = s.monto != null ? Number(s.monto).toFixed(2) + " €" : "";
+      return `<div class="hs-notif-item" data-goto="/pages/clientes/tratamientos.html?id=${s.treatment_id}&pago=${s.payment_id}">
+        <div class="hs-notif-ic fact">${DOC}</div>
+        <div>
+          <div class="hs-notif-name">${esc(s.nombre)}</div>
+          <div class="hs-notif-when">Pide factura · ${esc(importe)}</div>
+        </div>
+      </div>`;
+    }).join("");
+    list.innerHTML = citasHtml + factHtml;
+    list.querySelectorAll("[data-goto]").forEach((el) => {
+      el.onclick = () => { location.href = el.dataset.goto; };
     });
   } catch (e) {
     list.innerHTML = `<div class="hs-notif-empty" style="color:#b91c1c">${esc(e.message)}</div>`;

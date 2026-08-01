@@ -27,12 +27,17 @@ confirmar el nombre antes de correrlo.
 | 005 | `005_appointments_client_id.sql` | Añade `appointments.client_id` (FK nullable → `clients`) para enlazar cada cita con su paciente (necesario para "mis citas" del portal) | ☐ pendiente | ☐ pendiente |
 | 006 | `006_solicitudes_cita.sql` | Crea `solicitudes_cita` (peticiones de cita del portal: solicitada/confirmada/rechazada/contraoferta/cancelada) — Fase 2 | ☐ pendiente | ☐ pendiente |
 | 007 | `007_notificaciones.sql` | Crea `notificaciones` (avisos al paciente en el portal: cita confirmada/rechazada/otra hora) — Fase 2 | ☐ pendiente | ☐ pendiente |
+| 008 | `008_solicitudes_factura.sql` | Crea `solicitudes_factura` (el paciente pide la factura de un pago desde el portal; la clínica la genera y avisa) — Facturas portal | ☐ pendiente | ☐ pendiente |
+| 009 | `009_notificaciones_payment_id.sql` | Añade `notificaciones.payment_id` (FK nullable → `payments`) para el deep-link: la notificación de factura abre el detalle del pago en el portal | ☐ pendiente | ☐ pendiente |
 
-**Migraciones 004–007: PENDIENTES de aplicar en pre y prod** (Portal de Pacientes).
+**Migraciones 004–009: PENDIENTES de aplicar en pre y prod** (Portal de Pacientes).
 Orden de dependencias al aplicarlas: **005 → 006 → 007** (la 006 tiene FK a
-`appointments`, la 007 a `solicitudes_cita`); la 004 es independiente. Primero
-`pre` (Alcorcón), luego `prod` en las DOS BD (Alcorcón y Móstoles). En LOCAL ya
-están aplicadas las cuatro (004/005 + 006/007). Marca la casilla y la fecha al
+`appointments`, la 007 a `solicitudes_cita`); la **008** tiene FK a `payments` y a
+`facturas` (que ya existen), así que puede ir después de la 004; la **009** tiene
+FK a `payments` (independiente, va después de la 008); la 004 es independiente.
+Primero `pre` (Alcorcón), luego `prod` en las DOS BD (Alcorcón y Móstoles). En
+LOCAL ya están aplicadas la 004–007; aplica también la **008** y la **009** en
+local antes de probar la feature de facturas/descarga. Marca la casilla y la fecha al
 aplicarlas en pre/prod.
 
 Las 001–003 (Inventario) ya funcionan en los tres entornos. La 002 y la 003 se

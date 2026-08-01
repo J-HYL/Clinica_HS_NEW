@@ -12,7 +12,7 @@ if (btn && id) {
   btn.addEventListener("click", async () => {
     const nombre = (document.getElementById("nombre-paciente")?.textContent || "el paciente").trim();
     const value = await elegirFechaHora({
-      titulo: "Dar cita a " + nombre,
+      titulo: "Programar cita a " + nombre,
       campos: [
         { id: "medico", label: "Gabinete", type: "select", options: [{ v: "med1", t: "Gabinete 1" }, { v: "med2", t: "Gabinete 2" }] },
         { id: "motivo", label: "Motivo (opcional)", type: "text", placeholder: "Revisión, limpieza…" },

@@ -15,7 +15,7 @@ function injectStyles() {
   const s = document.createElement("style");
   s.id = "hs-solf-styles";
   s.textContent = `
-    #solicitudes-ficha-wrap{max-width:900px;margin:0 auto 1.5rem;}
+    #solicitudes-ficha-wrap{margin:0;}
     .solf-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(16,24,40,.06);}
     .solf-h{font-size:1.05rem;font-weight:700;color:#1e2a5e;margin:0 0 6px;display:flex;align-items:center;gap:8px;}
     .solf-item{padding:12px 0;border-top:1px solid #f0f1f4;}
@@ -31,7 +31,11 @@ function injectStyles() {
     .solf-btn{border:none;border-radius:9px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;}
     .solf-btn--ok{background:#34c759;color:#fff;}
     .solf-btn--alt{background:#5671eb;color:#fff;}
-    .solf-btn--no{background:#fff;color:#c62a22;border:1px solid #f0c9c6;}`;
+    .solf-btn--no{background:#fff;color:#c62a22;border:1px solid #f0c9c6;}
+    /* Badge de la pestaña "Solicitudes" cuando hay pendientes */
+    .tab__badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:7px;border-radius:999px;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;line-height:1;vertical-align:middle;box-shadow:0 0 0 3px rgba(255,59,48,.14);}
+    .tab.tab--alert{color:#c62a22;}
+    .tab.tab--alert.tab--active{color:#3b82f6;}`;
   document.head.appendChild(s);
 }
 
@@ -49,12 +53,31 @@ async function cargar() {
 }
 
 function render(items) {
-  if (!items.length) { wrap.innerHTML = ""; return; } // sin solicitudes: no ocupamos espacio
+  actualizarTabBadge(items);
+  // Ahora vive en su propia pestaña: si no hay solicitudes, mostramos un vacío claro.
+  if (!items.length) { wrap.innerHTML = `<div class="solf-card" style="text-align:center;color:#9ca3af">Este paciente no tiene solicitudes de cita.</div>`; return; }
   wrap.innerHTML = `<div class="solf-card">
       <h3 class="solf-h"><i class="ri-inbox-fill"></i> Solicitudes de cita</h3>
       ${items.map(item).join("")}
     </div>`;
   wrap.querySelectorAll("[data-accion]").forEach((b) => (b.onclick = () => accionar(b.dataset.accion, b.dataset.id)));
+}
+
+// Resalta la pestaña "Solicitudes" con un badge del nº de solicitudes abiertas
+// (solicitada / contraoferta), como el resto de avisos del panel.
+function actualizarTabBadge(items) {
+  const abiertas = items.filter((s) => s.estado === "solicitada" || s.estado === "contraoferta").length;
+  const tab = document.querySelector('.tab[data-tab="solicitudes"]');
+  if (!tab) return;
+  let badge = tab.querySelector(".tab__badge");
+  if (abiertas > 0) {
+    if (!badge) { badge = document.createElement("span"); badge.className = "tab__badge"; tab.appendChild(badge); }
+    badge.textContent = abiertas > 9 ? "9+" : String(abiertas);
+    tab.classList.add("tab--alert");
+  } else {
+    if (badge) badge.remove();
+    tab.classList.remove("tab--alert");
+  }
 }
 
 function item(s) {

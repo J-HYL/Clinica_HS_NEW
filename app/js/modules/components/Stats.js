@@ -13,6 +13,8 @@ function getTodayString() {
 export async function loadStats() {
   // Saludo: se pinta de inmediato, no depende de la red.
   renderGreeting();
+  // Contador de solicitudes de portal (independiente del resto de stats).
+  cargarSolicitudesPortal();
 
   try {
     // 1) Traer todos los registros
@@ -50,4 +52,19 @@ export async function loadStats() {
   } catch (err) {
     Alert.showStatusAlert("error", "¡Error!", err.message, reloadPage);
   }
+}
+
+/** Solicitudes de portal pendientes = solicitudes de cita + de factura (mismas
+ *  fuentes que la campana). Best-effort: si falla, deja el contador en blanco. */
+async function cargarSolicitudesPortal() {
+  const el = document.getElementById("solicitudes-portal");
+  if (el) el.innerHTML = "<strong>0</strong>"; // por defecto: nunca en blanco
+  try {
+    const [citas, facturas] = await Promise.all([
+      fetch("/api/solicitudes.php?accion=count", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch("/api/facturas_solicitudes.php?accion=count", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]);
+    const total = (citas?.count || 0) + (facturas?.count || 0);
+    if (el) el.innerHTML = `<strong>${total}</strong>`;
+  } catch (e) { /* silencio: el contador no es crítico */ }
 }

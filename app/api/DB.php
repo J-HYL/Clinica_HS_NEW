@@ -661,6 +661,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $ruta_absoluta =  __DIR__ . "/../$ruta_relativa";
 
                 if (!is_dir(__DIR__ . "/../uploads/facturas")) mkdir(__DIR__ . "/../uploads/facturas", 0777, true);
+                // Blindaje: dompdf puede fallar por config del servidor (p.ej. la
+                // extension GD ausente en algun entorno local). Capturamos cualquier
+                // warning/fatal para devolver SIEMPRE JSON (si no, PHP escupe HTML y el
+                // cliente ve el cripico "Unexpected token '<'"). No cambia el PDF.
+                ob_start();
+                try {
                 $options = new Options();
 				$options->set('isRemoteEnabled', true);
             	$dompdf = new Dompdf($options);
@@ -679,6 +685,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
                 file_put_contents($ruta_absoluta, $dompdf->output());
+                } catch (\Throwable $e) {
+                    ob_end_clean();
+                    error_log('[facturas] dompdf: ' . $e->getMessage());
+                    http_response_code(500);
+                    echo json_encode(["success" => false, "error" => "No se pudo generar el PDF: " . $e->getMessage()]);
+                    exit;
+                }
+                ob_end_clean();
 
                 $stmt = $conn->prepare("INSERT INTO facturas (numero_factura, nombre_paciente, fecha, ruta) VALUES (?, ?, ?, ?)");
                 $stmt->bind_param("isss", $numero_factura, $nombre_paciente, $fecha, $ruta_relativa);
@@ -820,7 +834,27 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 if (isset($stmt)) $stmt->close();
                 break;
             case 'payments':
-                if ($id) {
+                if (isset($_GET['vista']) && $_GET['vista'] === 'general') {
+                    // Vista GENERAL de pagos (panel de Admin): todos los pagos con nombre de
+                    // cliente + tratamiento y estado/ruta de factura por pago. Guardado si
+                    // solicitudes_factura aun no existe.
+                    $tieneSolF = ($chk = $conn->query("SHOW TABLES LIKE 'solicitudes_factura'")) && $chk->num_rows > 0;
+                    $estadoExpr = $tieneSolF
+                        ? "(SELECT sf.estado FROM solicitudes_factura sf WHERE sf.payment_id = p.id ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    $rutaExpr = $tieneSolF
+                        ? "(SELECT f.ruta FROM solicitudes_factura sf JOIN facturas f ON sf.factura_id = f.id WHERE sf.payment_id = p.id AND sf.estado = 'generada' ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    $sql = "SELECT p.id, c.nombre AS cliente, t.diagnostico AS tratamiento,
+                                   p.monto, p.fecha_pago, p.metodo_pago,
+                                   $estadoExpr AS factura_estado, $rutaExpr AS factura_ruta
+                            FROM payments p
+                            JOIN clients c ON p.client_id = c.id
+                            JOIN treatments t ON p.treatment_id = t.id
+                            ORDER BY p.fecha_pago DESC";
+                    $result = $conn->query($sql);
+                    echo json_encode($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
+                } else if ($id) {
                     $stmt = $conn->prepare("SELECT * FROM payments WHERE id = ?");
                     $stmt->bind_param("i", $id);
                     $stmt->execute();
@@ -828,7 +862,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode($result->fetch_assoc() ?: (object)[]);
                 } else if (isset($_GET['treatment_id'])) {
                     $treatment_id = $_GET['treatment_id'];
-                    $stmt = $conn->prepare("SELECT * FROM payments WHERE treatment_id = ? ORDER BY fecha_pago DESC");
+                    // factura_estado (null|solicitada|generada) por pago, para la columna
+                    // "Factura" y el resaltado de filas. Guardado por si la migracion 008
+                    // aun no esta aplicada (la tabla puede no existir).
+                    $tieneSolF = ($chk = $conn->query("SHOW TABLES LIKE 'solicitudes_factura'")) && $chk->num_rows > 0;
+                    $estadoExpr = $tieneSolF
+                        ? "(SELECT sf.estado FROM solicitudes_factura sf WHERE sf.payment_id = p.id ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    // Ruta del PDF si la factura ya esta emitida (para el boton de descarga).
+                    $rutaExpr = $tieneSolF
+                        ? "(SELECT f.ruta FROM solicitudes_factura sf JOIN facturas f ON sf.factura_id = f.id WHERE sf.payment_id = p.id AND sf.estado = 'generada' ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    $stmt = $conn->prepare("SELECT p.*, $estadoExpr AS factura_estado, $rutaExpr AS factura_ruta FROM payments p WHERE p.treatment_id = ? ORDER BY p.fecha_pago DESC");
                     $stmt->bind_param("i", $treatment_id);
                     $stmt->execute();
                     $result = $stmt->get_result();

@@ -238,3 +238,23 @@ body:has(.preloader--hidden) .sidebar{
         width: 132px;
     }
 }
+
+/* Pulido del item activo: pastilla con un ligero resalte. */
+.sidebar__item{ transition: background-color .2s ease-in-out; }
+.sidebar__item--selected{ box-shadow: 0 4px 12px rgba(43, 128, 247, .28); }
+
+/* Pantalla de escritorio pero BAJA: los 8 iconos no caben -> la lista de secciones
+   tiene scroll propio, así se llega a Inventario/Admin sin cortar nada (sin botón). */
+@media screen and (min-width: 744px) and (max-height: 640px) {
+    .sidebar{
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+    .sidebar__content{ gap: 16px; }
+    .sidebar__links{
+        overflow-y: auto;
+        max-height: calc(100vh - 120px);
+        gap: 16px;
+        scrollbar-width: thin;
+    }
+}

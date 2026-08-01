@@ -419,15 +419,24 @@ table.addEventListener("click", e => {
 const tabButtons = document.querySelectorAll(".tab");
 const panelTratamientos = document.getElementById("panel-tratamientos");
 const panelVisitas = document.getElementById("panel-visitas");
+const panelSolicitudes = document.getElementById("panel-solicitudes");
 tabButtons.forEach(tab => {
   tab.addEventListener("click", () => {
     const target = tab.dataset.tab;
     tabButtons.forEach(t => t.classList.toggle("tab--active", t === tab));
     if (panelTratamientos) panelTratamientos.hidden = target !== "tratamientos";
     if (panelVisitas) panelVisitas.hidden = target !== "visitas";
+    if (panelSolicitudes) panelSolicitudes.hidden = target !== "solicitudes";
     // Al volver a Tratamientos, recalcular anchos de la DataTable (estuvo oculta).
     if (target === "tratamientos" && window.$ && $.fn.DataTable && $.fn.DataTable.isDataTable("#table")) {
       $("#table").DataTable().columns.adjust();
     }
   });
 });
+
+// La campana del panel puede pedir abrir una pestaña concreta (?tab=solicitudes).
+const tabPedida = new URLSearchParams(window.location.search).get("tab");
+if (tabPedida) {
+  const btnTab = document.querySelector(`.tab[data-tab="${tabPedida}"]`);
+  if (btnTab) btnTab.click();
+}

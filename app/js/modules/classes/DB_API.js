@@ -224,6 +224,14 @@ class DB {
     return this.getRecordsP('payments', treatmentId);
   }
 
+  // Vista general de pagos (panel de Admin): todos los pagos con nombre de
+  // cliente + tratamiento y estado de factura por pago.
+  async getPaymentsGeneral() {
+    const res = await fetch(`${this.baseUrl}?table=payments&vista=general`, { credentials: 'include' });
+    if (!res.ok) throw new Error('Error al obtener los pagos');
+    return res.json();
+  }
+
   _normalizeDatesArray(array) {
     return array.map(rec => this._normalizeDateRecord(rec));
   }

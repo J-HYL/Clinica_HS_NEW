@@ -18,11 +18,13 @@ function injectStyles() {
   const s = document.createElement("style");
   s.id = "selc-styles";
   s.textContent = `
-    dialog.selc{margin:auto;width:520px;max-width:calc(100vw - 24px);max-height:92vh;overflow:auto;border:none;border-radius:16px;padding:0;
+    dialog.selc{margin:auto;width:520px;max-width:calc(100vw - 24px);max-height:92vh;overflow:hidden;border:none;border-radius:16px;padding:0;
+      display:flex;flex-direction:column;
       box-shadow:0 24px 60px rgba(17,24,39,.28);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#111827;}
     dialog.selc::backdrop{background:rgba(17,24,39,.45);}
+    .selc__scroll{flex:1 1 auto;overflow:auto;min-height:0;}
     .selc__head{background:linear-gradient(135deg,#3a56d4,#1e2a5e);color:#fff;padding:16px 20px;font-size:16px;font-weight:700;
-      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;}
+      display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;}
     .selc__x{border:none;background:rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:50%;font-size:18px;cursor:pointer;}
     .selc__cal,.selc__day{padding:14px 18px;}
     .selc__calh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:15px;text-transform:capitalize;}
@@ -49,11 +51,16 @@ function injectStyles() {
     .selc__campos{padding:4px 18px 0;display:flex;flex-direction:column;gap:10px;}
     .selc__lbl{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:#374151;}
     .selc__inp{padding:10px 12px;border:1px solid #d1d5db;border-radius:9px;font-size:14px;font-family:inherit;}
-    .selc__foot{position:sticky;bottom:0;background:#fff;border-top:1px solid #f0f1f4;padding:14px 18px;display:flex;gap:8px;justify-content:flex-end;}
+    .selc__foot{flex:0 0 auto;background:#fff;border-top:1px solid #f0f1f4;padding:14px 18px;display:flex;gap:8px;justify-content:flex-end;}
     .selc__btn{border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;}
     .selc__btn--ghost{background:#f3f4f6;color:#374151;}
     .selc__btn--ok{background:#5671eb;color:#fff;}
-    .selc__btn--ok:disabled{opacity:.5;cursor:default;}`;
+    .selc__btn--ok:disabled{opacity:.5;cursor:default;}
+    .selc__vercitas{width:100%;text-align:left;border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;color:#3a56d4;cursor:pointer;margin-bottom:12px;}
+    .selc__vercitas:hover{background:#eef1fe;}
+    dialog.selc-citas{margin:auto;width:420px;max-width:calc(100vw - 32px);max-height:80vh;overflow:hidden;border:none;border-radius:16px;padding:0;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(17,24,39,.28);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#111827;}
+    dialog.selc-citas::backdrop{background:rgba(17,24,39,.35);}
+    .selc-citas__list{flex:1 1 auto;overflow:auto;min-height:0;padding:14px 18px;display:flex;flex-direction:column;gap:8px;}`;
   document.head.appendChild(s);
 }
 
@@ -91,6 +98,30 @@ function campoHtml(c) {
   return `<label class="selc__lbl">${esc(c.label)}<input id="selc-campo-${c.id}" class="selc__inp" type="${esc(c.type || "text")}" placeholder="${esc(c.placeholder || "")}"></label>`;
 }
 
+/** Fecha "YYYY-MM-DD" -> "13 de julio de 2025". */
+function fechaLegible(isoDate) {
+  const [y, m, d] = String(isoDate).split("-").map(Number);
+  return `${d} de ${MESES[m - 1]} de ${y}`;
+}
+
+/** Diálogo aparte con las citas de un día, para no estirar el modal principal. */
+function verCitasDialog(fecha, citas) {
+  const d = document.createElement("dialog");
+  d.className = "selc-citas";
+  d.innerHTML = `
+    <div class="selc__head">Citas del ${esc(fechaLegible(fecha))}<button class="selc__x" aria-label="Cerrar">&times;</button></div>
+    <div class="selc-citas__list">
+      ${citas.map((c) => `<div class="selc__cita"><b>${esc(c.t.slice(0, 5))}</b> ${esc(c.nombre)} <span>${c.medico === "med2" ? "Gab 2" : "Gab 1"}</span></div>`).join("")}
+    </div>
+    <div class="selc__foot"><button class="selc__btn selc__btn--ok" id="selc-citas-close">Cerrar</button></div>`;
+  document.body.appendChild(d);
+  d.showModal();
+  const cerrar = () => { d.close(); d.remove(); };
+  d.querySelector(".selc__x").onclick = cerrar;
+  d.querySelector("#selc-citas-close").onclick = cerrar;
+  d.addEventListener("cancel", (e) => { e.preventDefault(); cerrar(); });
+}
+
 export async function elegirFechaHora(opts = {}) {
   const campos = opts.campos || [];
   const titulo = opts.titulo || "Elegir fecha y hora";
@@ -101,9 +132,11 @@ export async function elegirFechaHora(opts = {}) {
     dlg.className = "selc";
     dlg.innerHTML = `
       <div class="selc__head">${esc(titulo)}<button class="selc__x" aria-label="Cerrar">&times;</button></div>
-      <div class="selc__cal" id="selc-cal"></div>
-      <div class="selc__day" id="selc-day"><p class="selc__hint">Elige un día en el calendario.</p></div>
-      ${campos.length ? `<div class="selc__campos">${campos.map(campoHtml).join("")}</div>` : ""}
+      <div class="selc__scroll">
+        <div class="selc__cal" id="selc-cal"></div>
+        <div class="selc__day" id="selc-day"><p class="selc__hint">Elige un día en el calendario.</p></div>
+        ${campos.length ? `<div class="selc__campos">${campos.map(campoHtml).join("")}</div>` : ""}
+      </div>
       <div class="selc__foot">
         <button class="selc__btn selc__btn--ghost" id="selc-cancel">Cancelar</button>
         <button class="selc__btn selc__btn--ok" id="selc-ok" disabled>Confirmar</button>
@@ -170,14 +203,17 @@ export async function elegirFechaHora(opts = {}) {
       if (!selDate) return;
       const citas = (mes[selDate] || []).slice().sort((a, b) => a.t.localeCompare(b.t));
       const cont = {}; citas.forEach((c) => { const hh = c.t.slice(0, 5); cont[hh] = (cont[hh] || 0) + 1; });
-      const lista = citas.length
-        ? `<div class="selc__cl">${citas.map((c) => `<div class="selc__cita"><b>${esc(c.t.slice(0, 5))}</b> ${esc(c.nombre)} <span>${c.medico === "med2" ? "Gab 2" : "Gab 1"}</span></div>`).join("")}</div>`
+      // Las citas del día se ven en OTRO diálogo (así este modal no crece con muchas citas).
+      const resumen = citas.length
+        ? `<button type="button" class="selc__vercitas" id="selc-vercitas">Ver ${citas.length} ${citas.length === 1 ? "cita" : "citas"} de ese día ›</button>`
         : `<p class="selc__hint">Sin citas ese día.</p>`;
       const grid = `<div class="selc__slots">${slots.map((h) => {
         const full = (cont[h] || 0) >= CAP; const sel = h === selHora;
         return `<button class="selc__slot ${sel ? "selc__slot--sel" : ""}" data-h="${h}" ${full ? "disabled" : ""}>${h}</button>`;
       }).join("")}</div>`;
-      dayEl.innerHTML = `<div class="selc__dtitle">Citas de ese día</div>${lista}<div class="selc__dtitle">Elige hora</div>${grid}`;
+      dayEl.innerHTML = `${resumen}<div class="selc__dtitle">Elige hora</div>${grid}`;
+      const ver = dayEl.querySelector("#selc-vercitas");
+      if (ver) ver.onclick = () => verCitasDialog(selDate, citas);
       dayEl.querySelectorAll(".selc__slot:not([disabled])").forEach((b) => (b.onclick = () => {
         dayEl.querySelectorAll(".selc__slot").forEach((x) => x.classList.remove("selc__slot--sel"));
         b.classList.add("selc__slot--sel"); selHora = b.dataset.h; okBtn.disabled = false;
