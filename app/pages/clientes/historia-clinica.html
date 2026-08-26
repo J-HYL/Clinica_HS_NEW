@@ -20,7 +20,7 @@
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
     <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Skedify" />
+    <meta name="apple-mobile-web-app-title" content="HS Dental" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
     <style>
     @media (max-width: 768px) {
@@ -129,88 +129,130 @@
         gap: 1rem;
         font-size: 1rem;
     }
+
+    /* ===== Modal Crear/Editar Tratamiento: encajar en pantalla + acabado profesional ===== */
+    /* Cabecera y pie fijos, cuerpo (formulario) con scroll: los botones nunca se cortan. */
+    #edit-modal .modal__card{
+        padding: 0;
+        max-height: 92vh;
+        overflow: hidden;
+    }
+    #edit-modal .modal__header{
+        flex-shrink: 0;
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(34, 34, 38, 0.08);
+    }
+    #edit-modal .modal__footer{
+        flex-shrink: 0;
+        padding: 16px 24px;
+        background-color: #fafbfc;
+    }
+    #edit-modal .form{
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 22px 24px;
+    }
+    #edit-modal .form__group{
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin: 0;
+        width: 100%;
+    }
+    #edit-modal .form__label{
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #344054;
+    }
+    #edit-modal .form__input{
+        width: 100%;
+    }
+    /* El "Abonado" es solo lectura en edición: se ve claramente no editable. */
+    #edit-modal .form__input[readonly]{
+        background-color: #f1f2f6;
+        color: #667085;
+        cursor: not-allowed;
+    }
+    /* Campo de tratamiento personalizado ("Otro...") */
+    #edit-modal #customTreatmentWrapper{
+        margin: 0;
+    }
+    #edit-modal #customTreatmentWrapper label{
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #344054;
+    }
+    /* Selector "General" como pastilla, alineado a la izquierda */
+    #edit-modal .tooth--general{
+        width: auto;
+        height: 36px;
+    }
+    #edit-modal .tooth--general input[type="checkbox"]{
+        width: auto;
+        min-width: 100px;
+        height: 36px;
+        padding: 0 18px;
+        border-radius: 999px;
+    }
+    #edit-modal .tooth--general input[type="checkbox"]::before{
+        line-height: 32px;
+    }
+    /* Bloque del odontograma con marco suave */
+    #edit-modal .odontograma{
+        margin: 2px 0 0;
+        padding: 16px;
+        gap: 10px;
+        background: #f8f9fb;
+        border: 1px solid #e6e8ef;
+        border-radius: 12px;
+        align-items: stretch;
+    }
+    #edit-modal .odontograma-label{
+        font-weight: 600;
+        font-size: 0.78rem;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #667085;
+    }
+
+    /* ===== Pestañas Tratamientos / Visitas ===== */
+    .tabs{
+        display: flex;
+        gap: 4px;
+        border-bottom: 2px solid #e6e8ef;
+        margin-bottom: 1.5rem;
+    }
+    .tab{
+        appearance: none;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        padding: 12px 22px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #667085;
+        cursor: pointer;
+        transition: color .2s, border-color .2s;
+    }
+    .tab:hover{ color: #3b82f6; }
+    .tab--active{ color: #3b82f6; border-bottom-color: #3b82f6; }
+    .tab-panel[hidden]{ display: none; }
+    /* El botón "Programar cita" del feed no está en el contenedor .main, así que el
+       container-query no lo expande: forzamos que muestre el texto siempre. */
+    #dar-cita{ width: auto; padding: 0 14px; gap: 8px; }
+    #dar-cita span{ width: auto; overflow: visible; }
     </style>
 </head>
 <body>
-    <nav class="sidebar" id="sidebar">
-        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
-            <i class="ri-close-large-fill"></i>
-        </button>
-        <div class="sidebar__content">
-            <div class="sidebar__logo">
-                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
-                <div class="item__hide item__hide--logo">
-                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
-
-                </div>
-            </div>
-            <ul class="sidebar__links">
-                <li class="sidebar__item">
-                    <a href="/index.html" aria-label="Ir al Principal">
-                        <i class="ri-dashboard-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Principal</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
-                        <i class="ri-calendar-schedule-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Citas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item sidebar__item--selected">
-                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
-                        <i class="ri-group-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Pacientes</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
-                        <i class="ri-briefcase-4-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Servicios</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
-                        <i class="ri-file-text-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Presupuestos</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
-                        <i class="ri-receipt-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Facturas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
-                        <i class="ri-admin-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Admin</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
         <header class="header">
@@ -233,11 +275,23 @@
                         <div><strong>Alergias:</strong><span id="alergias"></span></div>
                         <div><strong>Edad:</strong><span id="edad"></span></div>
                     </div>
+                    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+                        <button type="button" id="dar-cita" class="main__action" style="border:none;cursor:pointer">
+                            <span>Programar cita</span> <i class="ri-calendar-todo-line"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
             
         <main class="container">
+            <div class="tabs" role="tablist">
+                <button type="button" class="tab tab--active" data-tab="tratamientos">Tratamientos</button>
+                <button type="button" class="tab" data-tab="visitas">Visitas</button>
+                <button type="button" class="tab" data-tab="solicitudes">Solicitudes</button>
+            </div>
+
+            <div class="tab-panel" id="panel-tratamientos">
             <div class="main__group">
                 <h3 class="container__heading">Tratamientos del paciente</h3>
                 <div class="main__actions">
@@ -260,6 +314,8 @@
                 <p class="empty__message">No se encontraron registros para esta sección...</p>
             </div>
             <table class="main__table" id="table"></table>
+            </div><!-- /panel-tratamientos -->
+
             <!--MODAL PARA ANADIR UN TRATAMIENTO-->
             <dialog class="modal" id="edit-modal" role="dialog"
             aria-labelledby="Crear Tratamiento"
@@ -291,8 +347,8 @@
                             <option value="otro">Otro...</option>
                         </select>
                     </div>
-                    <div id="customTreatmentWrapper" class="form__label" style="display: none; margin-top: 10px;">
-                        <label for="customTreatmentInput">tratamiento</label>
+                    <div id="customTreatmentWrapper" class="form__group" style="display: none;">
+                        <label for="customTreatmentInput" class="form__label">Nombre del tratamiento</label>
                         <input type="text" id="customTreatmentInput" class="form__input" placeholder="Especifica el tratamiento" />
                     </div>
 
@@ -313,7 +369,7 @@
 
                     <div class="form__group">
                     <label class="form__label">Piezas afectadas</label>
-                    <div class="tooth"><input type="checkbox" name="piezas[]" value="general" data-num="  General  " style="width: fit-content;"></div>
+                    <div class="tooth tooth--general"><input type="checkbox" name="piezas[]" value="general" data-num="General"></div>
                     <div class="odontograma">
                         <div class="odontograma-label">Piezas superiores</div>
                             <div class="odontograma-scroll">
@@ -369,7 +425,15 @@
             </div>
             </dialog>
 
-        </main> 
+            <div class="tab-panel" id="panel-visitas" hidden>
+                <section id="visitas-section"></section>
+            </div>
+
+            <div class="tab-panel" id="panel-solicitudes" hidden>
+                <section id="solicitudes-ficha-wrap"></section>
+            </div>
+
+        </main>
 
        
     </div>
@@ -379,6 +443,8 @@
     <script src="/js/lib/datatables.min.js"></script>
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/clientes/historia-clinica.js" type="module"></script>
+    <script src="/js/pages/clientes/dar-cita.js" type="module"></script>
+    <script src="/js/pages/clientes/solicitudes-ficha.js" type="module"></script>
 
 </body>
 </html>

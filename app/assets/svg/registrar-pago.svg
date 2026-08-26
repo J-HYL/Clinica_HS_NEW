@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <defs>
+    <linearGradient id="rp-card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4d7bff"/>
+      <stop offset="1" stop-color="#1e3fae"/>
+    </linearGradient>
+  </defs>
+  <!-- fondo suave -->
+  <circle cx="250" cy="250" r="188" fill="#ffffff" opacity="0.14"/>
+  <!-- monedas -->
+  <g>
+    <ellipse cx="340" cy="378" rx="62" ry="21" fill="#d9880f"/>
+    <rect x="278" y="336" width="124" height="42" fill="#d9880f"/>
+    <ellipse cx="340" cy="336" rx="62" ry="21" fill="#f7b93e"/>
+    <ellipse cx="340" cy="336" rx="41" ry="13" fill="#ffdb86"/>
+    <text x="340" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="26" fill="#b9791a">&#8364;</text>
+    <ellipse cx="340" cy="314" rx="62" ry="21" fill="#f7b93e"/>
+    <ellipse cx="340" cy="314" rx="41" ry="13" fill="#ffdb86"/>
+    <text x="340" y="323" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="26" fill="#b9791a">&#8364;</text>
+  </g>
+  <!-- tarjeta -->
+  <g transform="rotate(-10 235 225)">
+    <rect x="108" y="140" width="258" height="168" rx="22" fill="url(#rp-card)"/>
+    <rect x="108" y="176" width="258" height="28" fill="rgba(0,0,0,0.22)"/>
+    <rect x="138" y="232" width="50" height="36" rx="7" fill="#ffd066"/>
+    <rect x="138" y="243" width="50" height="4" fill="rgba(0,0,0,0.12)"/>
+    <rect x="138" y="255" width="50" height="4" fill="rgba(0,0,0,0.12)"/>
+    <circle cx="316" cy="255" r="17" fill="#ffffff" opacity="0.9"/>
+    <circle cx="336" cy="255" r="17" fill="#ffffff" opacity="0.55"/>
+    <rect x="138" y="286" width="150" height="10" rx="5" fill="rgba(255,255,255,0.75)"/>
+  </g>
+</svg>

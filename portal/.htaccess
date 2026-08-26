@@ -1,0 +1,21 @@
+# portal/.htaccess — Portal de Pacientes (pacientes.hsdental.es)
+# El docroot del subdominio apunta a esta carpeta; index.html es la app shell.
+
+DirectoryIndex index.html
+Options -Indexes
+
+# Cabeceras de seguridad para el contenido estatico (las respuestas de /api/*
+# ademas fijan las suyas: no-store, nosniff, etc.).
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "same-origin"
+</IfModule>
+
+# El service worker debe poder controlar toda la raiz y no cachearse "pegado".
+<Files "sw.js">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache"
+    Header set Service-Worker-Allowed "/"
+  </IfModule>
+</Files>

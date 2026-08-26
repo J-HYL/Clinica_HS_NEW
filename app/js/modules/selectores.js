@@ -1,9 +1,3 @@
-//* Sidebar
-export const sidebar = document.querySelector("#sidebar");
-export const sidebarLinks = document.querySelectorAll("#sidebar a")
-export const openSidebarBtn = document.querySelector(".header__menu");
-export const closeSidebarBtn = document.querySelector(".sidebar__close");
-
 //* Header
 export const headerProfileAvatar = document.querySelector(".header__avatar")
 export const headerProfileUser = document.querySelector(".profile__user");

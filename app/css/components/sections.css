@@ -65,6 +65,27 @@
     color: var(--dark-orange);
 }
 
+/* Tarjeta "Registrar pago": misma línea que las otras (ilustración en caja de
+   color), pero resalta un poco más con una sombra de color y el título en verde.
+   Se usa .sections__card.sections__card--pay para ganar a las reglas :nth-child(3). */
+.sections__card.sections__card--pay .sections__picture--pay{
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 10px 22px rgba(16, 185, 129, .38);
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+}
+.sections__card.sections__card--pay:hover .sections__picture--pay{
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(16, 185, 129, .48);
+}
+.sections__card--pay .sections__heading{
+    font-weight: 600;
+    color: #059669;
+}
+.sections__card.sections__card--pay:hover .sections__heading,
+.sections__card.sections__card--pay a:focus .sections__heading{
+    color: #047857;
+}
+
 .sections__wallet{
     margin-top: 24px;
 }

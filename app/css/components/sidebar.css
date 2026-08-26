@@ -37,6 +37,22 @@ body:has(.preloader--hidden) .sidebar{
     background: none;
 }
 
+/* Logo del sidebar: UNA sola imagen (logoCompleto) pintada como background del
+   contenedor. Se usa background-image (no <img>) a proposito, porque el reset de
+   Tailwind cargado en index.html (img{max-width:100%;height:auto}) aplastaba la
+   etiqueta <img>; los fondos CSS no se ven afectados. La URL es relativa a este
+   .css, asi que vale igual para todas las paginas sin importar su profundidad.
+   background-size: auto 50px -> imagen a 50px de alto (ancho natural ~104px).
+   Cerrado el contenedor mide 50px y recorta a la izquierda (solo "HS"); al abrir
+   crece hasta 104px y revela el logo completo de forma continua. */
+.sidebar__logo-clip{
+    height: 50px;
+    width: 104px;
+    background: url("../../assets/images/logoCompleto.svg") left center / auto 50px no-repeat;
+}
+
+.sidebar__logo-img{ display: none; }
+
 .logo__name{
     color: var(--dark-gray);
     font-size: 1.5em;
@@ -171,31 +187,29 @@ body:has(.preloader--hidden) .sidebar{
         width: 235px;
     }
 
-    .sidebar__item a, .sidebar__logo{
+    .sidebar__item a{
         width: 100%;
         display: grid;
         gap: 0px;
-        transition: .3s ease-in-out grid-template-columns, .3s ease-in-out gap;
-    }
-
-    .sidebar__item a{
         grid-template-columns: 24px 0fr;
+        transition: .3s ease-in-out grid-template-columns, .3s ease-in-out gap;
     }
 
     .sidebar:hover .sidebar__item a{
         grid-template-columns: 24px 1fr;
-    }
-
-    .sidebar__logo{
-        grid-template-columns: 38px 0fr;
-    }
-
-    .sidebar:hover .sidebar__logo{
-        grid-template-columns: 38px 1fr;
-    }
-
-    .sidebar:hover .sidebar__item a, .sidebar:hover .sidebar__logo{
         gap: 8px;
+    }
+
+    /* Cerrado: el contenedor mide 50px y recorta el fondo a la "HS".
+       Al abrir (hover): crece a 104px y revela el logo completo. */
+    .sidebar__logo-clip{
+        width: 50px;
+        flex-shrink: 0;
+        transition: width .3s ease-in-out;
+    }
+
+    .sidebar:hover .sidebar__logo-clip{
+        width: 104px;
     }
 
     .sidebar__content{
@@ -222,5 +236,25 @@ body:has(.preloader--hidden) .sidebar{
 
     .sidebar:hover .sidebar__socials{
         width: 132px;
+    }
+}
+
+/* Pulido del item activo: pastilla con un ligero resalte. */
+.sidebar__item{ transition: background-color .2s ease-in-out; }
+.sidebar__item--selected{ box-shadow: 0 4px 12px rgba(43, 128, 247, .28); }
+
+/* Pantalla de escritorio pero BAJA: los 8 iconos no caben -> la lista de secciones
+   tiene scroll propio, así se llega a Inventario/Admin sin cortar nada (sin botón). */
+@media screen and (min-width: 744px) and (max-height: 640px) {
+    .sidebar{
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+    .sidebar__content{ gap: 16px; }
+    .sidebar__links{
+        overflow-y: auto;
+        max-height: calc(100vh - 120px);
+        gap: 16px;
+        scrollbar-width: thin;
     }
 }

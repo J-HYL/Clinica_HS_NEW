@@ -22,84 +22,7 @@
 
 </head>
 <body>
-    <nav class="sidebar" id="sidebar">
-        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
-            <i class="ri-close-large-fill"></i>
-        </button>
-        <div class="sidebar__content">
-            <div class="sidebar__logo">
-                <img src="../../assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
-                <div class="item__hide item__hide--logo">
-                    <h2 class="logo__name"><img src="../../assets/images/parteB.jpg" alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 1px;"></h2>
-                </div>
-            </div>
-            <ul class="sidebar__links">
-                <li class="sidebar__item">
-                    <a href="/index.html" aria-label="Ir al Principal">
-                        <i class="ri-dashboard-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Principal</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
-                        <i class="ri-calendar-schedule-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Citas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item sidebar__item">
-                    <a href="/pages/clientes/control.html" aria-label="Ir a Pacientes">
-                        <i class="ri-group-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Pacientes</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
-                        <i class="ri-briefcase-4-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Servicios</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item sidebar__item--selected">
-                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
-                        <i class="ri-file-text-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Presupuestos</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
-                        <i class="ri-receipt-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Facturas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
-                        <i class="ri-admin-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Admin</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
         <header class="header">
@@ -194,7 +117,8 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/main.js" type="module"></script>
-    <script src="/js/pages/Pacientes/agregar.js" type="module"></script>
+    <script src="/js/modules/components/clinica.js"></script>
+    <script src="/js/modules/components/odontograma.js"></script>
     <script src="../../js/modules/components/presupuestos.js"></script>
 </body>
 </html>

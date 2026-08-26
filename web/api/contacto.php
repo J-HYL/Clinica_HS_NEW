@@ -36,17 +36,20 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 function sendEmail($to, $subject, $body) {
+    $secrets = require __DIR__ . '/../../config.secret.php';
+    $smtp    = $secrets['smtp'];
+
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.ionos.es';
+        $mail->Host       = $smtp['host'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'avisos@hsdental.es';
-        $mail->Password   = 'Jjbinks1999$';
+        $mail->Username   = $smtp['user'];
+        $mail->Password   = $smtp['pass'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Port       = $smtp['port'];
         $mail->CharSet    = 'UTF-8';
-        $mail->setFrom('avisos@hsdental.es', 'HSDental');
+        $mail->setFrom($smtp['user'], 'HSDental');
         $mail->addAddress($to);
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -84,6 +87,16 @@ if (!$name || !$email || !$clinic) {
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     ob_end_clean();
     echo json_encode(['error' => 'Email invalido: ' . $email]);
+    exit;
+}
+
+// Bloqueo anti-spam: remitentes vetados. Se descarta en SILENCIO (respuesta OK
+// falsa) para no dar pistas al bot y que no reintente ni ajuste el payload.
+// No guarda en BD ni envia emails. Añade aqui mas direcciones si hace falta.
+$remitentesVetados = ['soporte@esdisystems.es'];
+if (in_array(strtolower($email), $remitentesVetados, true)) {
+    ob_end_clean();
+    echo json_encode(['success' => true]);
     exit;
 }
 

@@ -7,7 +7,7 @@ import { reloadPage, goToControlPage } from "../funciones.js";
 import Alert from "../components/Alert.js";
 
 class DB {
-  baseUrl = 'https://app.hsdental.es/api/DB.php';
+  baseUrl = '/api/DB.php';
 
   /**
    * Obtiene todas las visitas de un cliente específico
@@ -26,6 +26,27 @@ class DB {
       return data.data || [];
     } catch (error) {
       console.error('Error fetching visits by client ID:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtiene TODAS las visitas (todas las clínicas de la sesión), con nombre de
+   * paciente y de tratamiento incluidos. Para la vista global de visitas.
+   * @returns {Promise<Array>} Array de visitas
+   */
+  async getAllVisits() {
+    try {
+      const response = await fetch(`${this.baseUrl}?table=visits`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching all visits:', error);
       return [];
     }
   }
@@ -91,6 +112,19 @@ class DB {
     if (!record || Object.keys(record).length === 0) throw new Error(`No se encontró ${table} con id=${id}`);
     if (record.fecha) record.fecha = record.fecha.replace(' ', 'T').slice(0, 16);
     return record;
+  }
+
+  /**
+   * Busca un elemento de inventario por su código escaneado (barras o QR).
+   * @param {string} codigo
+   * @returns {Promise<Object|null>} null si no hay ninguno con ese código
+   */
+  async getInventarioByCodigo(codigo) {
+    const params = new URLSearchParams({ table: 'inventario', codigo });
+    const res = await fetch(`${this.baseUrl}?${params}`, { credentials: 'include' });
+    if (res.status === 404) return null;   // código sin asignar: no es un error
+    if (!res.ok) throw new Error('Error al buscar el código en el inventario');
+    return res.json();
   }
 
   async addRegister(table, payload) {
@@ -188,6 +222,14 @@ class DB {
 
   async getPaymentsByTreatmentId(treatmentId) {
     return this.getRecordsP('payments', treatmentId);
+  }
+
+  // Vista general de pagos (panel de Admin): todos los pagos con nombre de
+  // cliente + tratamiento y estado de factura por pago.
+  async getPaymentsGeneral() {
+    const res = await fetch(`${this.baseUrl}?table=payments&vista=general`, { credentials: 'include' });
+    if (!res.ok) throw new Error('Error al obtener los pagos');
+    return res.json();
   }
 
   _normalizeDatesArray(array) {

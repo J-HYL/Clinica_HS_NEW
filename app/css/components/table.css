@@ -67,8 +67,9 @@
     gap: 8px;
 }
 .table__medico {
-  width: min-content;
-  padding: 4px 2vw;
+  width: max-content;
+  white-space: nowrap;
+  padding: 4px 12px;
   border: 1px solid var(--medico-border-color);
   border-radius: 4px;
   font-weight: 500;
@@ -139,6 +140,10 @@
     background-color: var(--blue);
 }
 
+.table__btn--edit-treatment{
+    background-color: var(--blue);
+}
+
 .table__btn--delete{    
     background-color: var(--red);
 }
@@ -150,6 +155,42 @@
 }
 .table__btn--print{
     background-color: var(--light-primary);
+}
+.table__btn--invite{
+    background-color: #5671eb; /* índigo de marca del portal (invitar AL portal) */
+}
+.table__btn--factura{
+    background-color: var(--green-status);
+}
+.table__btn--descargar{
+    background-color: var(--blue);
+}
+
+/* Columna "Factura" (estado de facturacion del pago) */
+.fact-badge{
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78em;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.fact-badge--done{
+    background-color: var(--light-green-status);
+    color: var(--green-status);
+}
+.fact-badge--wait{
+    background-color: var(--light-orange-status);
+    color: var(--orange-status-text-color);
+}
+.fact-badge--none{
+    color: var(--dark-gray);
+    opacity: .5;
+}
+
+/* Fila de un pago con solicitud de factura pendiente (resaltado al abrir) */
+#table tbody tr.row--factura > td{
+    background-color: var(--light-orange-status);
 }
 
 /* Spinner */

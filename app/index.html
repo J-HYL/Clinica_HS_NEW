@@ -9,13 +9,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Styles -->
+    <!-- Tailwind CSS CDN (required for Flowbite) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Flowbite CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="css/pages/dashboard.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/favicon/favico" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="assets/favion" />
-    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
-    <link rel="manifest" href="assets/favicon/site.webmanifest"/>
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon-96x96.png" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+    <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="HS Dental">
+    <script src="/js/pwa.js" defer></script>
 
 </head>
 <body>
@@ -28,84 +41,7 @@
         </div>
     </div>
 
-    <nav class="sidebar" id="sidebar">
-        <button type="button" class="sidebar__close" aria-label="Cerrar el Sidebar">
-            <i class="ri-close-large-fill"></i>
-        </button>
-        <div class="sidebar__content">
-            <div class="sidebar__logo">
-                <img src="assets/images/parteA.jpg" alt="Logo parte A" style="height: 50px;" class="logo__img">
-                <div class="item__hide item__hide--logo">
-                    <h2 class="logo__name"><img src="assets/images/parteB.jpg"  alt="logoCompleto" style="height: 50px; margin-left: 9px; margin-top: 6px;"></h2>
-                </div>
-            </div>
-            <ul class="sidebar__links">
-                <li class="sidebar__item sidebar__item--selected">
-                    <a href="/index.html" aria-label="Ir al Principal">
-                        <i class="ri-dashboard-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Principal</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/citas/control.html" aria-label="Ir a Citas">
-                        <i class="ri-calendar-schedule-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Citas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/clientes/control.html" aria-label="Ir a Clientes">
-                        <i class="ri-group-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Pacientes</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/servicios/control.html" aria-label="Ir a Servicios">
-                        <i class="ri-briefcase-4-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Servicios</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/Presupuestos/presupuesto.html" aria-label="Ir a Presupuestos">
-                        <i class="ri-file-text-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Presupuestos</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/facturas/facturas.html" aria-label="Ir a facturas">
-                        <i class="ri-receipt-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Facturas</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-                <li class="sidebar__item">
-                    <a href="/pages/admin/login_facturas.php" aria-label="Ir a admin">
-                        <i class="ri-admin-fill"></i>
-                        <div class="item__hide">
-                            <p class="item__name">Admin</p>
-                            <i class="ri-arrow-right-s-line item__chevron"></i>                       
-                        </div>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
         <header class="header">
@@ -113,7 +49,10 @@
                 <button class="header__menu" aria-label="Abrir Sidebar">
                     <i class="ri-menu-line"></i>
                 </button>
-                <h1 class="header__heading">HS Dental - <span>Principal</span></h1>
+                <div class="header__titles">
+                    <h1 class="header__heading">HS Dental - <span>Principal</span></h1>
+                    <p class="header__greeting" id="header-greeting"></p>
+                </div>
             </div>
         </header>
     
@@ -141,10 +80,10 @@
                     </div>
                 </div>
                 <div class="stats__item">
-                    <div class="stat__icon"><i class="ri-briefcase-4-line"></i> </div>
+                    <div class="stat__icon"><i class="ri-inbox-2-line"></i></div>
                     <div class="stat__content">
-                        <h4 class="stat__title">Servicios Reg.</h4>
-                        <p class="stat__number" id="servicios-registrados"><strong></strong></p>
+                        <h4 class="stat__title">Solicitudes portal</h4>
+                        <p class="stat__number" id="solicitudes-portal"><strong>0</strong></p>
                     </div>
                 </div>
             </div>
@@ -171,22 +110,53 @@
                                 <h4 class="sections__heading">Ir a Clientes</h4>
                             </a>
                         </div>
-                        <div class="sections__card">
-                            <a href="pages/client/vista-consultorio.html" aria-label="Panel consultorio">
-                                <div class="sections__picture">
-                                    <img src="assets/svg/servicios-registrados.svg" alt="Servicios Registrados">
+                        <div class="sections__card sections__card--pay">
+                            <a href="pages/admin/login_facturas.php" aria-label="Registrar pago">
+                                <div class="sections__picture sections__picture--pay">
+                                    <img src="assets/svg/registrar-pago.svg" alt="Registrar pago">
                                 </div>
-                                <h4 class="sections__heading">Panel consultorio</h4>
+                                <h4 class="sections__heading">Registrar pago</h4>
                             </a>
                         </div>
                     </div>
                 </div>
-                <strong class="wallet__amount"><span id="incomes"></span></strong>
+                <div class="panel panel--agenda sections__agenda">
+                    <div class="panel__head">
+                        <h3 class="container__heading"><i class="ri-calendar-check-line"></i> Citas de hoy</h3>
+                        <div class="panel__head-right">
+                            <span class="panel__count" id="agenda-count"></span>
+                            <div class="agenda__nav" id="agenda-nav" hidden>
+                                <button type="button" class="agenda__nav-btn" id="agenda-prev" aria-label="Citas anteriores"><i class="ri-arrow-left-s-line"></i></button>
+                                <button type="button" class="agenda__nav-btn" id="agenda-next" aria-label="Citas siguientes"><i class="ri-arrow-right-s-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="agenda__viewport">
+                        <div class="agenda__track" id="agenda-track"></div>
+                    </div>
+                    <div class="agenda__dots" id="agenda-dots"></div>
+                    <a class="agenda__cta" href="/pages/citas/calendario.html" aria-label="Ir al calendario">
+                        <i class="ri-calendar-2-line"></i> Ver calendario
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="container panels">
+            <div class="panels__grid">
+                <div class="panel panel--donut">
+                    <h3 class="container__heading"><i class="ri-pie-chart-2-line"></i> Estado de tratamientos</h3>
+                    <div class="donut" id="donut"></div>
+                </div>
             </div>
         </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Flowbite JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
     <script src="js/main.js" type="module"></script>
     <script src="js/pages/dashboard.js" type="module"></script>
 </body>

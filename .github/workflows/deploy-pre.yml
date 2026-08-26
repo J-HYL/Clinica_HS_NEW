@@ -1,0 +1,26 @@
+name: Deploy a PRE
+
+on:
+  push:
+    branches:
+      - preproduccion
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Subir por SFTP a /pre
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          server: ${{ secrets.SFTP_HOST }}
+          port: 22
+          sftp_only: true
+          local_path: "./*"
+          remote_path: "/pre"
+          delete_remote_files: false
+          rsyncArgs: "--exclude=.git --exclude=.github --exclude=.vscode --exclude=db --exclude=*.md --exclude=config.secret.example.php --exclude=setup-local.ps1"

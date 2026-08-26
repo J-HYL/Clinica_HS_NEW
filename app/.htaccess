@@ -1,2 +1,17 @@
 DirectoryIndex api/index.php
 #Redirect 301 /index.html /api/index.php
+
+# --- PWA -------------------------------------------------------------------
+# Apache no conoce .webmanifest de serie: sin esto se sirve como
+# application/octet-stream y el navegador no ofrece instalar la app.
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
+# sw.js no debe quedar cacheado: el navegador tiene que ver la version nueva
+# tras cada despliegue, si no se queda con un service worker viejo.
+<IfModule mod_headers.c>
+    <Files "sw.js">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </Files>
+</IfModule>

@@ -1,0 +1,1217 @@
+/* Estilos propios del inventario. Se carga JUNTO a control.css o agregar.css,
+   que son los que traen base.css (paleta y tipografía) y el resto de componentes:
+   aquí solo va lo que no existe ya, reutilizando las variables de base.css. */
+
+/* El navegador centra los <dialog> abiertos con showModal() dándoles margin:auto,
+   pero el reset de base.css (* { margin: 0 }) se lo quita y se quedan pegados
+   arriba a la izquierda. Hay que devolvérselo a mano. */
+.guia, .escaner, .stock, .camara{
+    margin: auto;
+}
+
+/* El formulario de inventario tiene bastantes más campos que los del resto de
+   secciones, así que necesita más ancho que los 550px que fija form.css. */
+.main--ancho{
+    max-width: 760px;
+}
+
+.form__row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.form__row .form__group{
+    flex: 1 1 160px;
+}
+
+/* El botón de escanear convive en .main__actions con el enlace de crear, que es
+   un <a>: hay que quitarle lo que el navegador le pone por ser <button>. */
+button.main__action{
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* --- Botón de ayuda --- */
+
+.main__titulo{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* En la ficha el título va suelto (no dentro de .main__group), así que necesita
+   el mismo margen inferior que tenía el h3 por su cuenta. */
+.main--ancho .main__titulo{
+    margin-bottom: 4px;
+}
+
+.ayuda{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #DCE0EA;
+    border-radius: 999px;
+    background-color: #fff;
+    color: var(--light-gray);
+    font-family: inherit;
+    font-size: 0.8125em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.ayuda:hover, .ayuda:focus-visible{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.ayuda i{
+    font-size: 16px;
+}
+
+/* En móvil el título ya ocupa lo suyo: la ayuda se queda en el icono. */
+@media (max-width: 600px){
+    .ayuda__texto{
+        display: none;
+    }
+
+    .ayuda{
+        padding: 6px;
+    }
+}
+
+/* --- Guía "¿Cómo funciona?" (ComoFunciona.js) --- */
+
+.guia{
+    width: min(780px, 94vw);
+    max-height: 92vh;
+    padding: 20px;
+    border: none;
+    border-radius: 16px;
+    background-color: #fff;
+    overflow-y: auto;
+}
+
+.guia::backdrop{
+    background-color: rgba(29, 36, 46, .6);
+}
+
+.guia__cabecera{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.guia__titulo{
+    font-size: 1.125em;
+    color: var(--dark-gray);
+}
+
+.guia__cerrar{
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--light-gray);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.guia__cerrar:hover, .guia__cerrar:focus-visible{
+    background-color: var(--pale-primary);
+    color: var(--primary);
+}
+
+.guia__contenido{
+    margin-top: 16px;
+    display: grid;
+    gap: 18px;
+}
+
+/* A partir de tablet caben el esquema y el texto en paralelo; por debajo se
+   apilan, que es como se lee bien en el móvil. */
+@media (min-width: 720px){
+    .guia__contenido{
+        grid-template-columns: 1.2fr 1fr;
+        align-items: center;
+    }
+}
+
+.guia__lienzo{
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.guia__svg{
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.guia__contador{
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background-color: var(--pale-primary);
+    font-size: 0.75em;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.guia__paso-titulo{
+    margin-top: 10px;
+    font-size: 1.0625em;
+    color: var(--dark-gray);
+}
+
+.guia__paso-texto{
+    margin-top: 8px;
+    font-size: 0.9375em;
+    line-height: 1.5;
+    color: var(--light-gray);
+}
+
+.guia__pie{
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.guia__puntos{
+    display: flex;
+    gap: 6px;
+}
+
+.guia__punto{
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #DCE0EA;
+    cursor: pointer;
+    transition: background-color .2s ease, width .2s ease;
+}
+
+.guia__punto--activo{
+    width: 22px;
+    border-radius: 999px;
+    background-color: var(--primary);
+}
+
+.guia__nav{
+    display: flex;
+    gap: 8px;
+}
+
+.guia__btn{
+    min-width: 104px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    color: var(--light-gray);
+    font-family: inherit;
+    font-size: 0.9375em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.guia__btn--siguiente{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.guia__btn:disabled{
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px){
+    .guia__pie{
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .guia__nav{
+        width: 100%;
+    }
+
+    .guia__btn{
+        flex: 1;
+    }
+
+    .guia__puntos{
+        justify-content: center;
+    }
+}
+
+/* Esquemas de la guía: los colores viven aquí, no en el SVG (guiaInventario.js) */
+
+.guia__svg .lienzo{
+    fill: var(--background);
+    stroke: #DCE0EA;
+}
+
+.guia__svg .velo{
+    fill: var(--dark-gray);
+    opacity: .35;
+}
+
+.guia__svg .tarjeta{
+    fill: #fff;
+    stroke: #DCE0EA;
+}
+
+.guia__svg .bloque{
+    fill: #E2E7F0;
+}
+
+.guia__svg .bloque--fila{
+    fill: #fff;
+    stroke: #E2E7F0;
+}
+
+.guia__svg .bloque--texto{
+    fill: #CFD6E4;
+}
+
+/* Zona = parte resaltable. Sin resaltar se queda apagada; la del paso actual
+   se pinta en color y con un halo, para que el ojo vaya directo. */
+.guia__svg .zona rect, .guia__svg .zona circle{
+    fill: #B9C3D6;
+    transition: fill .25s ease;
+}
+
+.guia__svg .zona{
+    opacity: .5;
+    transition: opacity .25s ease;
+}
+
+.guia__svg .zona .alerta{
+    fill: #E2A9A7;
+}
+
+.guia__svg .zona--activa{
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(43, 128, 247, .55));
+}
+
+.guia__svg .zona--activa rect, .guia__svg .zona--activa circle{
+    fill: var(--primary);
+}
+
+/* El stock bajo mínimo va en rojo también cuando su paso está activo: es
+   justo lo que el paso explica. */
+.guia__svg .zona--activa .alerta{
+    fill: var(--red);
+}
+
+/* --- Código escaneable (formulario) --- */
+
+.codigo{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.codigo__actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.codigo__btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    background-color: #fff;
+    color: var(--dark-gray);
+    font-family: inherit;
+    font-size: 0.875em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.codigo__btn:hover, .codigo__btn:focus-visible{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.codigo__qr{
+    width: 150px;
+    height: 150px;
+    padding: 8px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    /* El QR es un bitmap: sin suavizado los cuadros salen nítidos al escalar. */
+    image-rendering: pixelated;
+}
+
+/* --- Flotante de escanear (solo móvil) ---
+   En el almacén se va con el móvil en una mano: el escaneo, que es lo que más
+   se usa, tiene que estar donde llega el pulgar, no en la cabecera. */
+
+.fab-escaner{
+    display: none;   /* en escritorio manda el botón de la cabecera */
+}
+
+@media (max-width: 600px){
+    .fab-escaner{
+        position: fixed;
+        right: 20px;
+        bottom: 24px;
+        z-index: 99998;
+        width: 60px;
+        height: 60px;
+        display: grid;
+        place-items: center;
+        border: none;
+        border-radius: 50%;
+        background-color: var(--primary);
+        color: #fff;
+        font-size: 27px;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(43, 128, 247, .45);
+        transition: transform .2s ease;
+    }
+
+    .fab-escaner:active{
+        transform: scale(.95);
+    }
+
+    /* El de escanear ocupa ahora la esquina del pulgar, así que el de soporte
+       (.hs-support-fab, global de Soporte.js) se pasa a la otra. Solo en esta
+       pantalla y solo en móvil: por eso cuelga de la clase del <body>. */
+    .inventario-control .hs-support-fab{
+        right: auto;
+        left: 20px;
+    }
+
+    .inventario-control .hs-support-panel{
+        right: auto;
+        left: 20px;
+        transform-origin: bottom left;
+    }
+
+    /* Con el flotante delante, repetir el botón en la cabecera sobra. */
+    .inventario-control #escanear{
+        display: none;
+    }
+}
+
+/* --- Filtros del control ---
+   Escrito de móvil hacia arriba a propósito: el ancho base es el del móvil y
+   solo se ensancha en el @media de escritorio. Al revés (base ancha + @media
+   que la encoge) basta con que una regla caiga más abajo en el archivo para
+   volver a ganar y reventar el móvil sin que se note en el escritorio. */
+
+.filtros{
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    gap: 10px 8px;
+}
+
+.filtros__group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;   /* sin esto un grid item no baja de su contenido y desborda */
+}
+
+/* El buscador es el filtro que más se usa: línea entera para él. */
+.filtros__group--buscar, .filtros__check{
+    grid-column: 1 / -1;
+}
+
+.filtros__label{
+    font-weight: 500;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+}
+
+/* El placeholder del buscador ya dice lo que hace: en el móvil la etiqueta
+   sobra y son 26px menos por delante de la lista (sigue ahí para lectores de
+   pantalla). */
+.filtros__group--buscar .filtros__label{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.filtros__input{
+    width: 100%;
+    min-width: 0;
+    padding: 10px 14px;
+    background-color: #fff;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+}
+
+.filtros__check{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+    cursor: pointer;
+}
+
+@media (min-width: 601px){
+    .filtros{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 16px;
+    }
+
+    .filtros__group--buscar{
+        flex: 1 1 240px;
+    }
+
+    .filtros__group--buscar .filtros__label{
+        position: static;
+        width: auto;
+        height: auto;
+        clip-path: none;
+    }
+
+    .filtros__input{
+        min-width: 220px;
+    }
+
+    .filtros__check{
+        padding-bottom: 10px;
+    }
+}
+
+.filtros__check input{
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* --- Listado de inventario (TablaInventario.js) ---
+   Una sola estructura para las dos vistas: en el móvil cada elemento es una
+   tarjeta (foto + nombre + stock, y debajo el pie con las acciones), y a partir
+   de tablet las mismas piezas se colocan en columnas de tabla. El cambio es
+   solo de CSS (grid-template-areas), no se vuelve a pintar nada. */
+
+.inv-contador{
+    margin: 20px 0 10px;
+    font-size: 0.8125em;
+    color: var(--pale-gray);
+}
+
+.inv-lista__cabecera{
+    display: none;   /* en el móvil no hay cabecera de tabla: sobra */
+}
+
+.inv-lista__items{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+}
+
+.inv-fila{
+    padding: 12px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    grid-template-areas:
+        "foto principal stock"
+        "pie  pie       pie"
+        "caducidad caducidad caducidad";
+    align-items: center;
+    gap: 10px 12px;
+}
+
+.inv-fila__foto{
+    grid-area: foto;
+    width: 52px;
+    height: 52px;
+    border: 1px solid #DCE0EA;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.inv-fila__foto img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.inv-fila__sinfoto{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--pale-gray);
+}
+
+.inv-fila__principal{
+    grid-area: principal;
+    min-width: 0;   /* deja que el texto largo se recorte en vez de ensanchar la fila */
+}
+
+.inv-fila__nombre{
+    font-weight: 600;
+    font-size: 0.9375em;
+    color: var(--dark-gray);
+}
+
+.inv-fila__meta{
+    margin-top: 2px;
+    font-size: 0.8125em;
+    color: var(--light-gray);
+}
+
+.inv-fila__stock{
+    grid-area: stock;
+    text-align: right;
+}
+
+.inv-stock{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--dark-gray);
+}
+
+.inv-stock--bajo{
+    color: var(--red);
+}
+
+/* Pie de la tarjeta: en el móvil pone situación y acciones en una línea; en
+   escritorio se deshace (display: contents) y sus hijos pasan a ser columnas de
+   la rejilla de la fila.
+   El contenedor hace falta: sin él ambos caían en la MISMA celda de la rejilla
+   y se pintaban uno encima de otro. */
+.inv-fila__pie{
+    grid-area: pie;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;   /* si no caben seguidos, los botones bajan a su línea */
+    gap: 8px 10px;
+}
+
+/* La caducidad cierra la tarjeta, separada del resto: es un dato de consulta,
+   no una acción, y ahí no compite con los botones. */
+.inv-fila__caducidad{
+    grid-area: caducidad;
+    padding-top: 9px;
+    border-top: 1px solid #EEF1F6;
+    font-size: 0.8125em;
+    color: var(--light-gray);
+    white-space: nowrap;
+}
+
+.inv-fila__etiqueta{
+    color: var(--pale-gray);
+}
+
+.inv-fila__acciones{
+    display: flex;
+    gap: 8px;
+    margin-left: auto;   /* a la derecha, comparta línea o baje a la suya */
+    flex-shrink: 0;      /* los botones nunca se encogen: hay que poder tocarlos */
+}
+
+/* Los .table__btn del resto de la app miden 30px, que con el ratón sobra pero
+   con el dedo se falla. Aquí se agrandan solo en móvil, sin tocar los demás. */
+@media (max-width: 600px){
+    .inv-fila__acciones .table__btn{
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (min-width: 860px){
+    .inv-lista__cabecera, .inv-fila{
+        grid-template-columns: 52px minmax(180px, 1fr) 120px 120px 120px 116px;
+        grid-template-areas: "foto principal stock caducidad estado acciones";
+    }
+
+    /* El pie se deshace: sus hijos entran directos en la rejilla de la fila. */
+    .inv-fila__pie{
+        display: contents;
+    }
+
+    /* Aquí la caducidad es una columna más, no la línea de cierre de la tarjeta. */
+    .inv-fila__caducidad{
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .inv-lista__cabecera{
+        display: grid;
+        gap: 12px;
+        padding: 0 12px 8px;
+        font-size: 0.8125em;
+        font-weight: 600;
+        color: var(--pale-gray);
+    }
+
+    .inv-fila__caducidad{ grid-area: caducidad; justify-self: start; }
+    .inv-fila__estado{ grid-area: estado; justify-self: start; }
+    .inv-fila__acciones{ grid-area: acciones; justify-self: end; }
+
+    /* En columna propia la palabra "Caducidad" ya está en la cabecera. */
+    .inv-fila__etiqueta{ display: none; }
+}
+
+/* Etiqueta de situación: mismos colores que .table__status (citas), pero sin
+   ser un botón, porque aquí el estado no abre ningún modal. */
+.table__tag{
+    display: inline-block;
+    width: min-content;
+    padding: 4px 12px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.table__tag--operativo{
+    border-color: var(--green-status);
+    color: var(--green-status);
+    background-color: var(--light-green-status);
+}
+
+.table__tag--revision{
+    border-color: var(--orange-status);
+    color: var(--orange-status-text-color);
+    background-color: var(--light-orange-status);
+}
+
+.table__tag--baja{
+    border-color: var(--red);
+    color: var(--red);
+    background-color: var(--light-red-status);
+}
+
+/* --- Capturador de foto (FotoCaptura.js) --- */
+
+.foto{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+.foto__preview{
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    border: 1px dashed #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.foto__img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.foto__placeholder{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    color: var(--pale-gray);
+    font-size: 0.75em;
+}
+
+.foto__placeholder i{
+    font-size: 24px;
+}
+
+.foto__actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.foto__btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    background-color: #fff;
+    color: var(--dark-gray);
+    font-size: 0.875em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.foto__btn:hover, .foto__btn:focus-visible{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.foto__btn--camara{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.foto__btn--camara:hover, .foto__btn--camara:focus-visible{
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+    color: #fff;
+}
+
+.foto__btn--quitar:hover, .foto__btn--quitar:focus-visible{
+    border-color: var(--red);
+    color: var(--red);
+}
+
+/* --- Modal del lector de códigos (Escaner.js) --- */
+
+.escaner{
+    width: min(460px, 92vw);
+    padding: 20px;
+    border: none;
+    border-radius: 16px;
+    background-color: #fff;
+}
+
+.escaner::backdrop, .stock::backdrop{
+    background-color: rgba(29, 36, 46, .6);
+}
+
+.escaner__titulo{
+    font-size: 1.125em;
+    color: var(--dark-gray);
+}
+
+.escaner__ayuda{
+    margin-top: 4px;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+.escaner__camara{
+    margin-top: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--dark-gray);
+    /* Reserva sitio desde el principio: sin esto el modal pega un salto cuando
+       el vídeo empieza a dar imagen. */
+    min-height: 200px;
+}
+
+/* El atributo hidden lo pone el JS cuando no hay cámara, pero su display:none
+   pierde contra cualquier display de más abajo (el flex del móvil). Hay que
+   decirlo aquí o el visor sigue ocupando media pantalla estando "oculto". */
+.escaner__camara[hidden]{
+    display: none;
+}
+
+/* El <video> lo crea Escaner.js. Aquí solo se le da tamaño de presentación: se
+   decodifica del fotograma a resolución nativa (video.videoWidth), no de lo que
+   se ve, así que estos píxeles NO afectan a la lectura. Se puede cambiar el
+   tamaño del visor sin miedo a romper el escaneo. */
+.escaner__camara video{
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Móvil: el escáner va a pantalla completa. Se usa apuntando a una caja en el
+   almacén, así que el visor tiene que ser lo más grande posible y lo demás
+   (escribir a mano, cancelar) queda debajo, compacto. */
+@media (max-width: 600px){
+    .escaner{
+        width: 100vw;
+        max-width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        margin: 0;
+        padding: 16px;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .escaner__camara{
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .escaner__manual{
+        flex-shrink: 0;
+    }
+}
+
+.escaner__aviso{
+    margin-top: 16px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: var(--pale-orange);
+    font-size: 0.875em;
+    color: var(--orange-status-text-color);
+}
+
+.escaner__manual{
+    margin-top: 16px;
+}
+
+.escaner__label{
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875em;
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+.escaner__fila{
+    display: flex;
+    gap: 8px;
+}
+
+.escaner__input{
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+}
+
+.escaner__btn{
+    padding: 12px 16px;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    background-color: #fff;
+    color: var(--light-gray);
+    font-family: inherit;
+    font-size: 0.875em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.escaner__btn--buscar{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.escaner__btn--cerrar{
+    width: 100%;
+    margin-top: 12px;
+}
+
+/* --- Modal de stock (ModalStock.js) --- */
+
+.stock{
+    width: min(420px, 92vw);
+    padding: 20px;
+    border: none;
+    border-radius: 16px;
+    background-color: #fff;
+}
+
+.stock__cabecera{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.stock__marco{
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stock__foto{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.stock__sinfoto{
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--pale-gray);
+}
+
+.stock__datos{
+    min-width: 0;
+}
+
+.stock__nombre{
+    font-size: 1.0625em;
+    color: var(--dark-gray);
+}
+
+.stock__meta{
+    margin-top: 2px;
+    font-size: 0.8125em;
+    color: var(--light-gray);
+}
+
+.stock__codigo{
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background-color: var(--pale-primary);
+    font-family: "Courier New", monospace;
+    font-size: 0.75em;
+    color: var(--primary);
+}
+
+.stock__actual{
+    margin-top: 16px;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+.stock__stepper{
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stock__paso{
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    color: var(--dark-gray);
+    font-size: 22px;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.stock__paso:hover:not(:disabled), .stock__paso:focus-visible:not(:disabled){
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.stock__paso:disabled{
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.stock__campo{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+.stock__input{
+    width: 100%;
+    height: 50px;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 1.5em;
+    font-weight: 600;
+    text-align: center;
+    color: var(--dark-gray);
+    background: transparent;
+}
+
+.stock__unidad{
+    font-size: 0.875em;
+    color: var(--pale-gray);
+}
+
+.stock__rapidos{
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.stock__rapido{
+    flex: 1;
+    height: 38px;
+    border: 1px solid #DCE0EA;
+    border-radius: 10px;
+    background-color: #fff;
+    font-family: inherit;
+    font-size: 0.875em;
+    font-weight: 600;
+    color: var(--light-gray);
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.stock__rapido:hover, .stock__rapido:focus-visible{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.stock__resumen{
+    margin-top: 14px;
+    text-align: center;
+    font-size: 0.9375em;
+    font-weight: 600;
+    color: var(--pale-gray);
+}
+
+.stock__resumen--cambio{
+    color: var(--primary);
+}
+
+.stock__aviso{
+    margin-top: 8px;
+    text-align: center;
+    font-size: 0.8125em;
+    color: var(--red);
+}
+
+.stock__acciones{
+    margin-top: 18px;
+    display: flex;
+    gap: 8px;
+}
+
+.stock__btn{
+    flex: 1;
+    height: 46px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    color: var(--light-gray);
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.stock__btn--guardar{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.stock__btn--guardar:disabled{
+    border-color: #DCE0EA;
+    background-color: #DCE0EA;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+/* --- Modal de cámara --- */
+
+.camara{
+    width: min(560px, 92vw);
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background-color: #fff;
+}
+
+.camara::backdrop{
+    background-color: rgba(29, 36, 46, .6);
+}
+
+.camara__video{
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    background-color: var(--dark-gray);
+    object-fit: cover;
+}
+
+.camara__aviso{
+    margin-top: 8px;
+    font-size: 0.875em;
+    color: var(--orange-status-text-color);
+}
+
+.camara__actions{
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.camara__btn{
+    flex-grow: 1;
+    height: 44px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #DCE0EA;
+    border-radius: 12px;
+    background-color: #fff;
+    color: var(--light-gray);
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.camara__btn--disparar{
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.camara__btn--disparar:hover, .camara__btn--disparar:focus-visible{
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+}

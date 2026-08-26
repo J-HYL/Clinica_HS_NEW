@@ -1,7 +1,12 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://app.hsdental.es'); 
+// Nunca cachear: toda respuesta de este endpoint puede llevar datos de pacientes.
+header('Cache-Control: no-store, private');
+$allowedOrigins = ['https://app.hsdental.es', 'https://pre.hsdental.es'];
+$reqOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+header('Access-Control-Allow-Origin: ' . (in_array($reqOrigin, $allowedOrigins, true) ? $reqOrigin : 'https://app.hsdental.es'));
+header('Vary: Origin'); 
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -19,6 +24,108 @@ use Dompdf\Options;
 require_once "db_connect.php";
 $conn = getConnection();
 
+// Segmento de clínica: aísla los archivos de pacientes por sede, para que los IDs
+// coincidentes entre clínicas (cada una con su propia BD) no compartan carpeta.
+$clinicSeg = 'clinica' . (int)($_SESSION['clinic_id'] ?? 0);
+
+/**
+ * Borra recursivamente un directorio, validando que quede DENTRO de uploads/pacientes.
+ * Devuelve false si no existe (nada que borrar); lanza excepción si la ruta se sale del árbol.
+ */
+function deleteDir($dir) {
+    $base = realpath(__DIR__ . '/../uploads/pacientes');
+    $real = realpath($dir);
+    if ($real === false) return false;
+    if ($base === false || strpos($real, $base) !== 0) {
+        throw new Exception('Ruta fuera de uploads/pacientes: ' . $dir);
+    }
+    $items = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($real, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($items as $it) {
+        $it->isDir() ? rmdir($it->getPathname()) : unlink($it->getPathname());
+    }
+    return rmdir($real);
+}
+
+/** Devuelve el valor recortado, o NULL si viene vacio (el formulario manda ""). */
+function valorOrNull($valor) {
+    if (!isset($valor)) return null;
+    $valor = trim((string)$valor);
+    return $valor === '' ? null : $valor;
+}
+
+/**
+ * Valida y guarda la foto de un elemento de inventario en uploads/inventario/<clinica>/.
+ * Devuelve la ruta relativa guardada; lanza excepcion con el motivo si no es valida.
+ */
+function guardarFotoInventario(array $file, $clinicSeg) {
+    if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('No se recibio la foto correctamente (codigo ' . ($file['error'] ?? '?') . ').');
+    }
+    if ($file['size'] > 8 * 1024 * 1024) {
+        throw new Exception('La foto supera el tamano maximo de 8 MB.');
+    }
+
+    // El tipo REAL del contenido manda: la extension del nombre original no es de fiar.
+    $info = @getimagesize($file['tmp_name']);
+    $permitidos = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp'];
+    if ($info === false || !isset($permitidos[$info[2]])) {
+        throw new Exception('El archivo no es una imagen valida (JPG, PNG o WEBP).');
+    }
+
+    $dirRelativo = "uploads/inventario/{$clinicSeg}/";
+    $dirAbsoluto = __DIR__ . '/../' . $dirRelativo;
+    if (!is_dir($dirAbsoluto) && !mkdir($dirAbsoluto, 0775, true)) {
+        throw new Exception('No se pudo crear el directorio de subida.');
+    }
+
+    // uploads/ no esta en git: el .htaccess que impide ejecutar codigo en la
+    // carpeta se escribe aqui, para que exista igual en local, pre y produccion.
+    $htaccess = $dirAbsoluto . '.htaccess';
+    if (!file_exists($htaccess)) {
+        file_put_contents($htaccess, "php_flag engine off\nRemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8\nRemoveType .php .phtml .php3 .php4 .php5 .php7 .php8\n");
+    }
+
+    $rutaRelativa = $dirRelativo . uniqid('inv_', true) . '.' . $permitidos[$info[2]];
+    if (!move_uploaded_file($file['tmp_name'], __DIR__ . '/../' . $rutaRelativa)) {
+        throw new Exception('No se pudo guardar la foto en el servidor.');
+    }
+    return $rutaRelativa;
+}
+
+/**
+ * Devuelve true si el codigo ya lo tiene OTRO elemento del inventario.
+ * $idActual excluye el propio elemento (al editarlo conserva su codigo).
+ * La columna es UNIQUE: esto es solo para poder responder un error claro.
+ */
+function codigoInventarioEnUso(mysqli $conn, $codigo, $idActual = null) {
+    $sql = "SELECT id FROM inventario WHERE codigo = ?" . ($idActual ? " AND id <> ?" : "") . " LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    if ($idActual) {
+        $stmt->bind_param("si", $codigo, $idActual);
+    } else {
+        $stmt->bind_param("s", $codigo);
+    }
+    $stmt->execute();
+    $enUso = (bool)$stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $enUso;
+}
+
+/**
+ * Borra del disco una foto de inventario, validando que la ruta quede DENTRO
+ * de uploads/inventario (misma proteccion que deleteDir()).
+ */
+function borrarFotoInventario($rutaRelativa) {
+    if (empty($rutaRelativa)) return;
+    $base = realpath(__DIR__ . '/../uploads/inventario');
+    $real = realpath(__DIR__ . '/../' . $rutaRelativa);
+    if ($base === false || $real === false || strpos($real, $base) !== 0) return;
+    if (is_file($real)) unlink($real);
+}
+
 // Resto de tu lógica: switch(GET/POST/PUT/DELETE) ...
 $table = $_GET['table'] ?? null;
 $id    = $_GET['id'] ?? null;
@@ -27,13 +134,11 @@ $end   = $_GET['end'] ?? null;
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST':
-        if ($table !== 'images') {
+        // Tablas que suben ficheros: el body llega como multipart, no como JSON.
+        if (!in_array($table, ['images', 'inventario_foto'], true)) {
             $data = json_decode(file_get_contents("php://input"), true);
-            error_log("DEBUG - POST Request - Data received: " . print_r($data, true));
         } else {
-            $data = $_POST; 
-            error_log("DEBUG - POST Request (Images) - POST data: " . print_r($data, true));
-            error_log("DEBUG - POST Request (Images) - FILES data: " . print_r($_FILES, true));
+            $data = $_POST;
         }
         
 
@@ -65,7 +170,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                       $sanitized_patient_id = uniqid('patient_');
                   }
 
-                  $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_patient_id;
+                  $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_patient_id;
 
                   if (!file_exists($folder_path)) {
                       if (mkdir($folder_path, 0777, true)) {
@@ -147,6 +252,111 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $stmt->close();
                 break 2;
 
+            case 'inventario':
+                $nombre = valorOrNull($data["nombre"] ?? null);
+                if ($nombre === null) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "El nombre del elemento es obligatorio."]);
+                    break 2;
+                }
+
+                $codigo = valorOrNull($data["codigo"] ?? null);
+                if ($codigo !== null && codigoInventarioEnUso($conn, $codigo)) {
+                    http_response_code(409);
+                    echo json_encode(["error" => "Ese codigo ya esta asignado a otro elemento."]);
+                    break 2;
+                }
+
+                $categoria    = valorOrNull($data["categoria"] ?? null) ?: 'otros';
+                $descripcion  = valorOrNull($data["descripcion"] ?? null);
+                $marca        = valorOrNull($data["marca"] ?? null);
+                $modelo       = valorOrNull($data["modelo"] ?? null);
+                $numero_serie = valorOrNull($data["numero_serie"] ?? null);
+                $ubicacion    = valorOrNull($data["ubicacion"] ?? null);
+                $proveedor    = valorOrNull($data["proveedor"] ?? null);
+                $stock        = (int)($data["stock"] ?? 0);
+                $stock_minimo = (int)($data["stock_minimo"] ?? 0);
+                $unidad       = valorOrNull($data["unidad"] ?? null) ?: 'ud';
+                $precio       = valorOrNull($data["precio"] ?? null);
+                $precio       = $precio === null ? null : (float)$precio;
+                $caducidad    = valorOrNull($data["caducidad"] ?? null);
+                $notas        = valorOrNull($data["notas"] ?? null);
+                $estado       = in_array($data["estado"] ?? '', ['operativo', 'revision', 'baja'], true)
+                    ? $data["estado"]
+                    : 'operativo';
+
+                $stmt = $conn->prepare("
+                    INSERT INTO inventario
+                        (nombre, codigo, categoria, descripcion, marca, modelo, numero_serie, ubicacion,
+                         proveedor, stock, stock_minimo, unidad, precio, caducidad, estado, notas)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->bind_param(
+                    "sssssssssiisdsss",
+                    $nombre, $codigo, $categoria, $descripcion, $marca, $modelo, $numero_serie, $ubicacion,
+                    $proveedor, $stock, $stock_minimo, $unidad, $precio, $caducidad, $estado, $notas
+                );
+
+                if ($stmt->execute()) {
+                    echo json_encode(["success" => true, "id" => $conn->insert_id]);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(["error" => "Error al insertar el elemento: " . $stmt->error]);
+                }
+
+                $stmt->close();
+                break 2;
+
+            case 'inventario_foto':
+                // Sube (o reemplaza) la foto de un elemento ya creado: multipart con
+                // 'inventario_id' + 'file'. La foto anterior solo se borra si la nueva cuaja.
+                $inventario_id = (int)($data['inventario_id'] ?? 0);
+                if ($inventario_id <= 0) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Falta el id del elemento de inventario."]);
+                    break 2;
+                }
+                if (!isset($_FILES['file'])) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "No se recibio ninguna foto."]);
+                    break 2;
+                }
+
+                $stmt = $conn->prepare("SELECT foto FROM inventario WHERE id = ?");
+                $stmt->bind_param("i", $inventario_id);
+                $stmt->execute();
+                $elemento = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+
+                if (!$elemento) {
+                    http_response_code(404);
+                    echo json_encode(["error" => "El elemento de inventario no existe."]);
+                    break 2;
+                }
+
+                try {
+                    $rutaFoto = guardarFotoInventario($_FILES['file'], $clinicSeg);
+                } catch (Exception $e) {
+                    http_response_code(400);
+                    echo json_encode(["error" => $e->getMessage()]);
+                    break 2;
+                }
+
+                $stmt = $conn->prepare("UPDATE inventario SET foto = ? WHERE id = ?");
+                $stmt->bind_param("si", $rutaFoto, $inventario_id);
+
+                if ($stmt->execute()) {
+                    borrarFotoInventario($elemento['foto']);
+                    echo json_encode(["success" => true, "id" => $inventario_id, "foto" => $rutaFoto]);
+                } else {
+                    borrarFotoInventario($rutaFoto); // no dejar el fichero huerfano
+                    http_response_code(500);
+                    echo json_encode(["error" => "Error al registrar la foto: " . $stmt->error]);
+                }
+
+                $stmt->close();
+                break 2;
+
                 case 'treatments':
                 error_log("DEBUG - POST Request - Handling table: treatments");
 
@@ -177,7 +387,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         $sanitized_treatment_id = uniqid('treatment_');
                     }
 
-                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
+                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
                     error_log("DEBUG - Ruta completa de la carpeta de tratamiento a crear: " . $folder_path);
 
                     if (!file_exists($folder_path)) {
@@ -334,7 +544,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $file_extension = pathinfo($original_file_name, PATHINFO_EXTENSION);
                 $unique_file_name = uniqid() . '_' . md5(microtime()) . '.' . $file_extension;
 
-                $upload_dir_relative = "uploads/pacientes/{$sanitized_client_id}/{$sanitized_treatment_id}/";
+                $upload_dir_relative = "uploads/pacientes/{$clinicSeg}/{$sanitized_client_id}/{$sanitized_treatment_id}/";
                 $target_dir = __DIR__ . "/../" . $upload_dir_relative;
                 $target_file_path_full = $target_dir . $unique_file_name;
                 $target_file_path_db = $upload_dir_relative . $unique_file_name;
@@ -382,19 +592,23 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 error_log("DEBUG - POST Request - Handling table: visits");
 
                 try {
-                    // Insertar la visita
+                    // Insertar la visita. Si viene 'fecha' se usa (permite registrar visitas
+                    // pasadas); si no, se usa la fecha/hora actual.
+                    $fechaVisita = !empty($data["fecha"]) ? str_replace('T', ' ', $data["fecha"]) : date('Y-m-d H:i:s');
+
                     $stmt = $conn->prepare("
-                        INSERT INTO visits (client_id, treatment_id, observaciones, doctor, pago_de_visita)
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO visits (client_id, treatment_id, observaciones, doctor, pago_de_visita, fecha)
+                        VALUES (?, ?, ?, ?, ?, ?)
                     ");
 
                     $stmt->bind_param(
-                        "iisds",
+                        "iissds",
                         $data["client_id"],
                         $data["treatment_id"],
                         $data["observaciones"],
                         $data["doctor"],
-                        $data["pago_de_visita"]
+                        $data["pago_de_visita"],
+                        $fechaVisita
                     );
 
                     if (!$stmt->execute()) {
@@ -447,13 +661,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $ruta_absoluta =  __DIR__ . "/../$ruta_relativa";
 
                 if (!is_dir(__DIR__ . "/../uploads/facturas")) mkdir(__DIR__ . "/../uploads/facturas", 0777, true);
+                // Blindaje: dompdf puede fallar por config del servidor (p.ej. la
+                // extension GD ausente en algun entorno local). Capturamos cualquier
+                // warning/fatal para devolver SIEMPRE JSON (si no, PHP escupe HTML y el
+                // cliente ve el cripico "Unexpected token '<'"). No cambia el PDF.
+                ob_start();
+                try {
                 $options = new Options();
 				$options->set('isRemoteEnabled', true);
             	$dompdf = new Dompdf($options);
-                $dompdf->loadHtml($html);
+                // Logo embebido como data URI: el PDF se genera en el servidor sin acceso de red,
+                // así el logo sale igual en producción y en pre (no depende del host).
+                $logoPath = __DIR__ . '/../assets/images/logoCompleto.jpg';
+                if (is_file($logoPath)) {
+                    $logoData = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
+                    $html = preg_replace_callback(
+                        '#src\s*=\s*([\'"])[^\'"]*logoCompleto\.jpg\1#i',
+                        function ($m) use ($logoData) { return 'src=' . $m[1] . $logoData . $m[1]; },
+                        $html
+                    );
+                }
+                $dompdf->loadHtml($html, 'UTF-8');
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
                 file_put_contents($ruta_absoluta, $dompdf->output());
+                } catch (\Throwable $e) {
+                    ob_end_clean();
+                    error_log('[facturas] dompdf: ' . $e->getMessage());
+                    http_response_code(500);
+                    echo json_encode(["success" => false, "error" => "No se pudo generar el PDF: " . $e->getMessage()]);
+                    exit;
+                }
+                ob_end_clean();
 
                 $stmt = $conn->prepare("INSERT INTO facturas (numero_factura, nombre_paciente, fecha, ruta) VALUES (?, ?, ?, ?)");
                 $stmt->bind_param("isss", $numero_factura, $nombre_paciente, $fecha, $ruta_relativa);
@@ -462,12 +701,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode([
                         "success" => true,
                         "numero" => $numero_factura,
-                        "ruta" => "http://localhost/$ruta_relativa"
+                        "ruta" => $ruta_relativa
                     ]);
                 } else {
                     echo json_encode(["success" => false, "error" => $conn->error]);
                 }
-                break;
+                exit; // cerrar aqui: sin esto el flujo caia al GET y devolvia un 2o JSON
             default:
                 http_response_code(400);
                 echo json_encode(["error" => "Tabla no especificada o no manejada para POST"]);
@@ -483,7 +722,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                           c.*,
                           COALESCE(NULLIF(c.email, ''), 'No proporcionado') AS email,
                           COALESCE(NULLIF(c.alergias, ''), 'No consta') AS alergias,
-                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad
+                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad,
+                          COALESCE((SELECT SUM(t.deuda) FROM treatments t WHERE t.client_id = c.id), 0) AS Deuda
                       FROM clients c
                       WHERE id = ?
                   ");
@@ -497,12 +737,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
                           c.*,
                           COALESCE(NULLIF(c.email, ''), 'No proporcionado') AS email,
                           COALESCE(NULLIF(c.alergias, ''), 'No consta') AS alergias,
-                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad
+                          COALESCE(NULLIF(NULLIF(c.edad, 0), ''), 'No proporcionado') AS edad,
+                          COALESCE((SELECT SUM(t.deuda) FROM treatments t WHERE t.client_id = c.id), 0) AS Deuda
                       FROM clients c
                   ");
                   echo json_encode($result->fetch_all(MYSQLI_ASSOC));
               }
-              $stmt->close();
+              if (isset($stmt)) $stmt->close();
               break;
             case 'services':
                 if ($id) {
@@ -515,7 +756,39 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM services");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
+                break;
+            case 'inventario':
+                // Busqueda por codigo escaneado (barras o QR). 404 explicito para
+                // que el cliente pueda ofrecer asignarlo a un elemento.
+                $codigoBuscado = valorOrNull($_GET['codigo'] ?? null);
+                if ($codigoBuscado !== null) {
+                    $stmt = $conn->prepare("SELECT * FROM inventario WHERE codigo = ? LIMIT 1");
+                    $stmt->bind_param("s", $codigoBuscado);
+                    $stmt->execute();
+                    $elemento = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    if ($elemento) {
+                        echo json_encode($elemento);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(["error" => "No hay ningun elemento con ese codigo."]);
+                    }
+                    break;
+                }
+
+                if ($id) {
+                    $stmt = $conn->prepare("SELECT * FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    echo json_encode($result->fetch_assoc() ?: (object)[]);
+                } else {
+                    $result = $conn->query("SELECT * FROM inventario ORDER BY nombre ASC");
+                    echo json_encode($result->fetch_all(MYSQLI_ASSOC));
+                }
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'treatments':
                 if ($id) {
@@ -535,7 +808,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM treatments");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'appointments':
                 if ($id) {
@@ -558,10 +831,30 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM appointments ORDER BY fecha");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'payments':
-                if ($id) {
+                if (isset($_GET['vista']) && $_GET['vista'] === 'general') {
+                    // Vista GENERAL de pagos (panel de Admin): todos los pagos con nombre de
+                    // cliente + tratamiento y estado/ruta de factura por pago. Guardado si
+                    // solicitudes_factura aun no existe.
+                    $tieneSolF = ($chk = $conn->query("SHOW TABLES LIKE 'solicitudes_factura'")) && $chk->num_rows > 0;
+                    $estadoExpr = $tieneSolF
+                        ? "(SELECT sf.estado FROM solicitudes_factura sf WHERE sf.payment_id = p.id ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    $rutaExpr = $tieneSolF
+                        ? "(SELECT f.ruta FROM solicitudes_factura sf JOIN facturas f ON sf.factura_id = f.id WHERE sf.payment_id = p.id AND sf.estado = 'generada' ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    $sql = "SELECT p.id, c.nombre AS cliente, t.diagnostico AS tratamiento,
+                                   p.monto, p.fecha_pago, p.metodo_pago,
+                                   $estadoExpr AS factura_estado, $rutaExpr AS factura_ruta
+                            FROM payments p
+                            JOIN clients c ON p.client_id = c.id
+                            JOIN treatments t ON p.treatment_id = t.id
+                            ORDER BY p.fecha_pago DESC";
+                    $result = $conn->query($sql);
+                    echo json_encode($result ? $result->fetch_all(MYSQLI_ASSOC) : []);
+                } else if ($id) {
                     $stmt = $conn->prepare("SELECT * FROM payments WHERE id = ?");
                     $stmt->bind_param("i", $id);
                     $stmt->execute();
@@ -569,7 +862,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode($result->fetch_assoc() ?: (object)[]);
                 } else if (isset($_GET['treatment_id'])) {
                     $treatment_id = $_GET['treatment_id'];
-                    $stmt = $conn->prepare("SELECT * FROM payments WHERE treatment_id = ? ORDER BY fecha_pago DESC");
+                    // factura_estado (null|solicitada|generada) por pago, para la columna
+                    // "Factura" y el resaltado de filas. Guardado por si la migracion 008
+                    // aun no esta aplicada (la tabla puede no existir).
+                    $tieneSolF = ($chk = $conn->query("SHOW TABLES LIKE 'solicitudes_factura'")) && $chk->num_rows > 0;
+                    $estadoExpr = $tieneSolF
+                        ? "(SELECT sf.estado FROM solicitudes_factura sf WHERE sf.payment_id = p.id ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    // Ruta del PDF si la factura ya esta emitida (para el boton de descarga).
+                    $rutaExpr = $tieneSolF
+                        ? "(SELECT f.ruta FROM solicitudes_factura sf JOIN facturas f ON sf.factura_id = f.id WHERE sf.payment_id = p.id AND sf.estado = 'generada' ORDER BY sf.id DESC LIMIT 1)"
+                        : "NULL";
+                    $stmt = $conn->prepare("SELECT p.*, $estadoExpr AS factura_estado, $rutaExpr AS factura_ruta FROM payments p WHERE p.treatment_id = ? ORDER BY p.fecha_pago DESC");
                     $stmt->bind_param("i", $treatment_id);
                     $stmt->execute();
                     $result = $stmt->get_result();
@@ -578,7 +882,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM payments ORDER BY fecha_pago DESC");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'images':
                 if ($id) {
@@ -598,7 +902,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM images ORDER BY fecha_subida DESC");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'pieces':
                              // <-- NUEVO CASO AÑADIDO
@@ -614,7 +918,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $result = $conn->query("SELECT * FROM pieces");
                     echo json_encode($result->fetch_all(MYSQLI_ASSOC));
                 }
-                $stmt->close();
+                if (isset($stmt)) $stmt->close();
                 break;
             case 'visits':
                 if (isset($_GET['client_id'])) {
@@ -682,6 +986,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     echo json_encode(["data" => $visits]);
                     $stmt->close();
                 }
+                break;
+            case 'clinica':
+                // Devuelve la clinica de la SESION (fuente de verdad) para que el
+                // cliente autodetecte en que clinica esta (p.ej. al crear facturas).
+                $mapClinica = [1 => 'alcorcon', 2 => 'mostoles'];
+                $cidSesion  = (int)($_SESSION['clinic_id'] ?? 0);
+                echo json_encode([
+                    "clinic_id" => $cidSesion,
+                    "clinic"    => $mapClinica[$cidSesion] ?? null
+                ]);
                 break;
             case 'facturas':
                 $sql = "SELECT * FROM facturas ORDER BY id DESC";
@@ -766,6 +1080,56 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $sql = "UPDATE services SET " . implode(", ", $sets) . " WHERE id = ?";
                 // DEBUG: Log de la consulta SQL para PUT services
                 error_log("DEBUG - PUT Request - SQL Query for services: " . $sql);
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($types, ...$values);
+                break;
+            case 'inventario':
+                // Actualizar inventario (la foto va por su propio endpoint, no por aqui)
+                if (isset($data["codigo"])) {
+                    $codigoNuevo = valorOrNull($data["codigo"]);
+                    if ($codigoNuevo !== null && codigoInventarioEnUso($conn, $codigoNuevo, $id)) {
+                        http_response_code(409);
+                        echo json_encode(["error" => "Ese codigo ya esta asignado a otro elemento."]);
+                        break 2;
+                    }
+                }
+
+                $sets = []; $types = ""; $values = [];
+                $noNulables = ["nombre", "categoria", "unidad", "estado", "stock", "stock_minimo"];
+
+                foreach (["nombre", "codigo", "categoria", "descripcion", "marca", "modelo", "numero_serie",
+                          "ubicacion", "proveedor", "stock", "stock_minimo", "unidad", "precio",
+                          "caducidad", "estado", "notas"] as $col) {
+                    if (!isset($data[$col])) continue;
+
+                    $valor = valorOrNull($data[$col]);
+                    // Un "" del formulario no debe pisar una columna NOT NULL.
+                    if ($valor === null && in_array($col, $noNulables, true)) continue;
+                    // Estado fuera del enum: se ignora en vez de romper el UPDATE entero.
+                    if ($col === "estado" && !in_array($valor, ["operativo", "revision", "baja"], true)) continue;
+
+                    $sets[] = "$col = ?";
+                    if (in_array($col, ["stock", "stock_minimo"], true)) {
+                        $types   .= "i";
+                        $values[] = (int)$valor;
+                    } elseif ($col === "precio") {
+                        $types   .= "d";
+                        $values[] = $valor === null ? null : (float)$valor;
+                    } else {
+                        $types   .= "s";
+                        $values[] = $valor;
+                    }
+                }
+
+                if (empty($sets)) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "No hay campos para actualizar en el elemento."]);
+                    break 2;
+                }
+
+                $types   .= "i";      // id
+                $values[] = $id;
+                $sql = "UPDATE inventario SET " . implode(", ", $sets) . " WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param($types, ...$values);
                 break;
@@ -956,6 +1320,34 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param($types, ...$values);
                 break;
+            case 'visits':
+                error_log("DEBUG - PUT Request - Handling table: visits");
+                $sets = []; $types = ""; $values = [];
+                foreach (["client_id", "treatment_id", "doctor", "pago_de_visita", "observaciones", "fecha"] as $col) {
+                    if (isset($data[$col])) {
+                        $sets[] = "$col = ?";
+                        if (in_array($col, ["client_id", "treatment_id"])) {
+                            $types .= "i";
+                        } elseif ($col === "pago_de_visita") {
+                            $types .= "d";
+                        } else {
+                            $types .= "s";
+                        }
+                        // Normaliza el datetime-local (YYYY-MM-DDTHH:MM) a formato MySQL
+                        $values[] = ($col === "fecha") ? str_replace('T', ' ', $data[$col]) : $data[$col];
+                    }
+                }
+                if (empty($sets)) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "No hay campos para actualizar en la visita."]);
+                    break 2;
+                }
+                $types   .= "i";      // id
+                $values[] = $id;
+                $sql = "UPDATE visits SET " . implode(", ", $sets) . " WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param($types, ...$values);
+                break;
             default:
                 http_response_code(400);
                 echo json_encode(["error" => "Tabla no especificada o no manejada para PUT"]);
@@ -1064,7 +1456,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 case 'clients':
                     // Obtener la ruta de la carpeta del cliente antes de eliminarlo de la DB
                     $sanitized_patient_id = preg_replace('/[^a-zA-Z0-9_\-.]/', '', $id);
-                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_patient_id;
+                    $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_patient_id;
 
                     $stmt = $conn->prepare("DELETE FROM clients WHERE id = ?");
                     $stmt->bind_param("i", $id);
@@ -1102,6 +1494,50 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     } else {
                         http_response_code(500);
                         echo json_encode(["error" => "Error al eliminar servicio: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'inventario':
+                    // Se lee la foto antes de borrar la fila, para poder limpiar el fichero.
+                    $stmt = $conn->prepare("SELECT foto FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $elemento = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    $stmt = $conn->prepare("DELETE FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        if ($elemento) borrarFotoInventario($elemento['foto']);
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al eliminar el elemento: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'inventario_foto':
+                    // Quita solo la foto; el elemento se conserva. ?id = id del elemento.
+                    $stmt = $conn->prepare("SELECT foto FROM inventario WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $elemento = $stmt->get_result()->fetch_assoc();
+                    $stmt->close();
+
+                    if (!$elemento) {
+                        http_response_code(404);
+                        echo json_encode(["error" => "El elemento de inventario no existe."]);
+                        break;
+                    }
+
+                    $stmt = $conn->prepare("UPDATE inventario SET foto = NULL WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        borrarFotoInventario($elemento['foto']);
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al quitar la foto: " . $stmt->error]);
                     }
                     $stmt->close();
                     break;
@@ -1178,7 +1614,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                             $sanitized_client_id = preg_replace('/[^a-zA-Z0-9_\-.]/', '', $client_id_for_folder);
                             $sanitized_treatment_id = preg_replace('/[^a-zA-Z0-9_\-.]/', '', $id);
-                            $folder_path = __DIR__ . "/../uploads/pacientes/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
+                            $folder_path = __DIR__ . "/../uploads/pacientes/" . $clinicSeg . "/" . $sanitized_client_id . "/" . $sanitized_treatment_id;
 
                             if (file_exists($folder_path)) {
                                 try {
@@ -1261,6 +1697,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     } else {
                         http_response_code(404);
                         echo json_encode(["error" => "Archivo no encontrado para eliminar."]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'pieces':
+                    // Borrado individual de una pieza (usado al reconciliar el odontograma en la edición)
+                    $stmt = $conn->prepare("DELETE FROM pieces WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al eliminar pieza: " . $stmt->error]);
+                    }
+                    $stmt->close();
+                    break;
+                case 'visits':
+                    $stmt = $conn->prepare("DELETE FROM visits WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    if ($stmt->execute()) {
+                        echo json_encode(["success" => true, "rows_affected" => $stmt->affected_rows]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Error al eliminar visita: " . $stmt->error]);
                     }
                     $stmt->close();
                     break;

@@ -1,5 +1,5 @@
 import { calendarDays, calendarHeading, firstDayGrid, linkAppointmentsControlBtn, modalCalendarList, modalHeading } from "../selectores.js";
-import { formatDateRange, formatDateString, formatTitle, reloadPage } from "../funciones.js";
+import { formatDateRange, formatDateString, formatFecha, formatTitle, reloadPage } from "../funciones.js";
 import { openModal } from "./Modal.js";
 import UI from "../classes/UI.js";
 import DB from "../classes/DB_API.js";
@@ -33,6 +33,14 @@ export function renderCalendar() {
         calendarDay.classList.toggle("calendar__day--hidden", day > lastMonthDay)
     }
 
+    //Marcar el día actual (solo si se muestra el mes en curso)
+    const today = new Date();
+    calendarDays.forEach(d => d.classList.remove("calendar__day--today"));
+    if (today.getMonth() === month && today.getFullYear() === year) {
+        const todayCell = document.querySelector(`.calendar__day[data-day="${today.getDate()}"]`);
+        if (todayCell) todayCell.classList.add("calendar__day--today");
+    }
+
     //Get monthly appointments
     DB.getMonthlyAppointments(formatDateRange([firstMonthDate, lastMonthDate]))
         .then(appointments => {
@@ -47,16 +55,35 @@ export function setMonth(step){
     renderCalendar()
 }
 
-function displayAppointmentsInCalendar(appointments){
-    const calendarDaysWithAppointments = document.querySelectorAll(".calendar__day--content");
-    calendarDaysWithAppointments.forEach(calendarDay => UI.cleanCalendarDay(calendarDay))
+// Guardamos las citas del mes en curso para poder refiltrar por gabinete
+// sin tener que volver a pedirlas al servidor.
+let lastAppointments = [];
+let currentGabinete = "all"; // "all" | "med1" | "med2"
 
-    appointments.forEach(record => {
-        const date = new Date(record.fecha);
-        const day = date.getDate();
+function displayAppointmentsInCalendar(appointments){
+    lastAppointments = appointments;
+    renderFilteredAppointments();
+}
+
+function renderFilteredAppointments(){
+    document.querySelectorAll(".calendar__day--content")
+        .forEach(calendarDay => UI.cleanCalendarDay(calendarDay));
+
+    const visibles = currentGabinete === "all"
+        ? lastAppointments
+        : lastAppointments.filter(record => (record.medico || "") === currentGabinete);
+
+    visibles.forEach(record => {
+        const day = new Date(record.fecha).getDate();
         const calendarDayContainer = document.querySelector(`.calendar__day[data-day="${day}"]`);
-        UI.updateCalendarDayContent(calendarDayContainer, record)
-    })
+        if (calendarDayContainer) UI.updateCalendarDayContent(calendarDayContainer, record);
+    });
+}
+
+/** Cambia el gabinete visible (med1/med2/all) y repinta sin recargar datos. */
+export function setGabinete(medico){
+    currentGabinete = medico;
+    renderFilteredAppointments();
 }
 
 //* Appointment Modal
@@ -85,7 +112,9 @@ function displayAppointmentsInModal(appointments){
     modalHeading.textContent = `Citas - ${formattedDateString}`;
     UI.cleanHTML(modalCalendarList);
     appointments.forEach(appointment => UI.createCalendarModalItem(appointment))
-    linkAppointmentsControlBtn.href = `control.html?search=${date.slice(0,10)}`;
+    // La tabla filtra las fechas por su valor mostrado (DD/MM/YYYY), así que el
+    // término de búsqueda debe ir en ese mismo formato, no en ISO.
+    linkAppointmentsControlBtn.href = `control.html?search=${encodeURIComponent(formatFecha(date.slice(0, 10)))}`;
 
     openModal();
 }
@@ -123,45 +152,47 @@ export function dragEndHandler(e) {
 export async function dropAppointment(e) {
     e.preventDefault();
 
-    //Get the appointment id before the await to avoid errors with the dataTransfer
+    // Id de la cita arrastrada (leer antes de cualquier await)
     const appointmentID = e.dataTransfer.getData("id");
+    if (!appointmentID) return;
 
-    //Confirm Movement Action
-    const confirmation = await LocalStorage.confirmAppointmentMovement();
-    if (!confirmation) return
+    // Limpiar resaltados del arrastre
+    document.querySelectorAll(".calendar__day.drag__over")
+        .forEach(day => day.classList.remove("drag__over"));
 
-    const target = e.target;
-    let calendarDayContainer = target;
+    // Día destino (celda visible)
+    const calendarDay = e.target.closest(".calendar__day");
+    if (!calendarDay || calendarDay.classList.contains("calendar__day--hidden")) return;
+    const nuevoDia = Number(calendarDay.dataset.day);
 
-    //Get the calendar day container and not a child
-    if (!target.classList.contains("calendar__day")) {
-        calendarDayContainer = target.closest(".calendar__day");
+    try {
+        // Cita actual: conservamos la hora y solo cambiamos el día.
+        const cita = await DB.getRecord("appointments", appointmentID);
+        const hora = (cita.fecha || "").slice(11, 16) || "09:00";
+
+        const year = currentDate.getFullYear();
+        const mes = String(currentDate.getMonth() + 1).padStart(2, "0");
+        const dia = String(nuevoDia).padStart(2, "0");
+        const nuevaFechaISO = `${year}-${mes}-${dia}`;
+
+        // Si se suelta en el mismo día, no hacemos nada.
+        if ((cita.fecha || "").slice(0, 10) === nuevaFechaISO) return;
+
+        const result = await Swal.fire({
+            title: "¿Mover la cita?",
+            text: `Se moverá al ${dia}/${mes}/${year} a las ${hora}.`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Sí, mover",
+            cancelButtonText: "Cancelar"
+        });
+        if (!result.isConfirmed) return;
+
+        await DB.editRecord("appointments", appointmentID, { fecha: `${nuevaFechaISO}T${hora}` });
+        renderCalendar(); // repinta el mes con la cita ya movida
+    } catch (err) {
+        Alert.showStatusAlert("error", "¡Error!", "No se pudo mover la cita.", reloadPage);
     }
-
-    if (!calendarDayContainer.classList.contains("calendar__day--content")) {
-        calendarDayContainer.classList.add("calendar__day--content");
-    }
-
-    //Get the dragged appointment
-    const draggedAppointment = document.querySelector(`.calendar__appointments li[data-id='${appointmentID}']`);
-    const previousCalendarDayContainer = draggedAppointment.closest(".calendar__day--content");
-
-    // In case the element is not found, it returns
-    if (!draggedAppointment) {
-        Alert.showStatusAlert("error", "¡Error!", "La cita con el ID proporcionado no fue encontrada", reloadPage)
-        return;
-    }
-
-    // Create the calendar day list and append the appointment
-    const list = UI.createCalendarDayList(calendarDayContainer);
-    list.appendChild(draggedAppointment);
-
-    //Reset the previous calendar day
-    UI.resetPreviousCalendarDay(previousCalendarDayContainer);
-
-    //Update the selected appointment
-    const selectedDay = calendarDayContainer.dataset.day;
-    DB.updateAppointmentDate(appointmentID, selectedDay)
 }
 /**
  * Gestiona el click en cada día del calendario mensual:

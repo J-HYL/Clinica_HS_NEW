@@ -7,6 +7,8 @@ import { createTableInstance } from "./components/Datatables.js";
 import { hideSpinnerSection } from "./components/Spinner.js";
 import DB from "./classes/DB_API.js";
 import UI from "./classes/UI.js";
+import { construirFacturaHtml } from "./components/facturaHtml.js";
+import { escapeHtml } from "./html.js";
 
 const URLParams = new URLSearchParams(window.location.search);
 const requiredValidation = validationFormConfig.required;
@@ -172,17 +174,33 @@ export function showRecordsP(objectStore, id = null) {
         .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
 }
 
+// Trae solo los tratamientos del paciente (en vez de la tabla completa de la
+// clinica) para la vista de historia clinica.
+export function showTreatmentsByClientId(clientId) {
+    return DB.getTreatmentsByClientId(clientId)
+        .then(records => displayRecordsInTable(records))
+        .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
+}
+
 export function getAppointments(callback = displayRecordsInTable) {
   DB.getRecords("appointments")
     .then(appointments => {
-      const rows = appointments.map(app => ({
-        id:      app.id,
-        Paciente: app.servicio,
-        Observaciones: app.cliente,
-        fecha:   app.fecha.split("T").join(" "),
-        medico:  app.medico,
-        estado:  app.estado
-      }));
+      // Fecha de hoy en formato local 'YYYY-MM-DD' para comparar por día.
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+      const rows = appointments
+        // Solo citas de hoy en adelante (compara la parte 'YYYY-MM-DD').
+        // El orden ISO coincide con el cronológico y descarta '0000-00-00'.
+        .filter(app => app.fecha && app.fecha.slice(0, 10) >= todayStr)
+        .map(app => ({
+          id:      app.id,
+          Paciente: app.servicio,
+          Observaciones: app.cliente,
+          fecha:   app.fecha.split("T").join(" "),
+          medico:  app.medico,
+          estado:  app.estado
+        }));
       callback(rows);
     })
     .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage));
@@ -213,6 +231,217 @@ export function setTableEventsListeners(e, objectStore, foreignKeyPropertie = nu
   }else if (button.classList.contains("table__btn--print")){
     //aqui hay q implementar la funcionalidad de imprimir comprobante de pago
     printPaymentReceipt(id);
+  } else if (button.classList.contains("table__btn--factura")) {
+    generarFacturaDePago(id);
+  } else if (button.classList.contains("table__btn--invite")) {
+    invitarPortal(id);
+  }
+}
+
+// Invita a un paciente al Portal de Pacientes: confirma y llama a
+// /api/invitar_portal.php, que crea la cuenta y envia el email de activacion.
+async function invitarPortal(clientId) {
+  let cliente;
+  try {
+    cliente = await DB.getRecord("clients", clientId);
+  } catch (e) {
+    Swal.fire("Error", "No se pudo cargar el paciente.", "error");
+    return;
+  }
+  const emailValido = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  let email = (cliente && cliente.email ? String(cliente.email) : "").trim();
+
+  // Sin email válido -> pedirlo en un modal (un solo input) y guardarlo en la ficha
+  // antes de invitar (invitar_portal.php lee el email desde clients).
+  if (!email || email.toLowerCase() === "no proporcionado" || !emailValido(email)) {
+    const { value: nuevo } = await Swal.fire({
+      title: "Email del paciente",
+      text: "Este paciente no tiene email. Introdúcelo para enviarle la invitación al portal.",
+      input: "email",
+      inputPlaceholder: "paciente@ejemplo.com",
+      showCancelButton: true,
+      confirmButtonText: "Guardar y continuar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#5671eb",
+      inputValidator: (v) => (!v || !emailValido(v.trim()) ? "Introduce un email válido" : undefined),
+    });
+    if (!nuevo) return;
+    email = nuevo.trim();
+    try {
+      await DB.editRecord("clients", Number(clientId), { email });
+    } catch (e) {
+      Swal.fire("Error", "No se pudo guardar el email del paciente.", "error");
+      return;
+    }
+  }
+  const conf = await Swal.fire({
+    icon: "question",
+    title: "Invitar al portal",
+    text: `Se enviará un email de acceso al portal a ${cliente.nombre || "el paciente"} (${email}).`,
+    showCancelButton: true,
+    confirmButtonText: "Enviar invitación",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#5671eb",
+  });
+  if (!conf.isConfirmed) return;
+
+  Swal.fire({ title: "Enviando invitación…", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  try {
+    const res = await fetch("/api/invitar_portal.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ client_id: Number(clientId) }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) throw new Error(data.error || "No se pudo enviar la invitación.");
+    Swal.fire({ icon: "success", title: "¡Listo!", text: data.message || "Invitación enviada." });
+  } catch (e) {
+    Swal.fire("Error", e.message, "error");
+  }
+}
+
+// Genera la FACTURA de un pago (boton junto al de recibo) y la GUARDA en el
+// servidor —a diferencia del recibo, que solo imprime—. Reutiliza la plantilla
+// unica de facturaHtml.js y el endpoint DB.php?table=facturas (PDF + fila en
+// `facturas`). Tras generarla, ofrece avisar al paciente (email + notificacion en
+// el portal) via facturas_solicitudes.php, que ademas marca como 'generada' la
+// solicitud del portal si la hubiera.
+async function generarFacturaDePago(paymentId) {
+  let payment, treatment, client, clinic;
+  try {
+    payment = await DB.getRecord("payments", paymentId);
+    if (!payment) throw new Error("No se encontró el pago.");
+    treatment = await DB.getRecord("treatments", payment.treatment_id);
+    if (!treatment) throw new Error("No se encontró el tratamiento asociado.");
+    client = await DB.getRecord("clients", payment.client_id);
+    if (!client) throw new Error("No se encontró el paciente asociado.");
+    clinic = await window.Clinica.actual();
+    if (!clinic) throw new Error("No se pudo detectar la clínica de la sesión.");
+  } catch (e) {
+    Swal.fire("Error", e.message || "No se pudieron cargar los datos del pago.", "error");
+    return;
+  }
+
+  // OJO: la columna del importe es 'monto' (no 'monto_pagado'). Ver CLAUDE.md.
+  const importe = parseFloat(payment.monto || 0);
+  const concepto = treatment.diagnostico || "Tratamiento dental";
+  const metodo = payment.metodo_pago || "";
+
+  // Datos fiscales extra: la normativa española los exige si la factura >= 400 €.
+  let dni = "", domicilio = "";
+  if (importe >= 400) {
+    const { value: datos } = await Swal.fire({
+      title: "Factura ≥ 400 €",
+      html:
+        '<p style="font-size:14px;margin:0 0 10px">La normativa exige <strong>DNI/NIF</strong> y <strong>domicilio</strong> del paciente.</p>' +
+        '<input id="swal-dni" class="swal2-input" placeholder="DNI/NIF">' +
+        '<input id="swal-dom" class="swal2-input" placeholder="Domicilio">',
+      showCancelButton: true,
+      confirmButtonText: "Generar factura",
+      cancelButtonText: "Cancelar",
+      preConfirm: () => ({
+        dni: (document.getElementById("swal-dni").value || "").trim(),
+        dom: (document.getElementById("swal-dom").value || "").trim(),
+      }),
+    });
+    if (!datos) return;                 // cancelado
+    dni = datos.dni; domicilio = datos.dom;
+  } else {
+    const conf = await Swal.fire({
+      icon: "question",
+      title: "Generar factura",
+      html: `Se generará la factura de este pago:<br><strong>${escapeHtml(concepto)}</strong><br>Importe: <strong>${importe.toFixed(2)} €</strong>`,
+      showCancelButton: true,
+      confirmButtonText: "Generar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#5671eb",
+    });
+    if (!conf.isConfirmed) return;
+  }
+
+  Swal.fire({ title: "Generando factura…", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  let numero, ruta;
+  try {
+    // Numero orientativo para el HTML; el servidor asigna el real (MAX+1).
+    const resNum = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
+    const dataNum = await resNum.json();
+    const numeroFactura = (dataNum.ultimoNumero || 0) + 1;
+
+    const facturaHtml = construirFacturaHtml({
+      clinic,
+      numeroFactura,
+      paciente: { nombre: client.nombre, dni, telefono: client.telefono || "", domicilio },
+      lineas: [{ descripcion: concepto, cantidad: 1, precio: importe }],
+      paymentMethod: metodo,
+      observaciones: "",
+      descuento: 0,
+    });
+
+    const formData = new FormData();
+    formData.append("nombre_paciente", client.nombre || "");
+    formData.append("html", facturaHtml);
+    const resPost = await fetch("/api/DB.php?table=facturas", { method: "POST", body: formData, credentials: "include" });
+    const dataPost = await resPost.json();
+    if (!dataPost.success) throw new Error(dataPost.error || "No se pudo guardar la factura.");
+    numero = dataPost.numero || numeroFactura;
+    ruta = dataPost.ruta;
+  } catch (e) {
+    Swal.fire("Error", "No se pudo generar la factura: " + e.message, "error");
+    return;
+  }
+
+  const prefijo = clinic.inicial || "GEN";
+  const aviso = await Swal.fire({
+    icon: "success",
+    title: "Factura generada",
+    html: `Factura <strong>HSD-${prefijo}-${numero}</strong> guardada.<br>¿Avisar al paciente?`,
+    showCancelButton: true,
+    confirmButtonText: "Sí, avisar",
+    cancelButtonText: "No",
+    confirmButtonColor: "#34c759",
+  });
+
+  // Registrar SIEMPRE la generacion (marca la solicitud del portal como 'generada'
+  // si existia, o crea la fila 'generada' para que el portal muestre "emitida").
+  // El aviso (email + notificacion) va solo si la clinica lo confirma.
+  try {
+    const resReg = await fetch("/api/facturas_solicitudes.php?accion=registrar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ payment_id: Number(paymentId), factura_numero: Number(numero), avisar: !!aviso.isConfirmed }),
+    });
+    const dataReg = await resReg.json().catch(() => ({}));
+    if (aviso.isConfirmed) {
+      if (!resReg.ok || dataReg.error) {
+        Swal.fire("Aviso", "La factura se generó, pero no se pudo avisar al paciente: " + (dataReg.error || ""), "warning");
+      } else {
+        Swal.fire({ icon: "success", title: "Paciente avisado", text: dataReg.message || "", timer: 1800, showConfirmButton: false });
+      }
+    }
+  } catch (e) {
+    // Best-effort: la factura ya está guardada aunque el registro/aviso falle.
+    console.error("registrar factura:", e);
+  }
+
+  const pdfUrl = ruta || `/uploads/facturas/factura_HSD-${prefijo}-${numero}.pdf`;
+  window.open(pdfUrl, "_blank");
+
+  // Sustituye "Generar factura" por "Descargar factura" en esa fila (sin recargar).
+  const btnFac = document.querySelector(`.table__btn--factura[data-id="${paymentId}"]`);
+  if (btnFac) {
+    const fila = btnFac.closest("tr");
+    const a = document.createElement("a");
+    a.className = "table__btn table__btn--descargar";
+    a.href = pdfUrl;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.setAttribute("aria-label", "Descargar factura");
+    a.innerHTML = '<i class="ri-download-2-line"></i>';
+    btnFac.replaceWith(a);
+    const badge = fila && fila.querySelector(".fact-badge");
+    if (badge) { badge.className = "fact-badge fact-badge--done"; badge.textContent = "Emitida"; }
   }
 }
 
@@ -368,6 +597,21 @@ export function goToControlPage() {
 
 export function formatTitle(title){
     return title.charAt(0).toUpperCase() + title.slice(1).replace(/_/g, ' ');
+}
+
+// Formatea una fecha de BD ('YYYY-MM-DD[ T]HH:MM[:SS]' o 'YYYY-MM-DD') al
+// formato de Windows español: 'DD/MM/YYYY' o 'DD/MM/YYYY HH:MM'.
+// Trabaja sobre el string (sin new Date) para no desfasar por zona horaria.
+export function formatFecha(value){
+    if (!value) return "";
+    const [datePart, timePart = ""] = String(value).replace("T", " ").split(" ");
+    const [y, m, d] = datePart.split("-");
+    if (!y || !m || !d) return String(value); // formato no reconocido
+    if (y === "0000") return "";              // fecha basura ('0000-00-00')
+    let out = `${d}/${m}/${y}`;
+    const [hh, mm] = timePart.split(":");
+    if (hh && mm) out += ` ${hh}:${mm}`;
+    return out;
 }
 
 //* Calendar Functions

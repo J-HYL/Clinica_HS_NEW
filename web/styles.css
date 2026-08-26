@@ -1259,6 +1259,67 @@
     text-align: center;
   }
 
+  /* Placeholder del mapa mientras no se consienten las cookies de Google Maps */
+  .clinic-map__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    min-height: 320px;
+    padding: var(--space-lg);
+    text-align: center;
+    background: var(--clr-surface);
+    border: 1px dashed var(--clr-border-blue);
+    border-radius: var(--radius-lg);
+    color: var(--clr-text-sec);
+  }
+
+  /* El atributo hidden debe ganar al display:flex de arriba (mayor especificidad) */
+  .clinic-map__placeholder[hidden] {
+    display: none;
+  }
+
+  .clinic-map__placeholder svg {
+    color: var(--clr-accent);
+  }
+
+  .clinic-map__placeholder-text {
+    max-width: 42ch;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .clinic-map__placeholder-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--clr-accent), var(--clr-blue-4));
+    color: var(--clr-white);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.65em 1.4em;
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(86,113,235,.25);
+  }
+
+  .clinic-map__placeholder-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(86,113,235,.35);
+  }
+
+  .clinic-map__placeholder-link {
+    font-size: 0.82rem;
+    color: var(--clr-accent);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;

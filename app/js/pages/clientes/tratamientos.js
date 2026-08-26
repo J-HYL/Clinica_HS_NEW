@@ -3,6 +3,7 @@
 import DB from "../../modules/classes/DB_API.js";
 import { showRecordsP, setTableEventsListeners } from "../../modules/funciones.js";
 import { table } from "../../modules/selectores.js";
+import { escapeHtml } from "../../modules/html.js";
 
 const crearPagoBtn = document.getElementById("crear-pago");
 const modal = document.getElementById("edit-modal");
@@ -371,10 +372,16 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
 
         const img = document.createElement("img");
         // Construye la ruta COMPLETA y CORRECTA
-        const imageUrl = `https://app.hsdental.es/${file.ruta}`.replace(/([^:])(\/\/+)/g, '$1/');
+        const imageUrl = `/${file.ruta}`.replace(/([^:])(\/\/+)/g, '$1/');
         img.src = imageUrl;
         img.alt = "Imagen de tratamiento";
         img.style.cursor = "pointer";
+
+        // Si la imagen no carga (archivo ausente), mostrar un placeholder limpio en vez del icono roto.
+        img.addEventListener('error', () => {
+          imageCard.classList.add('image-card--broken');
+          imageCard.innerHTML = '<i class="ri-image-2-line"></i><span>Imagen no disponible</span>';
+        });
 
         // Asigna el evento click CORRECTAMENTE
         img.addEventListener('click', () => {
@@ -403,12 +410,12 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
     // Limpiar y añadir nuevo contenido
     fileInfo.innerHTML = `
         <span style="font-size: 1.2rem;">📄</span>
-        <span id="fileName" style="word-break: break-word; flex-grow: 1;">${file.nombre_original}</span>
+        <span id="fileName" style="word-break: break-word; flex-grow: 1;">${escapeHtml(file.nombre_original)}</span>
     `;
     
     // Botón de descarga (manteniendo tu estilo original)
     const pdfLink = document.createElement("a");
-    pdfLink.href = `https://app.hsdental.es/${file.ruta}`;
+    pdfLink.href = `/${file.ruta}`;
     pdfLink.target = "_blank";
     pdfLink.download = file.nombre_original;
     pdfLink.innerHTML = '<i class="ri-file-download-fill" style="font-size: x-large; text-decoration: none;"></i>';
@@ -457,8 +464,9 @@ async function loadExistingFiles() {  // Cambiamos el nombre a algo más genéri
 }
 
 // Variables para almacenar los dientes afectados y completados
-let dientesAfectados = []; // Dientes con piece_status = 0 (afectados/pendientes)
-let dientesCompletados = []; // Dientes con piece_status = 1 (completados)
+let dientesAfectados = []; // Dientes pendientes (piece_status = 1) -> rojo
+let dientesCompletados = []; // Dientes completados (piece_status = 0) -> verde
+let piezasData = []; // Piezas del tratamiento (con id y estado) para poder togglearlas
 
 const dientesSuperior = [
   18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28
@@ -480,12 +488,69 @@ function crearDiente(numero) { // Eliminamos el parámetro esInferior ya que no 
     diente.classList.add("marcado-rojo");
   }
 
+  // Si la pieza forma parte del tratamiento, permitir alternar pendiente/completada al hacer clic.
+  const perteneceAlTratamiento =
+    dientesCompletados.includes(numero) || dientesAfectados.includes(numero);
+  if (perteneceAlTratamiento) {
+    diente.style.cursor = "pointer";
+    diente.title = "Clic para marcar como completada (verde) o pendiente (rojo)";
+    diente.addEventListener("click", () => togglePieza(numero));
+  }
+
   const num = document.createElement("div");
   num.classList.add("numero");
   num.textContent = numero;
 
   diente.appendChild(num);
   return diente;
+}
+
+// Recalcula los arrays de dientes pendientes/completados a partir de piezasData.
+function recomputeDienteArrays() {
+  dientesAfectados = [];
+  dientesCompletados = [];
+  piezasData.forEach(piece => {
+    const status = Number(piece.piece_status);
+    if (piece.tooth_number === "General") {
+      const allTeeth = [...dientesSuperior, ...dientesInferior];
+      if (status === 1) {
+        dientesAfectados = [...new Set([...dientesAfectados, ...allTeeth])];
+      } else if (status === 0) {
+        dientesCompletados = [...new Set([...dientesCompletados, ...allTeeth])];
+      }
+    } else {
+      const numeroPieza = parseInt(piece.tooth_number);
+      if (status === 1) {
+        dientesAfectados.push(numeroPieza);
+      } else if (status === 0) {
+        dientesCompletados.push(numeroPieza);
+      }
+    }
+  });
+}
+
+// Alterna el estado de una pieza (1 = pendiente/rojo <-> 0 = completada/verde) y repinta.
+async function togglePieza(numero) {
+  // Busca la pieza concreta de ese diente o, si el tratamiento es "General", la pieza general.
+  let piece = piezasData.find(p => String(p.tooth_number) === String(numero));
+  if (!piece) piece = piezasData.find(p => p.tooth_number === "General");
+  if (!piece) return;
+
+  const nuevoEstado = Number(piece.piece_status) === 0 ? 1 : 0;
+
+  try {
+    await DB.editRecord("pieces", piece.id, { piece_status: nuevoEstado });
+    piece.piece_status = nuevoEstado;
+    recomputeDienteArrays();
+    renderOdontograma();
+  } catch (error) {
+    console.error("Error al actualizar la pieza:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "No se pudo actualizar el estado de la pieza.",
+    });
+  }
 }
 
 const filaSuperior = document.getElementById("fila-superior");
@@ -495,18 +560,38 @@ const filaInferior = document.getElementById("fila-inferior");
 if (filaSuperior) filaSuperior.innerHTML = '';
 if (filaInferior) filaInferior.innerHTML = '';
 
-// Mover la lógica de renderizado a una función para ser llamada después de que se obtengan los datos
+// Mover la lógica de renderizado a una función para ser llamada después de que se obtengan los datos.
+// Limpia primero para poder repintar tras cambiar el estado de una pieza sin duplicar dientes.
 function renderOdontograma() {
   if (filaSuperior) {
+    filaSuperior.innerHTML = '';
     dientesSuperior.forEach(n => filaSuperior.appendChild(crearDiente(n)));
   }
   if (filaInferior) {
+    filaInferior.innerHTML = '';
     dientesInferior.forEach(n => filaInferior.appendChild(crearDiente(n)));
   }
 }
 
 
-document.addEventListener("DOMContentLoaded", async () => { 
+// Resalta y hace scroll a la fila del pago indicado (deep-link ?pago= desde la
+// campana de avisos del panel). Best-effort: si el pago no está en la página
+// visible de la tabla, no hace nada.
+function resaltarPagoSolicitado(pagoId) {
+  if (!pagoId) return;
+  setTimeout(() => {
+    const btn = document.querySelector(`#table [data-id="${CSS.escape(String(pagoId))}"]`);
+    const fila = btn && btn.closest("tr");
+    if (!fila) return;
+    fila.scrollIntoView({ behavior: "smooth", block: "center" });
+    fila.style.transition = "background-color .4s";
+    const prev = fila.style.backgroundColor;
+    fila.style.backgroundColor = "#fff4cc";
+    setTimeout(() => { fila.style.backgroundColor = prev; }, 2600);
+  }, 350);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
 
   const params = new URLSearchParams(window.location.search); 
   const treatmentId = params.get("id");
@@ -551,35 +636,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const dataTable = $('#table').DataTable();
       dataTable.columns([1, 2]).visible(false);
     }, 200);
-    await loadExistingFiles(); 
+    await loadExistingFiles();
 
-    
+    // Deep-link desde la campana de avisos del panel: resaltar el pago (?pago=).
+    resaltarPagoSolicitado(params.get("pago"));
 
     // NUEVA LÓGICA PARA CARGAR Y PINTAR DIENTES DEL ODONTOGRAMA
-    const piecesData = await DB.getPiecesByTreatmentId(currentTreatmentId);
-    dientesAfectados = []; // Resetear antes de rellenar
-    dientesCompletados = []; // Resetear antes de rellenar
+    piezasData = await DB.getPiecesByTreatmentId(currentTreatmentId);
+    console.log("Datos de piezas recibidos:", piezasData);
 
-     console.log("Datos de piezas recibidos:", piecesData);
-
-    piecesData.forEach(piece => {
-      // *** CAMBIO CLAVE AQUÍ: Si el tooth_number es "General", marcar todos los dientes ***
-      if (piece.tooth_number === "General") {
-        const allTeeth = [...dientesSuperior, ...dientesInferior];
-        if (piece.piece_status === 1) { // Asumiendo 1 para afectado/pendiente
-            dientesAfectados = [...new Set([...dientesAfectados, ...allTeeth])];
-        } else if (piece.piece_status === 0) { // Asumiendo 0 para completado
-            dientesCompletados = [...new Set([...dientesCompletados, ...allTeeth])];
-        }
-      } else {
-          const numeroPieza = parseInt(piece.tooth_number);
-          if (piece.piece_status === 1) { // Asumiendo 1 para afectado/pendiente
-            dientesAfectados.push(numeroPieza);
-          } else if (piece.piece_status === 0) { // Asumiendo 0 para completado
-            dientesCompletados.push(numeroPieza);
-          }
-      }
-    });
+    recomputeDienteArrays();
 
     // Renderizar el odontograma con los datos cargados
     renderOdontograma();

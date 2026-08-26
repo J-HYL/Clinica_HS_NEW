@@ -22,11 +22,30 @@ import DB from "./DB_API.js";
 class UI{
     //* Dashboard
     showStats({ today, pending, clients, services}){
-        todayAppointmentStats.textContent = today;
-        pendingAppointmentStats.textContent = pending;
-        clientsStats.textContent = clients;
-        servicesStats.textContent = services;
+        this.animateCount(todayAppointmentStats, today);
+        this.animateCount(pendingAppointmentStats, pending);
+        this.animateCount(clientsStats, clients);
+        this.animateCount(servicesStats, services);
         hidePreloader();
+    }
+
+    // Anima un contador de 0 al valor objetivo (easing suave).
+    animateCount(element, target){
+        if (!element) return;
+        const finalValue = Number(target) || 0;
+        const duration = 900;
+        let startTime = null;
+
+        const step = (timestamp) => {
+            if (startTime === null) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            element.textContent = Math.round(eased * finalValue);
+            if (progress < 1) requestAnimationFrame(step);
+            else element.textContent = finalValue;
+        };
+
+        requestAnimationFrame(step);
     }
 
 
@@ -169,7 +188,7 @@ class UI{
         if (!appointmentsLength) this.cleanCalendarDay(container);
     }
 
-    createCalendarModalItem({ servicio, cliente, estado, fecha }){
+    createCalendarModalItem({ servicio, cliente, estado, fecha, medico }){
         const formattedStatus = estado.toLowerCase();
 
         const listItem = document.createElement("LI");
@@ -200,6 +219,15 @@ class UI{
 
         itemContent.appendChild(serviceHeading);
         itemContent.appendChild(clientSpan);
+
+        //* Distintivo de gabinete (med1 -> Gabinete 1, med2 -> Gabinete 2)
+        const gabLabels = { med1: "Gabinete 1", med2: "Gabinete 2" };
+        if (gabLabels[medico]) {
+            const gabBadge = document.createElement("SPAN");
+            gabBadge.classList.add("item__gabinete", `gab--${medico}`);
+            gabBadge.textContent = gabLabels[medico];
+            itemContent.appendChild(gabBadge);
+        }
 
         itemDescription.appendChild(itemIcon);
         itemDescription.appendChild(itemContent)

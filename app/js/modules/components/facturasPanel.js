@@ -1,5 +1,5 @@
 import { createTableInstance } from "../components/Datatables.js";
-import UI from "../classes/UI.js";
+import Alert from "../components/Alert.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         mainEmpty.style.display = "none";
         table.style.display = "none";
 
-        const res = await fetch("https://app.hsdental.es/api/DB.php?table=facturas");
+        const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
         const data = await res.json();
 
         if (!data.success) throw new Error(data.error || "Error al cargar las facturas");
@@ -35,6 +35,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       
     } catch (err) {
         console.error("Error cargando facturas:", err);
-        UI.showAlert("Error al cargar facturas: " + err.message, "error");
+        Alert.showStatusAlert("error", "¡Error!", "Error al cargar facturas: " + err.message);
     }
 });

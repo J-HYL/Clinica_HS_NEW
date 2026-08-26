@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Inventario</title>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Styles -->
+    <!-- Sin datatables: esta sección tiene su propio listado (TablaInventario.js),
+         que en el móvil se ve como tarjetas en vez de una tabla apretada. -->
+    <link rel="stylesheet" href="/css/pages/control.css">
+    <link rel="stylesheet" href="/css/pages/inventario.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+
+</head>
+<!-- La clase acota a ESTA pantalla el mover el botón de soporte (que es global,
+     lo inyecta Soporte.js desde main.js): aquí el flotante de escanear le quita
+     la esquina del pulgar. En el resto de secciones sigue donde estaba. -->
+<body class="inventario-control">
+    <nav class="sidebar" id="sidebar"></nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>Inventario</span></h1>
+            </div>
+        </header>
+
+        <main class="container main">
+            <div class="main__group">
+                <div class="main__titulo">
+                    <h3 class="container__heading">Elementos Clínicos</h3>
+                    <button type="button" class="ayuda" id="como-funciona">
+                        <i class="ri-question-line"></i>
+                        <span class="ayuda__texto">¿Cómo funciona?</span>
+                    </button>
+                </div>
+                <div class="main__actions">
+                    <button type="button" id="escanear" class="main__action" aria-label="Escanear código de un elemento"><span>Escanear</span> <i class="ri-qr-scan-2-line"></i></button>
+                    <a href="agregar.html" class="main__action"><span>Crear Elemento</span> <i class="ri-add-line"></i></a>
+                </div>
+            </div>
+
+            <div class="filtros">
+                <div class="filtros__group filtros__group--buscar">
+                    <label for="buscador" class="filtros__label">Buscar</label>
+                    <input type="search" id="buscador" class="filtros__input" placeholder="Nombre, ubicación, código, marca..." autocomplete="off">
+                </div>
+                <div class="filtros__group">
+                    <label for="filtro-categoria" class="filtros__label">Categoría</label>
+                    <select id="filtro-categoria" class="filtros__input"></select>
+                </div>
+                <div class="filtros__group">
+                    <label for="orden" class="filtros__label">Ordenar por</label>
+                    <select id="orden" class="filtros__input">
+                        <option value="nombre">Nombre (A-Z)</option>
+                        <option value="stock">Stock (menor primero)</option>
+                        <option value="caducidad">Caducidad (más próxima)</option>
+                    </select>
+                </div>
+                <label class="filtros__check" for="filtro-bajo">
+                    <input type="checkbox" id="filtro-bajo">
+                    Solo bajo mínimo
+                </label>
+            </div>
+
+            <div class="main__loading">
+                <div class="sk-chase">
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                    <div class="sk-chase-dot"></div>
+                </div>
+                <p class="loading__message">Obteniendo los registros...</p>
+            </div>
+            <div class="main__empty">
+                <img src="/assets/svg/empty-illustration.svg" alt="Not Found Records Illustration">
+                <p class="empty__message">No se encontraron registros para esta sección...</p>
+            </div>
+
+            <p class="inv-contador" id="contador"></p>
+            <div class="inv-lista" id="lista"></div>
+        </main>
+    </div>
+
+    <!-- Escanear al alcance del pulgar. Solo se ve en móvil (en escritorio ya
+         está el botón de la cabecera, y ahí abajo vive el de soporte). -->
+    <button type="button" class="fab-escaner" id="escanear-flotante" aria-label="Escanear código de un elemento">
+        <i class="ri-qr-scan-2-line"></i>
+    </button>
+
+    <!-- Dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/inventario/control.js" type="module"></script>
+</body>
+</html>

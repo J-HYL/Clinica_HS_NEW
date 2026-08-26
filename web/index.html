@@ -524,31 +524,51 @@
             </div>
           </div>
           
-          <!-- Google Maps - Dinámico según clínica -->
+          <!-- Google Maps - Dinámico según clínica.
+               Los iframes NO cargan hasta que el usuario consiente las cookies de Google Maps:
+               el src viaja en data-src y cookie-banner.js lo activa tras el consentimiento. -->
           <div class="contact__maps-wrapper">
             <!-- Mapa Móstoles -->
             <div class="clinic-map" data-clinic="mostoles" style="display: block;">
+              <div class="clinic-map__placeholder" data-cookie-placeholder>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <p class="clinic-map__placeholder-text">Para mostrar el mapa necesitamos tu consentimiento para cargar <strong>Google Maps</strong>, que instala cookies de terceros.</p>
+                <button type="button" class="clinic-map__placeholder-btn" data-accept-maps>Cargar mapa de Google</button>
+                <a href="./pages/politica-cookies.html" class="clinic-map__placeholder-link" target="_blank" rel="noopener">Más información</a>
+              </div>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3041.588253681792!2d-3.8714559100478425!3d40.329294787362215!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418e7e39c49e9f%3A0x1a3b2620715f07e0!2sC.%20del%20Pintor%20el%20Greco%2C%202%2C%2028933%20M%C3%B3stoles%2C%20Madrid!5e0!3m2!1ses!2ses!4v1774717131161!5m2!1ses!2ses"
+                data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3041.588253681792!2d-3.8714559100478425!3d40.329294787362215!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418e7e39c49e9f%3A0x1a3b2620715f07e0!2sC.%20del%20Pintor%20el%20Greco%2C%202%2C%2028933%20M%C3%B3stoles%2C%20Madrid!5e0!3m2!1ses!2ses!4v1774717131161!5m2!1ses!2ses"
+                data-cookieconsent="google-maps"
+                title="Mapa de HSDental Móstoles"
                 width="100%"
                 height="320"
                 style="border:0; border-radius: 12px;"
                 allowfullscreen=""
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
+                hidden
               ></iframe>
             </div>
-            
+
             <!-- Mapa Alcorcón -->
             <div class="clinic-map" data-clinic="alcorcon" style="display: none;">
+              <div class="clinic-map__placeholder" data-cookie-placeholder>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <p class="clinic-map__placeholder-text">Para mostrar el mapa necesitamos tu consentimiento para cargar <strong>Google Maps</strong>, que instala cookies de terceros.</p>
+                <button type="button" class="clinic-map__placeholder-btn" data-accept-maps>Cargar mapa de Google</button>
+                <a href="./pages/politica-cookies.html" class="clinic-map__placeholder-link" target="_blank" rel="noopener">Más información</a>
+              </div>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3040.8606772725598!2d-3.8301485234956747!3d40.34543655997477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418eb5abc78215%3A0x4cabd3e535737eac!2zQy4gTWF5b3IsIDY1LCAxwrpCLCAyODkyMSBBbGNvcmPDs24sIE1hZHJpZA!5e0!3m2!1ses!2ses!4v1774717591563!5m2!1ses!2ses"
+                data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3040.8606772725598!2d-3.8301485234956747!3d40.34543655997477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418eb5abc78215%3A0x4cabd3e535737eac!2zQy4gTWF5b3IsIDY1LCAxwrpCLCAyODkyMSBBbGNvcmPDs24sIE1hZHJpZA!5e0!3m2!1ses!2ses!4v1774717591563!5m2!1ses!2ses"
+                data-cookieconsent="google-maps"
+                title="Mapa de HSDental Alcorcón"
                 width="100%"
                 height="320"
                 style="border:0; border-radius: 12px;"
                 allowfullscreen=""
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
+                hidden
               ></iframe>
             </div>
           </div>
@@ -634,8 +654,9 @@
         <ul class="footer__list">
           <li><a href="./pages/politica-privacidad.html" class="footer__link">Política de Privacidad</a></li>
           <li><a href="./pages/aviso-legal.html" class="footer__link">Aviso Legal</a></li>
-          <li><a href="./politica-cookies.html" class="footer__link">Política de Cookies</a></li>
-          <li><a href="./terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+          <li><a href="./pages/politica-cookies.html" class="footer__link">Política de Cookies</a></li>
+          <li><a href="./pages/terminos-uso.html" class="footer__link">Términos de Uso</a></li>
+          <li><a href="#" class="footer__link" id="open-cookie-settings">Configuración de cookies</a></li>
         </ul>
       </nav>
 
@@ -656,5 +677,6 @@
   </button>
 
   <script src="script.js"></script>
+  <script src="cookie-banner.js"></script>
 </body>
 </html>
