@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galería Minimalista</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Parisienne&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      color: #171717;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    h1 {
+      font-weight: 300;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #262626;
+    }
+
+    .subtitle {
+      margin: 0 0 30px;
+      font-family: 'Berkshire Swash', 'Segoe Print', cursive;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: 0.04em;
+      color: #101028;
+      text-shadow: 0 2px 0 #fff6f8, 0 8px 18px rgba(215, 127, 156, 0.35);
+      transform: rotate(-1.5deg);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .img-wrap {
+      overflow: hidden;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .img-wrap img {
+      width: 100%;
+      height: 520px;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.3s ease, transform 0.4s ease;
+    }
+
+    .img-wrap:hover img {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    p.caption {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: #737373;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    /* Lightbox / Modal */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      cursor: zoom-out;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 4px;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <h1>Julio</h1>
+    <p class="subtitle">Alergico a chambear</p>
+
+    <div class="gallery">
+      <div class="img-wrap">
+        <img src="image (2).jpg" alt="">
+      </div>
+      <div class="img-wrap" >
+        <img src="image.jpg">
+      </div>
+    </div>
+
+    <p class="caption">Para la andrea eran las flores</p>
+  </main>
+
+  <div class="lightbox" id="lightbox" onclick="closeZoom()">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <script>
+    function zoom(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeZoom() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+  </script>
+
+</body>
+</html>
