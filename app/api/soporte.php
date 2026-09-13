@@ -44,6 +44,14 @@ if (empty($_SESSION['logged_in']) || empty($_SESSION['clinic_id'])) {
     exit;
 }
 
+// Libera el lock del fichero de sesion. PHP lo mantiene EN EXCLUSIVA desde
+// session_start() hasta el final del script, asi que sin esto las peticiones de
+// una misma sesion no corren en paralelo: se encolan. El panel lanza ~9 a la vez
+// (Stats.js + Notificaciones.js + clinica.js) y las ultimas agotaban los 60 s del
+// proxy -> 504. De aqui en adelante no se escribe en $_SESSION; leerla (getConnection()
+// necesita clinic_id) sigue funcionando igual.
+session_write_close();
+
 require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 require_once __DIR__ . '/PHPMailer/src/Exception.php';
@@ -158,6 +166,8 @@ try {
     $mail->Password   = $smtp['pass'] ?? '';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = (int) ($smtp['port'] ?? 587);
+    $mail->Timeout = 10;                       // conexion SMTP (defecto PHPMailer: 300 s)
+    $mail->getSMTPInstance()->Timelimit = 15;  // espera de respuesta del servidor (idem)
     $mail->CharSet    = 'UTF-8';
 
     $mail->setFrom($smtp['user'] ?? 'avisos@hsdental.es', 'HS Dental · Soporte');

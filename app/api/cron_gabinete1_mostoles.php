@@ -172,6 +172,8 @@ try {
     $mail->Password   = $smtp['pass'] ?? '';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = (int) ($smtp['port'] ?? 587);
+    $mail->Timeout = 10;                       // conexion SMTP (defecto PHPMailer: 300 s)
+    $mail->getSMTPInstance()->Timelimit = 15;  // espera de respuesta del servidor (idem)
     $mail->CharSet    = 'UTF-8';
 
     $mail->setFrom($smtp['user'] ?? 'avisos@hsdental.es', 'HS Dental · Agenda');
