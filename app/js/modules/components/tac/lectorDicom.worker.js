@@ -83,12 +83,7 @@ async function analizar(datos) {
     if (sobran > 0) {
         if (noImagen === 1) avisos.push("Se ha descartado 1 archivo que no es una imagen del estudio.");
         else if (noImagen > 1) avisos.push(`Se han descartado ${noImagen} archivos que no son imágenes del estudio.`);
-        progreso("empaquetando", 0, 1);
-        const ficheros = descomprimir(datos, ficherosSerie);
-        const empaquetado = fflate.zipSync(ficheros, { level: 1 });
-        zip = empaquetado.byteLength === empaquetado.buffer.byteLength
-            ? empaquetado.buffer
-            : empaquetado.slice().buffer;
+        zip = reempaquetar(datos, ficherosSerie);
     }
 
     progreso("verificando", 0, 1);
@@ -117,9 +112,8 @@ function montar(datos) {
     const geo = geometria(principal);
     comprobarFormato(geo.ordenados[0]);
 
-    const enteros = geo.ordenados.every(c => Number.isInteger(c.pendiente) && Number.isInteger(c.interseccion));
-    // Int16 ocupa la mitad que Float32. Si algún valor no cabe (raro), se repite en Float32.
-    const volumen = (enteros && rellenarVolumen(datos, geo, Int16Array)) || rellenarVolumen(datos, geo, Float32Array);
+    // 16 bits ocupan la mitad que Float32. Si algún valor no cabe (raro), se repite en Float32.
+    const volumen = rellenarVolumen(datos, geo, tipoVolumen(geo.ordenados)) || rellenarVolumen(datos, geo, Float32Array);
 
     progreso("calculando", 0, 1);
     const estadisticas = calcularEstadisticas(volumen);
@@ -161,6 +155,43 @@ function listarZip(datos) {
 function descomprimir(datos, nombres) {
     const buscados = new Set(nombres);
     return fflate.unzipSync(datos, { filter: (fichero) => buscados.has(fichero.name) });
+}
+
+/**
+ * Zip nuevo solo con los ficheros indicados, sin cambiar su contenido. Se
+ * construye en streaming y por lotes: nunca está toda la serie descomprimida a
+ * la vez en memoria (en un CBCT grande serían cientos de MB de más).
+ * @returns {ArrayBuffer}
+ */
+function reempaquetar(datos, nombres) {
+    const trozos = [];
+    let total = 0;
+    let fallo = null;
+    const zip = new fflate.Zip((error, trozo) => {
+        if (error) fallo = error;
+        else { trozos.push(trozo); total += trozo.length; }
+    });
+
+    for (let n = 0; n < nombres.length; n += LOTE) {
+        const lote = nombres.slice(n, n + LOTE);
+        const ficheros = descomprimir(datos, lote);
+        for (const nombre of lote) {
+            const entrada = new fflate.ZipDeflate(nombre, { level: 1 });
+            zip.add(entrada);
+            entrada.push(ficheros[nombre], true);
+        }
+        progreso("empaquetando", Math.min(n + LOTE, nombres.length), nombres.length);
+    }
+    zip.end();
+    if (fallo) throw new Error("No se pudo preparar el estudio para subirlo.");
+
+    const salida = new Uint8Array(total);
+    let posicion = 0;
+    for (const trozo of trozos) {
+        salida.set(trozo, posicion);
+        posicion += trozo.length;
+    }
+    return salida.buffer;
 }
 
 async function huella(bytes) {
@@ -457,16 +488,43 @@ function pixelesCrudos(ds, corte) {
     return limpio;
 }
 
+// Valores que caben en cada tipo de volumen de 16 bits (Float32: todos).
+const LIMITES = new Map([[Int16Array, [-32768, 32767]], [Uint16Array, [0, 65535]]]);
+
+/**
+ * Tipo de volumen más pequeño para el estudio, a partir del rango que permite
+ * la cabecera (bits guardados y escala). Si no cabe seguro en 16 bits se prueba
+ * Int16 igualmente: lo normal es que los valores REALES sí quepan (y si alguno
+ * se sale, montar() repite en Float32).
+ */
+function tipoVolumen(cortes) {
+    if (!cortes.every(c => Number.isInteger(c.pendiente) && Number.isInteger(c.interseccion))) return Float32Array;
+
+    let minimo = Infinity;
+    let maximo = -Infinity;
+    for (const c of cortes) {
+        const crudoMin = c.conSigno ? -(2 ** (c.bitsGuardados - 1)) : 0;
+        const crudoMax = c.conSigno ? 2 ** (c.bitsGuardados - 1) - 1 : 2 ** c.bitsGuardados - 1;
+        const extremos = [crudoMin * c.pendiente + c.interseccion, crudoMax * c.pendiente + c.interseccion];
+        minimo = Math.min(minimo, ...extremos);
+        maximo = Math.max(maximo, ...extremos);
+    }
+    for (const [Tipo, [desde, hasta]] of LIMITES) {
+        if (minimo >= desde && maximo <= hasta) return Tipo;
+    }
+    return Int16Array;
+}
+
 /**
  * Copia un corte al volumen en la posición k, aplicando la escala del equipo
  * (valor * pendiente + intersección) y la normalización de orientación.
- * Devuelve false si el volumen es Int16 y algún valor no cabe.
+ * Devuelve false si el volumen es de 16 bits y algún valor no cabe.
  */
 function volcarCorte(crudo, corte, k, volumen, geo) {
     const [nx, ny] = geo.dims;
     const m = corte.pendiente;
     const b = corte.interseccion;
-    const entero = volumen instanceof Int16Array;
+    const [desde, hasta] = LIMITES.get(volumen.constructor) ?? [-Infinity, Infinity];
     const base = k * nx * ny;
 
     for (let j = 0; j < ny; j++) {
@@ -474,7 +532,7 @@ function volcarCorte(crudo, corte, k, volumen, geo) {
         const destino = base + (geo.invertirJ ? ny - 1 - j : j) * nx;
         for (let i = 0; i < nx; i++) {
             const v = crudo[origen + i] * m + b;
-            if (entero && (v < -32768 || v > 32767)) return false;
+            if (v < desde || v > hasta) return false;
             volumen[destino + (geo.invertirI ? nx - 1 - i : i)] = v;
         }
     }

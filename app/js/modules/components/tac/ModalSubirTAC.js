@@ -93,10 +93,17 @@ function construirDialogo() {
     document.body.appendChild(dialogo);
 
     dialogo.addEventListener("click", alPulsar);
-    // Esc no puede dejar una subida a medias sin borrar lo ya subido.
+    // Esc hace lo mismo que el botón Cancelar...
     dialogo.addEventListener("cancel", (e) => {
         e.preventDefault();
         cerrar();
+    });
+    // ...pero Chrome no deja frenar un segundo Esc seguido y el <dialog> se
+    // cierra solo: aquí se corta lo que hubiera en marcha y se resuelve igual.
+    dialogo.addEventListener("close", () => {
+        if (!resolver) return;
+        estado.controlador?.abort();
+        terminar(null);
     });
 
     const buscador = dialogo.querySelector("#tac-buscar-paciente");
@@ -229,8 +236,12 @@ async function elegirArchivo(archivo) {
         return;
     }
 
-    estado.archivo = archivo;
-    estado.analisis = null;
+    // Si el modal se cierra (y se vuelve a abrir) mientras se lee el zip, el
+    // resultado de esta lectura ya no es de la sesión actual: se descarta.
+    const sesion = estado;
+    sesion.archivo = archivo;
+    sesion.analisis = null;
+    sesion.controlador = new AbortController();
     mostrar("[data-resumen]", false);
     mostrar("[data-avisos]", false);
     mostrar("[data-zona]", false);
@@ -239,22 +250,28 @@ async function elegirArchivo(archivo) {
 
     try {
         const analisis = await analizarZip(await archivo.arrayBuffer(), (p) => {
+            if (estado !== sesion) return;
             const fraccion = p.total > 1 ? p.hechos / p.total : null;
             progreso(`${FASES[p.fase] ?? "Procesando"}…${p.total > 1 ? ` ${p.hechos} / ${p.total}` : ""}`, fraccion);
-        });
-        estado.analisis = analisis;
+        }, sesion.controlador.signal);
+        if (estado !== sesion) return;
+        sesion.analisis = analisis;
         pintarResumen(analisis);
         const descripcion = dialogo.querySelector("#tac-descripcion");
         if (!descripcion.value && analisis.estudio.descripcion) descripcion.value = analisis.estudio.descripcion;
         mostrar("[data-progreso]", false);
     } catch (error) {
-        estado.archivo = null;
+        if (estado !== sesion) return;
+        sesion.archivo = null;
         mostrar("[data-progreso]", false);
         mostrar("[data-zona]", true);
-        mostrarError(error.message);
+        if (error.name !== "AbortError") mostrarError(error.message);
     } finally {
-        bloquear(false);
-        comprobarPaciente();
+        if (estado === sesion) {
+            sesion.controlador = null;
+            bloquear(false);
+            comprobarPaciente();
+        }
     }
 }
 
@@ -288,12 +305,14 @@ function pintarResumen(analisis) {
 // --- subida -----------------------------------------------------------------
 
 async function subir() {
-    const { paciente, analisis, archivo } = estado;
+    const sesion = estado;
+    const { paciente, analisis, archivo } = sesion;
     if (!paciente || !analisis) return;
 
     mostrar("[data-error]", false);
     bloquear(true);
-    estado.controlador = new AbortController();
+    sesion.subiendo = true;
+    sesion.controlador = new AbortController();
     const botonCancelar = dialogo.querySelector(".tac-subir__pie [data-accion=cerrar]");
     botonCancelar.textContent = "Cancelar subida";
 
@@ -315,14 +334,15 @@ async function subir() {
             voxel_y: geometria.voxel[1],
             voxel_z: geometria.voxel[2],
         }, (subido, total) => {
+            if (estado !== sesion) return;
             progreso(`Subiendo… ${Math.floor((subido / total) * 100)} % (${formatearBytes(subido)} de ${formatearBytes(total)})`, subido / total);
-        }, estado.controlador.signal);
+        }, sesion.controlador.signal);
 
-        estado.controlador = null;
-        estado.ocupado = false;
-        terminar(id);
+        if (estado === sesion) terminar(id);
     } catch (error) {
-        estado.controlador = null;
+        if (estado !== sesion) return;   // el modal se cerró: ApiTAC ya borró lo subido
+        sesion.controlador = null;
+        sesion.subiendo = false;
         mostrar("[data-progreso]", false);
         if (error.name !== "AbortError") mostrarError(`No se pudo subir el estudio: ${error.message}`);
         bloquear(false);
@@ -344,20 +364,23 @@ function alPulsar(e) {
 }
 
 function cerrar() {
-    // Durante la subida, "cancelar" la corta (y ApiTAC borra lo ya subido).
-    if (estado.controlador) {
-        estado.controlador.abort();
+    // Subiendo: "Cancelar subida" la corta (ApiTAC borra lo ya subido) y el
+    // modal sigue abierto por si se quiere reintentar.
+    if (estado.subiendo) {
+        estado.controlador?.abort();
         return;
     }
-    if (estado.ocupado) return;   // analizando el zip: hay que esperar a que acabe
+    // Leyendo el zip, o sin nada en marcha: se corta lo que haya y se cierra.
+    estado.controlador?.abort();
     terminar(null);
 }
 
 function terminar(resultado) {
+    const pendiente = resolver;
+    resolver = null;          // antes de close(): así el evento "close" no resuelve dos veces
     estado = {};
-    dialogo.close();
-    resolver?.(resultado);
-    resolver = null;
+    if (dialogo.open) dialogo.close();
+    pendiente?.(resultado);
 }
 
 function bloquear(ocupado) {

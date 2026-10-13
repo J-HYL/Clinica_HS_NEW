@@ -8,16 +8,25 @@ const URL_API = "/api/tac.php";
 const TRAMO_DESCARGA = 16 * 1024 * 1024;
 const REINTENTOS = 3;
 
-async function pedir(accion, { metodo = "GET", id, cuerpo } = {}) {
+// tac.php exige esta cabecera en los POST: otra web no puede mandarla sin que
+// el navegador pida permiso antes (CORS), así que no puede borrar ni subir nada.
+const CABECERA_PROPIA = { "X-Requested-With": "XMLHttpRequest" };
+
+async function pedir(accion, { metodo = "GET", id, cuerpo, senal } = {}) {
     const url = `${URL_API}?accion=${accion}${id ? `&id=${encodeURIComponent(id)}` : ""}`;
     const res = await fetch(url, {
         method: metodo,
         credentials: "include",
-        headers: cuerpo ? { "Content-Type": "application/json" } : undefined,
+        headers: {
+            ...(metodo === "POST" ? CABECERA_PROPIA : {}),
+            ...(cuerpo ? { "Content-Type": "application/json" } : {}),
+        },
         body: cuerpo ? JSON.stringify(cuerpo) : undefined,
+        signal: senal,
     });
     const datos = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(datos.error || `Error ${res.status} en el servidor`);
+    // Ojo: db_connect.php corta con {error} y HTTP 200 si no hay BD para la clínica.
+    if (!res.ok || datos?.error) throw new Error(datos?.error || `Error ${res.status} en el servidor`);
     return datos;
 }
 
@@ -55,7 +64,7 @@ export async function subirEstudio(zip, datos, alProgresar, senal) {
             enviado = await enviarTrozo(id, enviado, zip.slice(enviado, enviado + trozo), senal);
             alProgresar?.(enviado, zip.size);
         }
-        await pedir("finalizar", { metodo: "POST", id });
+        await pedir("finalizar", { metodo: "POST", id, senal });
         return id;
     } catch (error) {
         borrarEstudio(id).catch(() => {});
@@ -70,7 +79,7 @@ async function enviarTrozo(id, desde, trozo, senal) {
             const res = await fetch(`${URL_API}?accion=trozo&id=${id}&offset=${desde}`, {
                 method: "POST",
                 credentials: "include",
-                headers: { "Content-Type": "application/octet-stream" },
+                headers: { ...CABECERA_PROPIA, "Content-Type": "application/octet-stream" },
                 body: trozo,
                 signal: senal,
             });
@@ -116,8 +125,10 @@ async function descargarTramo(id, inicio, fin, destino, alProgresar) {
                 headers: { Range: `bytes=${inicio}-${fin}` },
             });
             // 200 = el servidor ignoró el Range y manda el fichero entero: solo
-            // vale si se estaba pidiendo desde el principio.
-            const valido = res.status === 206 || (res.status === 200 && inicio === 0);
+            // vale si se estaba pidiendo desde el principio. Un JSON es un error
+            // (p. ej. el 200 con {error} de db_connect.php), nunca el estudio.
+            const esJson = (res.headers.get("Content-Type") || "").includes("application/json");
+            const valido = !esJson && (res.status === 206 || (res.status === 200 && inicio === 0));
             if (!valido) {
                 const datos = await res.json().catch(() => ({}));
                 throw Object.assign(new Error(datos.error || `Error ${res.status} al descargar el estudio`), { reintentable: res.status >= 500 });

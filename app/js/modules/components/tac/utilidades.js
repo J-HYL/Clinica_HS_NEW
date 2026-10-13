@@ -32,19 +32,24 @@ export function textoVoxel(x, y, z) {
     return iguales ? `${formato(valores[0])} mm` : `${valores.map(formato).join(" × ")} mm`;
 }
 
-/** Palabras de un nombre, sin tildes ni mayúsculas ("GARCÍA^Mª" -> ["garcia", ...]). */
+// Partículas que no identifican a nadie ("María DE LA Paz").
+const PARTICULAS = new Set(["de", "del", "la", "las", "los", "y"]);
+
+/** Palabras de un nombre, sin tildes ni mayúsculas ("GARCÍA^MARÍA" -> ["garcia", "maria"]). */
 function palabras(nombre) {
     return (nombre || "")
         .normalize("NFD").replace(/[̀-ͯ]/g, "")
         .toLowerCase()
-        .split(/[^a-zñ]+/)
-        .filter(p => p.length > 1);
+        .split(/[^a-z]+/)
+        .filter(p => p.length > 1 && !PARTICULAS.has(p));
 }
 
 /**
  * ¿El nombre que trae el DICOM es el del paciente de la ficha? Se compara por
- * palabras (el DICOM lo guarda como "APELLIDOS^NOMBRE"): basta con que coincida
- * la mitad de las del nombre más corto. null si el DICOM no trae nombre.
+ * palabras, sin importar el orden (el DICOM lo guarda como "APELLIDOS^NOMBRE"):
+ * TODAS las palabras del nombre más corto tienen que estar en el otro. Así
+ * "GARCIA^MARIA" vale para "María García Ruiz", pero "LOPEZ^MARIA" no (que
+ * coincida un nombre de pila común no basta). null si el DICOM no trae nombre.
  */
 export function mismoPaciente(nombreDicom, nombreFicha) {
     const a = palabras(nombreDicom);
@@ -52,6 +57,5 @@ export function mismoPaciente(nombreDicom, nombreFicha) {
     if (!a.length) return null;
     if (!b.length) return false;
     const [corto, largo] = a.length <= b.length ? [a, b] : [b, a];
-    const comunes = corto.filter(p => largo.includes(p)).length;
-    return comunes >= Math.ceil(corto.length / 2);
+    return corto.every(p => largo.includes(p));
 }

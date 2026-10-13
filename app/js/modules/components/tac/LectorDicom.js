@@ -15,16 +15,29 @@ export const FASES = {
     preparando3d: "Preparando la vista 3D",
 };
 
-function ejecutar(tipo, zip, alProgresar) {
+function ejecutar(tipo, zip, alProgresar, senal) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(URL_WORKER);
+
+        // Cancelar = matar el worker: suelta al momento la memoria del estudio.
+        const cancelar = () => {
+            worker.terminate();
+            reject(new DOMException("Lectura cancelada", "AbortError"));
+        };
+        if (senal?.aborted) return cancelar();
+        senal?.addEventListener("abort", cancelar, { once: true });
+
+        const terminar = () => {
+            senal?.removeEventListener("abort", cancelar);
+            worker.terminate();
+        };
 
         worker.onmessage = ({ data }) => {
             if (data.tipo === "progreso") {
                 alProgresar?.(data);
                 return;
             }
-            worker.terminate();
+            terminar();
             if (data.tipo === "error") reject(new Error(data.mensaje));
             else resolve(data.resultado);
         };
@@ -32,7 +45,7 @@ function ejecutar(tipo, zip, alProgresar) {
         // Si salta aquí es que el worker ni arrancó (sin conexión con el CDN, p. ej.).
         worker.onerror = (evento) => {
             evento.preventDefault();
-            worker.terminate();
+            terminar();
             reject(new Error("No se pudo cargar el lector de imágenes DICOM. Comprueba la conexión a internet y vuelve a intentarlo."));
         };
 
@@ -45,9 +58,10 @@ function ejecutar(tipo, zip, alProgresar) {
  * Antes de subir: valida el zip y devuelve los datos del estudio, una vista
  * previa, la huella sha256 y, si había algo más que la serie, el zip depurado.
  * @param {ArrayBuffer} zip
+ * @param {AbortSignal} [senal] - para cancelar (p. ej. al cerrar el modal)
  */
-export function analizarZip(zip, alProgresar) {
-    return ejecutar("analizar", zip, alProgresar);
+export function analizarZip(zip, alProgresar, senal) {
+    return ejecutar("analizar", zip, alProgresar, senal);
 }
 
 /**
