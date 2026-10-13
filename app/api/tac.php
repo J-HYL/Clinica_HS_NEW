@@ -35,7 +35,7 @@ header('Access-Control-Allow-Origin: ' . (in_array($reqOrigin, $allowedOrigins, 
 header('Vary: Origin');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Range');
+header('Access-Control-Allow-Headers: Content-Type, Range, X-Requested-With');
 // Nunca cachear: todo lo que sale de aquí son datos de pacientes.
 header('Cache-Control: no-store, private');
 
@@ -76,6 +76,11 @@ function body() { return json_decode(file_get_contents('php://input'), true) ?: 
 
 function exigirMetodo($metodo) {
     if ($_SERVER['REQUEST_METHOD'] !== $metodo) salir(405, ['error' => 'Método no permitido']);
+    // Las acciones que cambian algo exigen una cabecera propia: otra web no puede
+    // mandarla sin un preflight CORS que este script no le concede (CSRF).
+    if ($metodo === 'POST' && ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== 'XMLHttpRequest') {
+        salir(403, ['error' => 'Petición no permitida']);
+    }
 }
 
 /** "40M" (formato de php.ini) -> bytes. */
@@ -261,159 +266,168 @@ function borrarEstudio(mysqli $conn, $clinicSeg, array $estudio) {
 
 $accion = $_GET['accion'] ?? '';
 
-switch ($accion) {
+// mysqli lanza excepciones (PHP 8.1+): sin esto un fallo de BD saldría como un
+// 500 vacío. El caso típico es la migración 010 sin aplicar en ese entorno.
+try {
+    switch ($accion) {
 
-    case 'listar':
-        exigirMetodo('GET');
-        limpiarSubidasAbandonadas($conn, $clinicSeg);
-        $res = $conn->query("SELECT " . TAC_COLUMNAS . " FROM tac_estudios t
-            JOIN clients c ON c.id = t.client_id
-            WHERE t.estado = 'listo' ORDER BY t.fecha_subida DESC");
-        salir(200, $res->fetch_all(MYSQLI_ASSOC));
+        case 'listar':
+            exigirMetodo('GET');
+            limpiarSubidasAbandonadas($conn, $clinicSeg);
+            $res = $conn->query("SELECT " . TAC_COLUMNAS . " FROM tac_estudios t
+                JOIN clients c ON c.id = t.client_id
+                WHERE t.estado = 'listo' ORDER BY t.fecha_subida DESC");
+            salir(200, $res->fetch_all(MYSQLI_ASSOC));
 
-    case 'ver':
-        exigirMetodo('GET');
-        $estudio = estudioDeLaPeticion($conn, 'listo');
-        unset($estudio['sha256']);
-        salir(200, $estudio);
+        case 'ver':
+            exigirMetodo('GET');
+            $estudio = estudioDeLaPeticion($conn, 'listo');
+            unset($estudio['sha256']);
+            salir(200, $estudio);
 
-    case 'archivo':
-        exigirMetodo('GET');
-        $estudio = estudioDeLaPeticion($conn, 'listo');
-        $ruta = rutaZip($clinicSeg, $estudio);
-        if (!is_file($ruta)) salir(404, ['error' => 'El fichero del estudio no está en el servidor.']);
-        $conn->close();
-        enviarFichero($ruta, 'tac-' . (int)$estudio['id'] . '.zip');
+        case 'archivo':
+            exigirMetodo('GET');
+            $estudio = estudioDeLaPeticion($conn, 'listo');
+            $ruta = rutaZip($clinicSeg, $estudio);
+            if (!is_file($ruta)) salir(404, ['error' => 'El fichero del estudio no está en el servidor.']);
+            $conn->close();
+            enviarFichero($ruta, 'tac-' . (int)$estudio['id'] . '.zip');
 
-    case 'iniciar':
-        exigirMetodo('POST');
-        $d = body();
-        $clientId = (int)($d['client_id'] ?? 0);
-        $tamano   = (int)($d['tamano'] ?? 0);
-        $sha256   = strtolower(trim((string)($d['sha256'] ?? '')));
+        case 'iniciar':
+            exigirMetodo('POST');
+            $d = body();
+            $clientId = (int)($d['client_id'] ?? 0);
+            $tamano   = (int)($d['tamano'] ?? 0);
+            $sha256   = strtolower(trim((string)($d['sha256'] ?? '')));
 
-        if ($clientId <= 0) salir(400, ['error' => 'Falta el paciente.']);
-        if ($tamano <= 0 || $tamano > TAC_TAMANO_MAXIMO) salir(400, ['error' => 'El tamaño del estudio no es válido (máximo 2 GB).']);
-        if (!preg_match('/^[a-f0-9]{64}$/', $sha256)) salir(400, ['error' => 'Falta la huella (sha256) del estudio.']);
+            if ($clientId <= 0) salir(400, ['error' => 'Falta el paciente.']);
+            if ($tamano <= 0 || $tamano > TAC_TAMANO_MAXIMO) salir(400, ['error' => 'El tamaño del estudio no es válido (máximo 2 GB).']);
+            if (!preg_match('/^[a-f0-9]{64}$/', $sha256)) salir(400, ['error' => 'Falta la huella (sha256) del estudio.']);
 
-        $stmt = $conn->prepare("SELECT id FROM clients WHERE id = ?");
-        $stmt->bind_param('i', $clientId);
-        $stmt->execute();
-        $existe = (bool)$stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        if (!$existe) salir(404, ['error' => 'El paciente no existe.']);
+            $stmt = $conn->prepare("SELECT id FROM clients WHERE id = ?");
+            $stmt->bind_param('i', $clientId);
+            $stmt->execute();
+            $existe = (bool)$stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            if (!$existe) salir(404, ['error' => 'El paciente no existe.']);
 
-        // Si el hosting deja consultarlo, mejor avisar ahora que a mitad de subida.
-        $libre = @disk_free_space(__DIR__ . '/..');
-        if ($libre !== false && $libre < $tamano * 1.1) {
-            salir(507, ['error' => 'No hay espacio suficiente en el servidor para este estudio.']);
-        }
-
-        $descripcion = textoOrNull($d['descripcion'] ?? null, 255);
-        $fecha       = fechaOrNull($d['fecha_estudio'] ?? null);
-        $equipo      = textoOrNull($d['equipo'] ?? null, 150);
-        $cortes      = enteroOrNull($d['cortes'] ?? null);
-        $ancho       = enteroOrNull($d['ancho'] ?? null);
-        $alto        = enteroOrNull($d['alto'] ?? null);
-        $voxelX      = decimalOrNull($d['voxel_x'] ?? null);
-        $voxelY      = decimalOrNull($d['voxel_y'] ?? null);
-        $voxelZ      = decimalOrNull($d['voxel_z'] ?? null);
-
-        $stmt = $conn->prepare("INSERT INTO tac_estudios
-            (client_id, descripcion, fecha_estudio, equipo, cortes, ancho, alto, voxel_x, voxel_y, voxel_z, tamano, sha256, subido_por)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('isssiiidddiss', $clientId, $descripcion, $fecha, $equipo, $cortes, $ancho, $alto,
-            $voxelX, $voxelY, $voxelZ, $tamano, $sha256, $usuario);
-        if (!$stmt->execute()) salir(500, ['error' => 'No se pudo registrar el estudio: ' . $stmt->error]);
-        $estudio = ['id' => $conn->insert_id, 'client_id' => $clientId];
-        $stmt->close();
-
-        try {
-            prepararCarpeta(carpetaTac($clinicSeg, $clientId));
-            if (file_put_contents(rutaParcial($clinicSeg, $estudio), '') === false) {
-                throw new Exception('No se pudo crear el fichero del estudio en el servidor.');
+            // Si el hosting deja consultarlo, mejor avisar ahora que a mitad de subida.
+            $libre = @disk_free_space(__DIR__ . '/..');
+            if ($libre !== false && $libre < $tamano * 1.1) {
+                salir(507, ['error' => 'No hay espacio suficiente en el servidor para este estudio.']);
             }
-        } catch (Exception $e) {
-            borrarEstudio($conn, $clinicSeg, $estudio);
-            salir(500, ['error' => $e->getMessage()]);
-        }
 
-        salir(200, ['success' => true, 'id' => $estudio['id'], 'trozo' => tamanoTrozo()]);
+            $descripcion = textoOrNull($d['descripcion'] ?? null, 255);
+            $fecha       = fechaOrNull($d['fecha_estudio'] ?? null);
+            $equipo      = textoOrNull($d['equipo'] ?? null, 150);
+            $cortes      = enteroOrNull($d['cortes'] ?? null);
+            $ancho       = enteroOrNull($d['ancho'] ?? null);
+            $alto        = enteroOrNull($d['alto'] ?? null);
+            $voxelX      = decimalOrNull($d['voxel_x'] ?? null);
+            $voxelY      = decimalOrNull($d['voxel_y'] ?? null);
+            $voxelZ      = decimalOrNull($d['voxel_z'] ?? null);
 
-    case 'trozo':
-        exigirMetodo('POST');
-        $estudio = estudioDeLaPeticion($conn, 'subiendo');
-        $parcial = rutaParcial($clinicSeg, $estudio);
-        if (!is_file($parcial)) salir(409, ['error' => 'La subida de este estudio no está iniciada.']);
+            $stmt = $conn->prepare("INSERT INTO tac_estudios
+                (client_id, descripcion, fecha_estudio, equipo, cortes, ancho, alto, voxel_x, voxel_y, voxel_z, tamano, sha256, subido_por)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param('isssiiidddiss', $clientId, $descripcion, $fecha, $equipo, $cortes, $ancho, $alto,
+                $voxelX, $voxelY, $voxelZ, $tamano, $sha256, $usuario);
+            if (!$stmt->execute()) salir(500, ['error' => 'No se pudo registrar el estudio: ' . $stmt->error]);
+            $estudio = ['id' => $conn->insert_id, 'client_id' => $clientId];
+            $stmt->close();
 
-        $offset = (int)($_GET['offset'] ?? -1);
-        $f = fopen($parcial, 'c+b');
-        flock($f, LOCK_EX);
-        $actual = fstat($f)['size'];
+            try {
+                prepararCarpeta(carpetaTac($clinicSeg, $clientId));
+                if (file_put_contents(rutaParcial($clinicSeg, $estudio), '') === false) {
+                    throw new Exception('No se pudo crear el fichero del estudio en el servidor.');
+                }
+            } catch (Exception $e) {
+                borrarEstudio($conn, $clinicSeg, $estudio);
+                salir(500, ['error' => $e->getMessage()]);
+            }
 
-        // El navegador dice desde dónde manda. Si no cuadra (un reintento de un
-        // trozo que sí llegó, p. ej.), se le contesta cuánto hay y sigue desde ahí.
-        if ($offset !== $actual) {
-            flock($f, LOCK_UN); fclose($f);
-            salir(409, ['error' => 'El trozo no corresponde a la posición actual.', 'recibido' => $actual]);
-        }
+            salir(200, ['success' => true, 'id' => $estudio['id'], 'trozo' => tamanoTrozo()]);
 
-        fseek($f, $actual);
-        $entrada = fopen('php://input', 'rb');
-        $copiados = stream_copy_to_stream($entrada, $f);
-        fclose($entrada);
-        fflush($f);
+        case 'trozo':
+            exigirMetodo('POST');
+            $estudio = estudioDeLaPeticion($conn, 'subiendo');
+            $parcial = rutaParcial($clinicSeg, $estudio);
+            if (!is_file($parcial)) salir(409, ['error' => 'La subida de este estudio no está iniciada.']);
 
-        $esperado = (int)($_SERVER['CONTENT_LENGTH'] ?? -1);
-        $incompleto = $copiados === false || ($esperado >= 0 && $copiados !== $esperado);
-        $excede = !$incompleto && $actual + $copiados > (int)$estudio['tamano'];
-        if ($incompleto || $excede) {
-            ftruncate($f, $actual);   // el reintento empieza limpio desde $actual
-            flock($f, LOCK_UN); fclose($f);
-            salir(400, [
-                'error' => $excede ? 'El estudio supera el tamaño declarado.' : 'El trozo no llegó completo.',
-                'recibido' => $actual,
-            ]);
-        }
+            $offset = (int)($_GET['offset'] ?? -1);
+            $f = fopen($parcial, 'c+b');
+            flock($f, LOCK_EX);
+            $actual = fstat($f)['size'];
 
-        flock($f, LOCK_UN);
-        fclose($f);
-        salir(200, ['success' => true, 'recibido' => $actual + $copiados]);
+            // El navegador dice desde dónde manda. Si no cuadra (un reintento de un
+            // trozo que sí llegó, p. ej.), se le contesta cuánto hay y sigue desde ahí.
+            if ($offset !== $actual) {
+                flock($f, LOCK_UN); fclose($f);
+                salir(409, ['error' => 'El trozo no corresponde a la posición actual.', 'recibido' => $actual]);
+            }
 
-    case 'finalizar':
-        exigirMetodo('POST');
-        $estudio = estudioDeLaPeticion($conn, 'subiendo');
-        $parcial = rutaParcial($clinicSeg, $estudio);
-        clearstatcache(true, $parcial);
-        $recibido = is_file($parcial) ? filesize($parcial) : 0;
+            fseek($f, $actual);
+            $entrada = fopen('php://input', 'rb');
+            $copiados = stream_copy_to_stream($entrada, $f);
+            fclose($entrada);
+            fflush($f);
 
-        if ($recibido !== (int)$estudio['tamano']) {
-            salir(409, ['error' => 'El estudio no ha llegado completo.', 'recibido' => $recibido]);
-        }
-        // Un zip empieza por la firma "PK\x03\x04", y la huella tiene que ser la
-        // misma que calculó el navegador sobre el original.
-        $valido = file_get_contents($parcial, false, null, 0, 4) === "PK\x03\x04"
-            && hash_equals($estudio['sha256'], hash_file('sha256', $parcial));
-        if (!$valido) {
-            borrarEstudio($conn, $clinicSeg, $estudio);
-            salir(400, ['error' => 'La copia recibida no coincide con el original. Vuelve a subir el estudio.']);
-        }
-        if (!rename($parcial, rutaZip($clinicSeg, $estudio))) {
-            salir(500, ['error' => 'No se pudo guardar el estudio en el servidor.']);
-        }
+            $esperado = (int)($_SERVER['CONTENT_LENGTH'] ?? -1);
+            $incompleto = $copiados === false || ($esperado >= 0 && $copiados !== $esperado);
+            $excede = !$incompleto && $actual + $copiados > (int)$estudio['tamano'];
+            if ($incompleto || $excede) {
+                ftruncate($f, $actual);   // el reintento empieza limpio desde $actual
+                flock($f, LOCK_UN); fclose($f);
+                salir(400, [
+                    'error' => $excede ? 'El estudio supera el tamaño declarado.' : 'El trozo no llegó completo.',
+                    'recibido' => $actual,
+                ]);
+            }
 
-        $stmt = $conn->prepare("UPDATE tac_estudios SET estado = 'listo' WHERE id = ?");
-        $stmt->bind_param('i', $estudio['id']);
-        $stmt->execute();
-        $stmt->close();
-        salir(200, ['success' => true, 'id' => (int)$estudio['id']]);
+            flock($f, LOCK_UN);
+            fclose($f);
+            salir(200, ['success' => true, 'recibido' => $actual + $copiados]);
 
-    case 'borrar':
-        exigirMetodo('POST');
-        $estudio = estudioDeLaPeticion($conn);
-        $filas = borrarEstudio($conn, $clinicSeg, $estudio);
-        salir(200, ['success' => true, 'rows_affected' => $filas]);
+        case 'finalizar':
+            exigirMetodo('POST');
+            $estudio = estudioDeLaPeticion($conn, 'subiendo');
+            $parcial = rutaParcial($clinicSeg, $estudio);
+            clearstatcache(true, $parcial);
+            $recibido = is_file($parcial) ? filesize($parcial) : 0;
 
-    default:
-        salir(400, ['error' => 'Acción no válida']);
+            if ($recibido !== (int)$estudio['tamano']) {
+                salir(409, ['error' => 'El estudio no ha llegado completo.', 'recibido' => $recibido]);
+            }
+            // Un zip empieza por la firma "PK\x03\x04", y la huella tiene que ser la
+            // misma que calculó el navegador sobre el original.
+            $valido = file_get_contents($parcial, false, null, 0, 4) === "PK\x03\x04"
+                && hash_equals($estudio['sha256'], hash_file('sha256', $parcial));
+            if (!$valido) {
+                borrarEstudio($conn, $clinicSeg, $estudio);
+                salir(400, ['error' => 'La copia recibida no coincide con el original. Vuelve a subir el estudio.']);
+            }
+            if (!rename($parcial, rutaZip($clinicSeg, $estudio))) {
+                salir(500, ['error' => 'No se pudo guardar el estudio en el servidor.']);
+            }
+
+            $stmt = $conn->prepare("UPDATE tac_estudios SET estado = 'listo' WHERE id = ?");
+            $stmt->bind_param('i', $estudio['id']);
+            $stmt->execute();
+            $stmt->close();
+            salir(200, ['success' => true, 'id' => (int)$estudio['id']]);
+
+        case 'borrar':
+            exigirMetodo('POST');
+            $estudio = estudioDeLaPeticion($conn);
+            $filas = borrarEstudio($conn, $clinicSeg, $estudio);
+            salir(200, ['success' => true, 'rows_affected' => $filas]);
+
+        default:
+            salir(400, ['error' => 'Acción no válida']);
+    }
+} catch (mysqli_sql_exception $e) {
+    error_log('tac.php (' . $accion . '): ' . $e->getMessage());
+    salir(500, ['error' => $e->getCode() === 1146
+        ? 'La sección TAC no está instalada en esta base de datos (falta la migración 010).'
+        : 'Error de base de datos al procesar el estudio.']);
 }
