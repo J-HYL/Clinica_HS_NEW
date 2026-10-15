@@ -7,6 +7,7 @@ const URL_WORKER = new URL("./lectorDicom.worker.js", import.meta.url);
 
 /** Texto para el usuario de cada fase que va avisando el worker. */
 export const FASES = {
+    revisando: "Buscando las imágenes DICOM en la carpeta",
     leyendo: "Leyendo las imágenes DICOM",
     montando: "Montando el volumen",
     empaquetando: "Preparando el estudio para subirlo",
@@ -15,7 +16,8 @@ export const FASES = {
     preparando3d: "Preparando la vista 3D",
 };
 
-function ejecutar(tipo, zip, alProgresar, senal) {
+/** @param {{zip?: ArrayBuffer, ficheros?: {ruta: string, archivo: File}[]}} origen */
+function ejecutar(tipo, origen, alProgresar, senal) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(URL_WORKER);
 
@@ -49,19 +51,21 @@ function ejecutar(tipo, zip, alProgresar, senal) {
             reject(new Error("No se pudo cargar el lector de imágenes DICOM. Comprueba la conexión a internet y vuelve a intentarlo."));
         };
 
-        // El zip se transfiere (no se copia): deja de estar disponible aquí.
-        worker.postMessage({ tipo, zip }, [zip]);
+        // El zip se transfiere (no se copia): deja de estar disponible aquí. Los
+        // File de una carpeta se pasan tal cual (solo son referencias al disco).
+        worker.postMessage({ tipo, ...origen }, origen.zip ? [origen.zip] : []);
     });
 }
 
 /**
- * Antes de subir: valida el zip y devuelve los datos del estudio, una vista
- * previa, la huella sha256 y, si había algo más que la serie, el zip depurado.
- * @param {ArrayBuffer} zip
+ * Antes de subir: valida el estudio y devuelve sus datos, una vista previa, la
+ * huella sha256 y el zip que hay que subir si no es el original (`zip`: depurado,
+ * o empaquetado desde una carpeta).
+ * @param {{zip: ArrayBuffer} | {ficheros: {ruta: string, archivo: File}[]}} origen
  * @param {AbortSignal} [senal] - para cancelar (p. ej. al cerrar el modal)
  */
-export function analizarZip(zip, alProgresar, senal) {
-    return ejecutar("analizar", zip, alProgresar, senal);
+export function analizarEstudio(origen, alProgresar, senal) {
+    return ejecutar("analizar", origen, alProgresar, senal);
 }
 
 /**
@@ -69,5 +73,5 @@ export function analizarZip(zip, alProgresar, senal) {
  * @param {ArrayBuffer} zip
  */
 export function montarVolumen(zip, alProgresar) {
-    return ejecutar("volumen", zip, alProgresar);
+    return ejecutar("volumen", { zip }, alProgresar);
 }

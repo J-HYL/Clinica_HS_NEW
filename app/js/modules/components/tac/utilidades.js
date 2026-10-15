@@ -10,6 +10,11 @@ export function esEscritorio() {
     return window.matchMedia(CONSULTA_ESCRITORIO).matches;
 }
 
+/** Texto sin tildes ni mayúsculas, para buscar ("García" encuentra "garcia"). */
+export function normalizar(texto) {
+    return String(texto ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
 export function formatearBytes(bytes) {
     const n = Number(bytes) || 0;
     if (n >= 1024 ** 3) return `${(n / 1024 ** 3).toFixed(2)} GB`;
@@ -37,9 +42,7 @@ const PARTICULAS = new Set(["de", "del", "la", "las", "los", "y"]);
 
 /** Palabras de un nombre, sin tildes ni mayúsculas ("GARCÍA^MARÍA" -> ["garcia", "maria"]). */
 function palabras(nombre) {
-    return (nombre || "")
-        .normalize("NFD").replace(/[̀-ͯ]/g, "")
-        .toLowerCase()
+    return normalizar(nombre)
         .split(/[^a-z]+/)
         .filter(p => p.length > 1 && !PARTICULAS.has(p));
 }

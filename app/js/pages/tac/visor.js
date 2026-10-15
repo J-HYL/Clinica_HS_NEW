@@ -1,4 +1,4 @@
-import { obtenerEstudio, descargarEstudio } from "../../modules/components/tac/ApiTAC.js";
+import { obtenerEstudio, descargarEstudio, marcarVisto } from "../../modules/components/tac/ApiTAC.js";
 import { montarVolumen, FASES } from "../../modules/components/tac/LectorDicom.js";
 import VistaCorte from "../../modules/components/tac/VistaCorte.js";
 import Vista3D from "../../modules/components/tac/Vista3D.js";
@@ -40,6 +40,8 @@ async function abrirEstudio() {
     try {
         const estudio = await obtenerEstudio(id);
         pintarCabecera(estudio);
+        // Abrirlo cuenta como "visto": el aviso de la campana ya no hace falta.
+        if (Number(estudio.visto) === 0) marcarVisto(estudio.id).catch(() => {});
 
         const zip = await descargarEstudio(estudio.id, Number(estudio.tamano), (hecho, total) => {
             mostrarCarga("Descargando el estudio", hecho / total, `${formatearBytes(hecho)} de ${formatearBytes(total)}`);
@@ -55,7 +57,7 @@ async function abrirEstudio() {
 }
 
 function pintarCabecera(estudio) {
-    titulo.textContent = estudio.paciente;
+    titulo.textContent = estudio.paciente || `Sin asignar · ${estudio.paciente_nombre || "paciente sin indicar"}`;
     const fecha = formatearFecha(estudio.fecha_estudio);
     datosEstudio.textContent = [
         fecha !== "—" ? `Estudio del ${fecha}` : null,

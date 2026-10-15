@@ -1,21 +1,25 @@
-// lectorDicom.worker.js — Lee un estudio DICOM (TAC/CBCT) desde un .zip, fuera
-// del hilo principal para que la página no se congele.
+// lectorDicom.worker.js — Lee un estudio DICOM (TAC/CBCT) desde un .zip o desde
+// una carpeta, fuera del hilo principal para que la página no se congele.
 //
 // Worker CLÁSICO (no módulo) a propósito: así fflate y dicom-parser se cargan con
 // importScripts desde el CDN como globales, igual que el resto de librerías de
 // terceros del panel. No se usa directamente: se lanza desde LectorDicom.js.
 //
 // Dos trabajos:
-//  - "analizar" (antes de subir): valida el zip, encuentra la serie volumétrica,
-//    saca los datos del estudio y una vista previa, y si el zip trae algo más que
-//    esa serie (DICOMDIR, otras series, el visor de Romexis...) lo reempaqueta
-//    solo con ella. Devuelve también la huella sha256 de lo que hay que subir.
+//  - "analizar" (antes de subir): valida el estudio, encuentra la serie
+//    volumétrica, saca los datos y una vista previa, y deja listo el zip que hay
+//    que subir: el original si solo trae la serie, o uno nuevo solo con ella si
+//    trae algo más (DICOMDIR, otras series, el visor de Romexis...) o si llegó
+//    como carpeta. Devuelve también la huella sha256 de lo que se sube.
 //  - "volumen" (en el visor): monta el volumen completo, con los cortes ordenados
 //    por su posición real y los grises ya en las unidades del equipo.
 //
-// Memoria: un CBCT descomprimido ocupa 200-1000 MB. El zip se descomprime por
-// lotes y el volumen se reserva UNA vez y se rellena directamente; guardar cada
-// corte y juntarlos al final duplicaría el pico de memoria.
+// El estudio llega como una "fuente" (fuenteZip / fuenteCarpeta): una lista de
+// nombres y una forma de leerlos por lotes. Todo lo demás no sabe de dónde vino.
+//
+// Memoria: un CBCT descomprimido ocupa 200-1000 MB. Se lee por lotes y el
+// volumen se reserva UNA vez y se rellena directamente; guardar cada corte y
+// juntarlos al final duplicaría el pico de memoria.
 
 "use strict";
 
@@ -37,10 +41,10 @@ const SINTAXIS_ADMITIDAS = new Set([
 ]);
 
 self.onmessage = async (evento) => {
-    const { tipo, zip } = evento.data;
+    const { tipo, zip, ficheros } = evento.data;
     try {
-        const datos = new Uint8Array(zip);
-        const resultado = tipo === "analizar" ? await analizar(datos) : montar(datos);
+        const fuente = zip ? fuenteZip(new Uint8Array(zip)) : fuenteCarpeta(ficheros);
+        const resultado = tipo === "analizar" ? await analizar(fuente) : montar(fuente);
         self.postMessage({ tipo: "resultado", resultado }, transferibles(resultado));
     } catch (error) {
         self.postMessage({ tipo: "error", mensaje: error?.message || String(error) });
@@ -64,30 +68,29 @@ function transferibles(resultado) {
 
 // --- trabajos ---------------------------------------------------------------
 
-async function analizar(datos) {
-    const nombres = listarZip(datos);
-    const { cortes, series, noImagen } = leerCabeceras(datos, nombres);
+async function analizar(fuente) {
+    const { cortes, series, noImagen } = leerCabeceras(fuente);
     const { principal, avisos } = elegirSerie(cortes, series);
     const geo = geometria(principal);
     comprobarFormato(geo.ordenados[0]);
 
     const meta = series.get(principal[0].serie);
     const central = geo.ordenados[Math.floor(geo.ordenados.length / 2)];
-    const vistaPrevia = generarVistaPrevia(datos, central, geo, meta.ventana);
+    const vistaPrevia = generarVistaPrevia(fuente, central, geo, meta.ventana);
 
-    // Solo se reempaqueta si sobra algo: así lo normal (un zip con la serie y
-    // nada más) se sube tal cual, sin gastar tiempo en volver a comprimir.
+    // Un zip que solo trae la serie se sube tal cual (sin gastar tiempo en volver
+    // a comprimir). Si sobra algo, o si llegó como carpeta, se empaqueta la serie.
     const ficherosSerie = [...new Set(principal.map(c => c.fichero))];
-    const sobran = nombres.length - ficherosSerie.length;
     let zip = null;
-    if (sobran > 0) {
-        if (noImagen === 1) avisos.push("Se ha descartado 1 archivo que no es una imagen del estudio.");
-        else if (noImagen > 1) avisos.push(`Se han descartado ${noImagen} archivos que no son imágenes del estudio.`);
-        zip = reempaquetar(datos, ficherosSerie);
+    if (!fuente.zipOriginal || fuente.nombres.length > ficherosSerie.length) {
+        const descartados = noImagen + fuente.descartados;
+        if (descartados === 1) avisos.push("Se ha descartado 1 archivo que no es una imagen del estudio.");
+        else if (descartados > 1) avisos.push(`Se han descartado ${descartados} archivos que no son imágenes del estudio.`);
+        zip = reempaquetar(fuente, ficherosSerie);
     }
 
     progreso("verificando", 0, 1);
-    const final = zip ? new Uint8Array(zip) : datos;
+    const final = zip ? new Uint8Array(zip) : fuente.zipOriginal;
     const sha256 = await huella(final);
 
     return {
@@ -105,15 +108,14 @@ async function analizar(datos) {
     };
 }
 
-function montar(datos) {
-    const nombres = listarZip(datos);
-    const { cortes, series } = leerCabeceras(datos, nombres);
+function montar(fuente) {
+    const { cortes, series } = leerCabeceras(fuente);
     const { principal, avisos } = elegirSerie(cortes, series);
     const geo = geometria(principal);
     comprobarFormato(geo.ordenados[0]);
 
     // 16 bits ocupan la mitad que Float32. Si algún valor no cabe (raro), se repite en Float32.
-    const volumen = rellenarVolumen(datos, geo, tipoVolumen(geo.ordenados)) || rellenarVolumen(datos, geo, Float32Array);
+    const volumen = rellenarVolumen(fuente, geo, tipoVolumen(geo.ordenados)) || rellenarVolumen(fuente, geo, Float32Array);
 
     progreso("calculando", 0, 1);
     const estadisticas = calcularEstadisticas(volumen);
@@ -132,7 +134,45 @@ function montar(datos) {
     };
 }
 
-// --- zip --------------------------------------------------------------------
+// --- fuentes: zip o carpeta --------------------------------------------------
+
+/** Un .zip: se descomprime por lotes, solo lo que se pide. */
+function fuenteZip(datos) {
+    return {
+        nombres: listarZip(datos),
+        descartados: 0,
+        leer: (nombres) => descomprimir(datos, nombres),
+        zipOriginal: datos,
+    };
+}
+
+/**
+ * Una carpeta (los ficheros que eligió o arrastró el usuario, [{ruta, archivo}]).
+ * De entrada solo se miran los 4 bytes de la firma DICOM de cada fichero: así
+ * los del visor de Romexis, documentos, etc. ni se leen enteros.
+ */
+function fuenteCarpeta(ficheros) {
+    if (!ficheros?.length) throw new Error("La carpeta está vacía.");
+    const lector = new FileReaderSync();
+    const porRuta = new Map();
+    let descartados = 0;
+
+    ficheros.forEach(({ ruta, archivo }, n) => {
+        const firma = archivo.size >= 132 ? new Uint8Array(lector.readAsArrayBuffer(archivo.slice(128, 132))) : null;
+        const esDicom = firma && firma[0] === 0x44 && firma[1] === 0x49 && firma[2] === 0x43 && firma[3] === 0x4D;
+        if (esDicom) porRuta.set(ruta, archivo);
+        else descartados++;
+        if (n % 200 === 0) progreso("revisando", n, ficheros.length);
+    });
+    if (!porRuta.size) throw new Error("En la carpeta no hay imágenes DICOM (.dcm).");
+
+    return {
+        nombres: [...porRuta.keys()],
+        descartados,
+        leer: (nombres) => Object.fromEntries(nombres.map(r => [r, new Uint8Array(lector.readAsArrayBuffer(porRuta.get(r)))])),
+        zipOriginal: null,
+    };
+}
 
 /** Nombres de los ficheros del zip (sin descomprimir nada todavía). */
 function listarZip(datos) {
@@ -163,7 +203,7 @@ function descomprimir(datos, nombres) {
  * la vez en memoria (en un CBCT grande serían cientos de MB de más).
  * @returns {ArrayBuffer}
  */
-function reempaquetar(datos, nombres) {
+function reempaquetar(fuente, nombres) {
     const trozos = [];
     let total = 0;
     let fallo = null;
@@ -174,7 +214,7 @@ function reempaquetar(datos, nombres) {
 
     for (let n = 0; n < nombres.length; n += LOTE) {
         const lote = nombres.slice(n, n + LOTE);
-        const ficheros = descomprimir(datos, lote);
+        const ficheros = fuente.leer(lote);
         for (const nombre of lote) {
             const entrada = new fflate.ZipDeflate(nombre, { level: 1 });
             zip.add(entrada);
@@ -223,15 +263,16 @@ function inflar(bytes, posicion) {
     return completo;
 }
 
-/** Recorre el zip por lotes y saca la descripción de cada imagen (sin píxeles). */
-function leerCabeceras(datos, nombres) {
+/** Recorre el estudio por lotes y saca la descripción de cada imagen (sin píxeles). */
+function leerCabeceras(fuente) {
+    const { nombres } = fuente;
     const cortes = [];
     const series = new Map();
     let noImagen = 0;
 
     for (let n = 0; n < nombres.length; n += LOTE) {
         const lote = nombres.slice(n, n + LOTE);
-        const ficheros = descomprimir(datos, lote);
+        const ficheros = fuente.leer(lote);
         for (const nombre of lote) {
             const ds = leerDataset(ficheros[nombre]);
             const nuevos = ds ? cortesDeFichero(nombre, ds) : [];
@@ -242,7 +283,7 @@ function leerCabeceras(datos, nombres) {
         progreso("leyendo", Math.min(n + LOTE, nombres.length), nombres.length);
     }
 
-    if (!cortes.length) throw new Error("El zip no contiene imágenes DICOM.");
+    if (!cortes.length) throw new Error("El estudio no contiene imágenes DICOM.");
     return { cortes, series, noImagen };
 }
 
@@ -539,7 +580,7 @@ function volcarCorte(crudo, corte, k, volumen, geo) {
     return true;
 }
 
-function rellenarVolumen(datos, geo, Tipo) {
+function rellenarVolumen(fuente, geo, Tipo) {
     const [nx, ny, nz] = geo.dims;
     const volumen = new Tipo(nx * ny * nz);
 
@@ -554,7 +595,7 @@ function rellenarVolumen(datos, geo, Tipo) {
     let hechos = 0;
     for (let n = 0; n < nombres.length; n += LOTE) {
         const lote = nombres.slice(n, n + LOTE);
-        const ficheros = descomprimir(datos, lote);
+        const ficheros = fuente.leer(lote);
         for (const nombre of lote) {
             const ds = leerDataset(ficheros[nombre]);
             if (!ds) throw new Error(`No se pudo releer ${nombre}.`);
@@ -570,8 +611,8 @@ function rellenarVolumen(datos, geo, Tipo) {
 }
 
 /** Corte central en escala de grises, para confirmar el estudio antes de subirlo. */
-function generarVistaPrevia(datos, corte, geo, ventanaEstudio) {
-    const ds = leerDataset(descomprimir(datos, [corte.fichero])[corte.fichero]);
+function generarVistaPrevia(fuente, corte, geo, ventanaEstudio) {
+    const ds = leerDataset(fuente.leer([corte.fichero])[corte.fichero]);
     const [ancho, alto] = geo.dims;
     const valores = new Float32Array(ancho * alto);
     volcarCorte(pixelesCrudos(ds, corte), corte, 0, valores, geo);

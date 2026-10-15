@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Página para centros de radiología externos: que no la indexe nadie. -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <title>Envío de estudios TAC · HS Dental</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- control.css trae la paleta, la tipografía y los estilos de formulario del panel. -->
+    <link rel="stylesheet" href="/css/pages/control.css">
+    <link rel="stylesheet" href="/css/pages/tac.css">
+
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+</head>
+<!-- Sin main.js a propósito: ni menú, ni campana, ni soporte del panel. Es para
+     gente de fuera de la clínica y desde aquí solo se puede enviar. -->
+<body class="tac-envio">
+    <main class="tac-envio__tarjeta">
+        <header class="tac-envio__cabecera">
+            <img src="/assets/images/logoCompleto.svg" alt="HS Dental" class="tac-envio__logo">
+            <h1 class="tac-envio__titulo">Envío de estudios TAC</h1>
+            <p class="tac-envio__subtitulo">Para centros de radiología. El estudio llega cifrado y solo lo ve la clínica.</p>
+        </header>
+
+        <section class="tac-envio__mensaje" data-paso="cargando">
+            <p>Comprobando el enlace…</p>
+        </section>
+
+        <section class="tac-envio__mensaje" data-paso="invalido" hidden>
+            <i class="ri-link-unlink"></i>
+            <p class="tac-envio__destacado">Este enlace ya no es válido</p>
+            <p>Pide a la clínica el enlace actualizado.</p>
+        </section>
+
+        <section data-paso="entrar" hidden>
+            <form class="tac-envio__formulario" id="form-entrar">
+                <div class="tac-subir__paso">
+                    <label class="form__label" for="password">Contraseña que os ha dado la clínica</label>
+                    <input type="password" id="password" class="form__input" autocomplete="current-password" required>
+                </div>
+                <p class="tac-error" id="error-entrar" hidden></p>
+                <div class="tac-subir__pie">
+                    <button type="submit" class="tac-boton"><i class="ri-login-box-line"></i> Entrar</button>
+                </div>
+            </form>
+        </section>
+
+        <section data-paso="enviar" hidden>
+            <form class="tac-envio__formulario" id="form-enviar" novalidate>
+                <fieldset class="tac-subir__paso">
+                    <legend class="form__label">1. Clínica a la que va el estudio</legend>
+                    <div class="tac-sedes" id="sedes"></div>
+                </fieldset>
+
+                <div class="tac-subir__paso">
+                    <label class="form__label" for="paciente">2. Nombre y apellidos del paciente</label>
+                    <input type="text" id="paciente" class="form__input" maxlength="150" autocomplete="off" required>
+                    <p class="tac-subir__nota">Si lo dejas vacío, se rellena con el nombre que trae el estudio: compruébalo.</p>
+                </div>
+
+                <div class="tac-subir__paso">
+                    <span class="form__label">3. Estudio</span>
+                    <div id="selector"></div>
+                    <label class="tac-confirmar" id="confirmar" hidden>
+                        <input type="checkbox">
+                        <span>El nombre que trae el estudio (<strong></strong>) no coincide con el que has escrito. Confirmo que es el paciente correcto.</span>
+                    </label>
+                </div>
+
+                <div class="tac-subir__paso">
+                    <label class="form__label" for="centro">4. Centro que lo envía <span class="tac-opcional">(opcional)</span></label>
+                    <input type="text" id="centro" class="form__input" maxlength="150" autocomplete="organization">
+                </div>
+
+                <div class="tac-subir__paso">
+                    <label class="form__label" for="notas">Notas para la clínica <span class="tac-opcional">(opcional)</span></label>
+                    <textarea id="notas" class="form__input" rows="2" maxlength="2000"></textarea>
+                </div>
+
+                <p class="tac-error" id="error-enviar" hidden></p>
+                <div class="tac-subir__pie">
+                    <button type="button" class="tac-boton tac-boton--secundario" id="cancelar" hidden>Cancelar envío</button>
+                    <button type="submit" class="tac-boton" id="enviar" disabled><i class="ri-send-plane-line"></i> Enviar estudio</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="tac-envio__mensaje" data-paso="hecho" hidden>
+            <i class="ri-checkbox-circle-line"></i>
+            <p class="tac-envio__destacado">Estudio enviado</p>
+            <p>La clínica ya ha recibido el aviso. Gracias.</p>
+            <button type="button" class="tac-boton" id="otro">Enviar otro estudio</button>
+        </section>
+    </main>
+
+    <p class="tac-envio__pie">HS Dental · Alcorcón y Móstoles</p>
+
+    <script src="/js/pages/tac/enviar.js" type="module"></script>
+</body>
+</html>

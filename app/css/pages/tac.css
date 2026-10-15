@@ -4,7 +4,7 @@
 
 /* El atributo hidden lo pone el JS, pero su display:none pierde contra cualquier
    display de una clase (flex, grid...). Dentro de la sección manda siempre. */
-.tac-contenido [hidden], .tac-subir [hidden]{
+.tac-contenido [hidden], .tac-subir [hidden], .tac-envio [hidden]{
     display: none !important;
 }
 
@@ -299,7 +299,6 @@ button.main__action{
     border-radius: 14px;
     background-color: var(--background);
     text-align: center;
-    cursor: pointer;
     transition: border-color .2s, background-color .2s;
 }
 
@@ -713,4 +712,213 @@ button.main__action{
 .tac-marco:fullscreen .tac-rejilla{
     flex: 1;
     height: auto;
+}
+
+/* --- Selector de estudio: carpeta o .zip (SelectorEstudio.js) ------------------- */
+
+.tac-zona__botones{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tac-zona__botones .tac-boton i{
+    font-size: 1em;
+    color: inherit;
+}
+
+.tac-selector--bloqueado .tac-zona,
+.tac-selector--bloqueado .tac-resumen__otro{
+    pointer-events: none;
+    opacity: .5;
+}
+
+.tac-resumen__otro{
+    margin-top: 10px;
+    padding: 0;
+}
+
+/* --- Modales pequeños: asignar paciente y enlace para centros -------------------- */
+
+.tac-subir--estrecho{
+    width: min(560px, 92vw);
+}
+
+.tac-subir__nota{
+    margin-top: 10px;
+    font-size: 0.875em;
+    line-height: 1.5;
+    color: var(--light-gray);
+}
+
+.tac-copiar{
+    display: flex;
+    gap: 8px;
+}
+
+.tac-copiar .form__input{
+    flex: 1;
+    min-width: 0;
+}
+
+.tac-error--ok{
+    background-color: var(--pale-green);
+    color: var(--green-status);
+}
+
+/* --- Listado: TAC llegados de fuera ------------------------------------------- */
+
+.tac-etiqueta{
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 99px;
+    font-size: 0.75em;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.tac-etiqueta:first-child{
+    margin-left: 0;
+}
+
+.tac-etiqueta--nuevo{
+    background-color: var(--pale-primary);
+    color: var(--primary);
+}
+
+.tac-etiqueta--pendiente{
+    background-color: var(--pale-orange);
+    color: var(--orange-status-text-color);
+}
+
+.tac-tabla__fila--pendiente td{
+    background-color: #fffaf1;
+}
+
+.tac-boton--aviso{
+    border-color: var(--orange-status);
+    background-color: var(--orange-status);
+}
+
+.tac-boton--aviso:hover:not(:disabled){
+    border-color: var(--orange-status-text-color);
+    background-color: var(--orange-status-text-color);
+}
+
+/* --- Página pública de envío (enviar.html) -------------------------------------
+   Sin menú lateral: base.css pone el <body> en rejilla de 2 columnas para el
+   sidebar, aquí se anula. */
+
+body.tac-envio{
+    display: block;
+    min-height: 100vh;
+    padding: 32px 16px;
+}
+
+.tac-envio__tarjeta{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px;
+    border-radius: 24px;
+    background-color: #fff;
+    box-shadow: 0 10px 60px rgba(252, 225, 255, .5);
+}
+
+.tac-envio__cabecera{
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.tac-envio__logo{
+    height: 48px;
+}
+
+.tac-envio__titulo{
+    margin-top: 16px;
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.tac-envio__subtitulo{
+    margin-top: 6px;
+    font-size: 0.9375em;
+    color: var(--light-gray);
+}
+
+.tac-envio__mensaje{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 0 8px;
+    text-align: center;
+    color: var(--light-gray);
+}
+
+.tac-envio__mensaje i{
+    font-size: 44px;
+    color: var(--primary);
+}
+
+.tac-envio__destacado{
+    font-size: 1.125em;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.tac-envio__formulario fieldset{
+    border: none;
+}
+
+.tac-envio__formulario textarea{
+    resize: vertical;
+    font-family: inherit;
+}
+
+.tac-envio__pie{
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.8125em;
+    color: var(--pale-gray);
+}
+
+.tac-sedes{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tac-sede{
+    flex: 1 1 180px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #d9dce6;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color .2s, background-color .2s;
+}
+
+.tac-sede:hover{
+    border-color: var(--primary);
+}
+
+.tac-sede:has(input:checked){
+    border-color: var(--primary);
+    background-color: var(--pale-primary);
+    color: var(--dark-primary);
+}
+
+.tac-sede input{
+    accent-color: var(--primary);
+}
+
+.tac-sede i{
+    font-size: 20px;
+    color: var(--primary);
 }

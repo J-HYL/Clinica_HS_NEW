@@ -1,19 +1,33 @@
 // modules/components/tac/ApiTAC.js
-// Llamadas a /api/tac.php (estudios TAC). Va aparte de DB_API.js porque aquí se
+// Llamadas a la API de estudios TAC. Va aparte de DB_API.js porque aquí se
 // mueven ficheros de cientos de MB: se suben por trozos y se descargan por
 // tramos, cada petición corta y con reintentos, para que un corte de red o el
 // timeout del proxy no obliguen a empezar de cero.
+//
+// Dos endpoints con el MISMO protocolo de subida (iniciar/trozo/finalizar/borrar):
+//   /api/tac.php          el panel (sesión de la clínica)
+//   /api/tac_externo.php  el envío desde centros de radiología (enlace + contraseña)
+// Por eso subirEstudio() recibe a qué endpoint hablar.
 
 const URL_API = "/api/tac.php";
+export const API_ENVIO = "/api/tac_externo.php";
 const TRAMO_DESCARGA = 16 * 1024 * 1024;
 const REINTENTOS = 3;
 
-// tac.php exige esta cabecera en los POST: otra web no puede mandarla sin que
+// La API exige esta cabecera en los POST: otra web no puede mandarla sin que
 // el navegador pida permiso antes (CORS), así que no puede borrar ni subir nada.
 const CABECERA_PROPIA = { "X-Requested-With": "XMLHttpRequest" };
 
-async function pedir(accion, { metodo = "GET", id, cuerpo, senal } = {}) {
-    const url = `${URL_API}?accion=${accion}${id ? `&id=${encodeURIComponent(id)}` : ""}`;
+function urlDe(api, accion, parametros = {}) {
+    const consulta = new URLSearchParams({ accion });
+    for (const [clave, valor] of Object.entries(parametros)) {
+        if (valor !== undefined && valor !== null) consulta.set(clave, valor);
+    }
+    return `${api}?${consulta}`;
+}
+
+async function pedir(accion, { metodo = "GET", id, cuerpo, senal, api = URL_API, parametros } = {}) {
+    const url = urlDe(api, accion, { id, ...parametros });
     const res = await fetch(url, {
         method: metodo,
         credentials: "include",
@@ -26,7 +40,10 @@ async function pedir(accion, { metodo = "GET", id, cuerpo, senal } = {}) {
     });
     const datos = await res.json().catch(() => ({}));
     // Ojo: db_connect.php corta con {error} y HTTP 200 si no hay BD para la clínica.
-    if (!res.ok || datos?.error) throw new Error(datos?.error || `Error ${res.status} en el servidor`);
+    // `estado` (código HTTP) deja distinguir p. ej. una sesión caducada (401).
+    if (!res.ok || datos?.error) {
+        throw Object.assign(new Error(datos?.error || `Error ${res.status} en el servidor`), { estado: res.status });
+    }
     return datos;
 }
 
@@ -44,39 +61,79 @@ export function borrarEstudio(id) {
     return pedir("borrar", { metodo: "POST", id });
 }
 
+/** Pasa el estudio a la ficha de un paciente (también para corregir uno mal asignado). */
+export function asignarEstudio(id, clientId) {
+    return pedir("asignar", { metodo: "POST", id, cuerpo: { client_id: clientId } });
+}
+
+/** Quita el aviso de "TAC nuevo" de la campana. */
+export function marcarVisto(id) {
+    return pedir("visto", { metodo: "POST", id });
+}
+
+/** Estudios llegados de fuera que aún no ha visto nadie: {count, estudios}. */
+export function obtenerAvisos() {
+    return pedir("avisos");
+}
+
+/** Enlace de envío para centros externos: {existe, token, tienePassword, actualizado...}. */
+export function obtenerEnlace() {
+    return pedir("enlace");
+}
+
+/** Crea o regenera el enlace y/o cambia su contraseña: {regenerar?, password?}. */
+export function guardarEnlace(opciones) {
+    return pedir("enlace_guardar", { metodo: "POST", cuerpo: opciones });
+}
+
+// --- página pública de envío ---------------------------------------------------
+
+/** ¿Este enlace sigue valiendo? (la clínica puede haberlo regenerado). */
+export async function comprobarEnlace(token) {
+    const { valido } = await pedir("comprobar", { api: API_ENVIO, parametros: { k: token } });
+    return valido;
+}
+
+/** Entra con la contraseña del enlace. Devuelve las sedes a las que se puede enviar. */
+export async function entrarEnvio(token, password) {
+    const { sedes } = await pedir("entrar", { api: API_ENVIO, metodo: "POST", cuerpo: { k: token, password } });
+    return sedes;
+}
+
 /**
  * Sube un estudio ya analizado. Si algo falla o se cancela, borra lo que se
  * hubiera subido para no dejar restos en el servidor.
- * @param {Blob} zip - el zip a subir (el original o el depurado por el lector)
- * @param {Object} datos - client_id, sha256 y metadatos del estudio
+ * @param {Blob} zip - el zip a subir (el original o el preparado por el lector)
+ * @param {Object} datos - sha256, metadatos del estudio y lo propio del endpoint (client_id, sede...)
  * @param {(subido:number, total:number) => void} alProgresar
  * @param {AbortSignal} senal - para cancelar
- * @returns {Promise<number>} id del estudio
+ * @param {string} [api] - endpoint: el del panel (por defecto) o API_ENVIO
+ * @returns {Promise<number|string>} id del estudio
  */
-export async function subirEstudio(zip, datos, alProgresar, senal) {
-    const { id, trozo } = await pedir("iniciar", { metodo: "POST", cuerpo: { ...datos, tamano: zip.size } });
+export async function subirEstudio(zip, datos, alProgresar, senal, api = URL_API) {
+    const { id, trozo } = await pedir("iniciar", { api, metodo: "POST", cuerpo: { ...datos, tamano: zip.size } });
 
     try {
         let enviado = 0;
         alProgresar?.(0, zip.size);
         while (enviado < zip.size) {
             if (senal?.aborted) throw new DOMException("Subida cancelada", "AbortError");
-            enviado = await enviarTrozo(id, enviado, zip.slice(enviado, enviado + trozo), senal);
+            enviado = await enviarTrozo(api, id, enviado, zip.slice(enviado, enviado + trozo), senal);
             alProgresar?.(enviado, zip.size);
         }
-        await pedir("finalizar", { metodo: "POST", id, senal });
+        await pedir("finalizar", { api, metodo: "POST", id, senal });
         return id;
     } catch (error) {
-        borrarEstudio(id).catch(() => {});
+        pedir("borrar", { api, metodo: "POST", id }).catch(() => {});
         throw error;
     }
 }
 
 /** Manda un trozo y devuelve cuántos bytes tiene ya el servidor. */
-async function enviarTrozo(id, desde, trozo, senal) {
+async function enviarTrozo(api, id, desde, trozo, senal) {
     for (let intento = 1; ; intento++) {
         try {
-            const res = await fetch(`${URL_API}?accion=trozo&id=${id}&offset=${desde}`, {
+            const res = await fetch(urlDe(api, "trozo", { id, offset: desde }), {
                 method: "POST",
                 credentials: "include",
                 headers: { ...CABECERA_PROPIA, "Content-Type": "application/octet-stream" },
@@ -90,7 +147,7 @@ async function enviarTrozo(id, desde, trozo, senal) {
             if (res.status === 409 && Number.isFinite(datos.recibido)) return datos.recibido;
             // 400 con "recibido" = el trozo llegó cortado y el servidor lo descartó.
             const reintentable = res.status >= 500 || (res.status === 400 && Number.isFinite(datos.recibido));
-            throw Object.assign(new Error(datos.error || `Error ${res.status}`), { reintentable });
+            throw Object.assign(new Error(datos.error || `Error ${res.status}`), { reintentable, estado: res.status });
         } catch (error) {
             if (error.name === "AbortError") throw error;
             const reintentable = error.reintentable || error instanceof TypeError;   // TypeError = fallo de red
@@ -120,7 +177,7 @@ async function descargarTramo(id, inicio, fin, destino, alProgresar) {
     for (let intento = 1; ; intento++) {
         let posicion = inicio;
         try {
-            const res = await fetch(`${URL_API}?accion=archivo&id=${id}`, {
+            const res = await fetch(urlDe(URL_API, "archivo", { id }), {
                 credentials: "include",
                 headers: { Range: `bytes=${inicio}-${fin}` },
             });
