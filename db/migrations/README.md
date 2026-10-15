@@ -30,11 +30,13 @@ confirmar el nombre antes de correrlo.
 | 008 | `008_solicitudes_factura.sql` | Crea `solicitudes_factura` (el paciente pide la factura de un pago desde el portal; la clínica la genera y avisa) — Facturas portal | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
 | 009 | `009_notificaciones_payment_id.sql` | Añade `notificaciones.payment_id` (FK nullable → `payments`) para el deep-link: la notificación de factura abre el detalle del pago en el portal | ☑ (2026-08-01) | ☑ (2026-08-01) — Alcorcón y Móstoles |
 | 010 | `010_tac_estudios.sql` | Crea `tac_estudios` (estudios TAC/CBCT de cada paciente para la sección TAC: metadatos del volumen, tamaño, sha256, estado subiendo/listo). FK → `clients` con `ON DELETE CASCADE` | ☐ **PENDIENTE** | ☐ **PENDIENTE** — hay que correrla en Alcorcón y en Móstoles |
+| 011 | `011_tac_envios_externos.sql` | Envío de TAC desde centros de radiología: `tac_estudios.client_id` pasa a NULL (TAC sin asignar) y añade `paciente_nombre`, `origen`, `centro`, `notas` y `visto` (aviso en la campana) | ☐ **PENDIENTE** | ☐ **PENDIENTE** — hay que correrla en Alcorcón y en Móstoles |
 
-**Migración 010 (sección TAC): PENDIENTE en pre y en prod.** Aplicada solo en
-LOCAL (2026-10-13). Sin ella la sección TAC responde error al listar/subir; el
-resto del panel no se ve afectado. Es independiente de las demás (solo depende de
-`clients`).
+**Migraciones 010 y 011 (sección TAC): PENDIENTES en pre y en prod.** Aplicadas
+solo en LOCAL (010 el 2026-10-13, 011 el 2026-10-15). Van juntas y en ese orden
+(la 011 modifica la tabla que crea la 010). Sin ellas la sección TAC responde
+error al listar/subir; el resto del panel no se ve afectado (la campana trata la
+falta de tablas como "sin avisos"). Solo dependen de `clients`.
 
 **Migraciones 004–009: APLICADAS en pre y en prod** (Portal de Pacientes) el
 **2026-08-01**; en prod se corrieron en las DOS BD (Alcorcón y Móstoles). En LOCAL
