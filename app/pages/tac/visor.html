@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor TAC</title>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/pages/control.css">
+    <link rel="stylesheet" href="/css/pages/tac.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+
+</head>
+<body>
+    <nav class="sidebar" id="sidebar"></nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>TAC</span></h1>
+            </div>
+        </header>
+
+        <main class="container main tac-visor">
+            <div class="tac-solo-escritorio">
+                <i class="ri-computer-line"></i>
+                <p class="tac-solo-escritorio__titulo">El visor TAC solo está disponible en ordenador</p>
+                <p>Un estudio ocupa cientos de MB de memoria y se maneja con ratón. Ábrelo desde un ordenador de la clínica.</p>
+            </div>
+
+            <div class="tac-contenido">
+                <div class="tac-visor__cabecera">
+                    <a href="control.html" class="tac-volver" aria-label="Volver a los estudios"><i class="ri-arrow-left-line"></i></a>
+                    <div>
+                        <h3 class="container__heading" id="titulo">Cargando estudio…</h3>
+                        <p class="tac-visor__datos" id="datos-estudio"></p>
+                    </div>
+                </div>
+
+                <div class="tac-marco" id="marco">
+                    <div class="tac-herramientas" role="toolbar" aria-label="Herramientas del visor">
+                        <div class="tac-herramientas__grupo" role="group" aria-label="Contraste de los cortes">
+                            <span class="tac-herramientas__etiqueta">Contraste</span>
+                            <button type="button" class="tac-herramienta is-activo" data-ventana="estudio">Estudio</button>
+                            <button type="button" class="tac-herramienta" data-ventana="hueso">Hueso</button>
+                            <button type="button" class="tac-herramienta" data-ventana="dientes">Dientes</button>
+                        </div>
+                        <div class="tac-herramientas__grupo" role="group" aria-label="Medidas y vista">
+                            <button type="button" class="tac-herramienta" id="medir" aria-pressed="false" title="Medir distancias en mm (Esc para salir)"><i class="ri-ruler-line"></i> Medir</button>
+                            <button type="button" class="tac-herramienta" id="borrar-medidas" title="Borrar todas las medidas"><i class="ri-eraser-line"></i></button>
+                            <button type="button" class="tac-herramienta" id="centrar" title="Volver a la vista inicial"><i class="ri-focus-3-line"></i> Centrar</button>
+                        </div>
+                        <div class="tac-herramientas__grupo" role="group" aria-label="Vista 3D">
+                            <span class="tac-herramientas__etiqueta">3D</span>
+                            <button type="button" class="tac-herramienta is-activo" data-preset3d="hueso">Hueso</button>
+                            <button type="button" class="tac-herramienta" data-preset3d="dientes">Dientes</button>
+                            <button type="button" class="tac-herramienta" data-preset3d="piel">Piel</button>
+                            <label class="tac-umbral">
+                                <span>Umbral</span>
+                                <input type="range" id="umbral" disabled>
+                            </label>
+                        </div>
+                        <button type="button" class="tac-herramienta tac-herramienta--icono" id="pantalla-completa" title="Pantalla completa"><i class="ri-fullscreen-line"></i></button>
+                    </div>
+
+                    <ul class="tac-avisos tac-avisos--visor" id="avisos" hidden></ul>
+
+                    <div class="tac-rejilla" id="rejilla">
+                        <section class="tac-panel" data-vista="axial">
+                            <header class="tac-panel__barra">
+                                <span class="tac-panel__titulo tac-panel__titulo--axial">Axial</span>
+                                <button type="button" class="tac-panel__ampliar" data-ampliar="axial" aria-label="Ampliar vista axial"><i class="ri-fullscreen-line"></i></button>
+                            </header>
+                            <div class="tac-panel__lienzo"></div>
+                        </section>
+                        <section class="tac-panel" data-vista="coronal">
+                            <header class="tac-panel__barra">
+                                <span class="tac-panel__titulo tac-panel__titulo--coronal">Coronal</span>
+                                <button type="button" class="tac-panel__ampliar" data-ampliar="coronal" aria-label="Ampliar vista coronal"><i class="ri-fullscreen-line"></i></button>
+                            </header>
+                            <div class="tac-panel__lienzo"></div>
+                        </section>
+                        <section class="tac-panel" data-vista="sagital">
+                            <header class="tac-panel__barra">
+                                <span class="tac-panel__titulo tac-panel__titulo--sagital">Sagital</span>
+                                <button type="button" class="tac-panel__ampliar" data-ampliar="sagital" aria-label="Ampliar vista sagital"><i class="ri-fullscreen-line"></i></button>
+                            </header>
+                            <div class="tac-panel__lienzo"></div>
+                        </section>
+                        <section class="tac-panel" data-vista="3d">
+                            <header class="tac-panel__barra">
+                                <span class="tac-panel__titulo">3D</span>
+                                <button type="button" class="tac-panel__ampliar" data-ampliar="3d" aria-label="Ampliar vista 3D"><i class="ri-fullscreen-line"></i></button>
+                            </header>
+                            <div class="tac-panel__lienzo tac-panel__lienzo--3d"></div>
+                        </section>
+
+                        <div class="tac-carga" id="carga" role="status" aria-live="polite">
+                            <div class="sk-chase">
+                                <div class="sk-chase-dot"></div>
+                                <div class="sk-chase-dot"></div>
+                                <div class="sk-chase-dot"></div>
+                                <div class="sk-chase-dot"></div>
+                                <div class="sk-chase-dot"></div>
+                                <div class="sk-chase-dot"></div>
+                            </div>
+                            <p class="tac-carga__texto" id="carga-texto">Preparando el visor…</p>
+                            <div class="tac-progreso__barra tac-progreso__barra--indefinida" id="carga-barra"><span></span></div>
+                            <p class="tac-carga__detalle" id="carga-detalle"></p>
+                        </div>
+                    </div>
+
+                    <p class="tac-ayuda">
+                        <strong>Cortes:</strong> clic = mover la referencia · rueda = recorrer cortes · Ctrl + rueda = zoom · botón derecho arrastrando = contraste · Mayús + arrastrar = desplazar · doble clic = ampliar.
+                        <strong>3D:</strong> arrastrar = girar · rueda = zoom.
+                    </p>
+                </div>
+
+                <p class="tac-nota-legal">Visor de consulta. El diagnóstico se realiza con el software del equipo de radiología (p. ej. Romexis).</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Dependencias (globales, como en el resto del panel). vtk.js pesa ~2,5 MB:
+         solo se carga en esta página y con defer, para no frenar el primer pintado. -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vtk.js@37.3.1/vtk.js" defer></script>
+
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/tac/visor.js" type="module"></script>
+</body>
+</html>

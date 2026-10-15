@@ -88,6 +88,14 @@ body:has(.preloader--hidden) .sidebar{
     border-radius: 8px;
 }
 
+/* Secciones que solo funcionan en ordenador (TAC): fuera del menú en móvil y
+   tablet. Misma condición que esEscritorio() en tac/utilidades.js. */
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine){
+    .sidebar__item--escritorio{
+        display: none;
+    }
+}
+
 .sidebar__item a, .sidebar__logo{
     display: flex;
     gap: 8px;

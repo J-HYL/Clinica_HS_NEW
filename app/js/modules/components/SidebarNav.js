@@ -15,6 +15,8 @@ const NAV = [
   { href: "/pages/citas/control.html",          icon: "ri-calendar-schedule-fill", label: "Citas",        match: ["/pages/citas/"] },
   { href: "/pages/clientes/control.html",       icon: "ri-group-fill",             label: "Pacientes",    match: ["/pages/clientes/"] },
   { href: "/pages/visitas/control.html",        icon: "ri-calendar-check-fill",    label: "Visitas",      match: ["/pages/visitas/"] },
+  // soloEscritorio: el visor TAC no funciona en móvil/tablet (memoria y ratón); sidebar.css lo oculta allí.
+  { href: "/pages/tac/control.html",            icon: "ri-body-scan-fill",         label: "TAC",          match: ["/pages/tac/"], soloEscritorio: true },
   { href: "/pages/Presupuestos/presupuesto.html", icon: "ri-file-text-fill",       label: "Presupuestos", match: ["/pages/presupuestos/"] },
   { href: "/pages/facturas/facturas.html",      icon: "ri-receipt-fill",           label: "Facturas",     match: ["/pages/facturas/"] },
   { href: "/pages/inventario/control.html",     icon: "ri-archive-drawer-fill",    label: "Inventario",   match: ["/pages/inventario/"] },
@@ -36,7 +38,7 @@ function activeIndex() {
 
 function itemHtml(item, activo) {
   return `
-    <li class="sidebar__item ${activo ? "sidebar__item--selected" : ""}">
+    <li class="sidebar__item ${activo ? "sidebar__item--selected" : ""} ${item.soloEscritorio ? "sidebar__item--escritorio" : ""}">
       <a href="${item.href}" aria-label="Ir a ${item.label}">
         <i class="${item.icon}"></i>
         <div class="item__hide">

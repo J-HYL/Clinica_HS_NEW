@@ -3,13 +3,15 @@
  *
  * Inyecta una campana flotante ARRIBA A LA DERECHA en cualquier pantalla del
  * panel (mismo estilo autocontenido que Soporte.js). Consulta las solicitudes de
- * cita pendientes (/api/solicitudes.php); si hay, se resalta con badge + pulso.
+ * cita y de factura pendientes, y los TAC enviados por centros de radiología que
+ * nadie ha visto aún (/api/tac.php?accion=avisos); si hay, badge + pulso.
  * Al pulsarla abre un desplegable con las solicitudes; cada una lleva a la ficha
  * del paciente. Se autoinicializa al importarse desde main.js.
  */
 
 const ENDPOINT = "/api/solicitudes.php";
 const ENDPOINT_FACT = "/api/facturas_solicitudes.php";
+const ENDPOINT_TAC = "/api/tac.php"; // TAC enviados desde centros de radiología, aún sin ver
 const POLL_MS = 60000;
 
 function injectStyles() {
@@ -49,6 +51,7 @@ function injectStyles() {
     background:#eef1fe;color:#3a56d4;}
   .hs-notif-ic.wait{background:#fff4e5;color:#b46a00;}
   .hs-notif-ic.fact{background:#e7f8ee;color:#1e8e3e;}
+  .hs-notif-ic.tac{background:#e8f7ff;color:#2b80f7;}
   .hs-notif-ic svg{width:19px;height:19px;}
   .hs-notif-name{font-size:14px;font-weight:700;color:#1e2a5e;}
   .hs-notif-when{font-size:12.5px;color:#6b7280;margin-top:2px;}
@@ -61,6 +64,7 @@ function injectStyles() {
 
 const BELL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
 const DOC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg>`;
+const SCAN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="4"/></svg>`;
 
 function buildWidget() {
   if (document.getElementById("hs-notif-root")) return;
@@ -96,6 +100,7 @@ async function refreshCount() {
     const results = await Promise.all([
       fetch(ENDPOINT + "?accion=count", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(ENDPOINT_FACT + "?accion=count", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch(ENDPOINT_TAC + "?accion=avisos", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
     ]);
     const count = results.reduce((n, d) => n + (d && d.count ? d.count : 0), 0);
     const fab = document.getElementById("hs-notif-fab");
@@ -116,13 +121,15 @@ async function loadList() {
   const list = document.getElementById("hs-notif-list");
   list.innerHTML = `<div class="hs-notif-empty">Cargando…</div>`;
   try {
-    const [citasData, factData] = await Promise.all([
+    const [citasData, factData, tacData] = await Promise.all([
       fetch(ENDPOINT + "?accion=pendientes", { credentials: "include" }).then((r) => r.json()).catch(() => ({})),
       fetch(ENDPOINT_FACT + "?accion=pendientes", { credentials: "include" }).then((r) => r.json()).catch(() => ({})),
+      fetch(ENDPOINT_TAC + "?accion=avisos", { credentials: "include" }).then((r) => r.json()).catch(() => ({})),
     ]);
     const citas = (citasData && citasData.solicitudes) || [];
     const facturas = (factData && factData.solicitudes) || [];
-    if (!citas.length && !facturas.length) {
+    const tacs = (tacData && tacData.estudios) || [];
+    if (!citas.length && !facturas.length && !tacs.length) {
       list.innerHTML = `<div class="hs-notif-empty">No hay avisos pendientes 🎉</div>`;
       return;
     }
@@ -147,7 +154,18 @@ async function loadList() {
         </div>
       </div>`;
     }).join("");
-    list.innerHTML = citasHtml + factHtml;
+    // TAC enviado por un centro: con paciente -> al visor; sin asignar -> a asignarlo.
+    const tacHtml = tacs.map((t) => {
+      const destino = t.client_id ? `/pages/tac/visor.html?id=${t.id}` : `/pages/tac/control.html?asignar=${t.id}`;
+      return `<div class="hs-notif-item" data-goto="${destino}">
+        <div class="hs-notif-ic tac">${SCAN}</div>
+        <div>
+          <div class="hs-notif-name">${esc(t.paciente || t.paciente_nombre)}${t.client_id ? "" : " · sin asignar"}</div>
+          <div class="hs-notif-when">TAC recibido${t.centro ? " de " + esc(t.centro) : ""} · ${esc(fmtFecha(t.fecha_subida))}</div>
+        </div>
+      </div>`;
+    }).join("");
+    list.innerHTML = tacHtml + citasHtml + factHtml;
     list.querySelectorAll("[data-goto]").forEach((el) => {
       el.onclick = () => { location.href = el.dataset.goto; };
     });

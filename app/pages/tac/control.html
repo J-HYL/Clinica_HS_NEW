@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudios TAC</title>
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/pages/control.css">
+    <link rel="stylesheet" href="/css/pages/tac.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
+
+</head>
+<body>
+    <nav class="sidebar" id="sidebar"></nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div class="header__group">
+                <button class="header__menu" aria-label="Abrir Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="header__heading">HS Dental - <span>TAC</span></h1>
+            </div>
+        </header>
+
+        <main class="container main">
+            <!-- En móvil y tablet solo se ve este aviso (tac.css): la sección no se puede usar ahí. -->
+            <div class="tac-solo-escritorio">
+                <i class="ri-computer-line"></i>
+                <p class="tac-solo-escritorio__titulo">Esta sección solo está disponible en ordenador</p>
+                <p>Los estudios TAC ocupan cientos de MB y se manejan con ratón. Ábrela desde un ordenador de la clínica.</p>
+            </div>
+
+            <div class="tac-contenido">
+                <div class="main__group">
+                    <h3 class="container__heading">Estudios TAC (CBCT)</h3>
+                    <div class="main__actions">
+                        <button type="button" id="enlace" class="main__action"><span>Enlace centros</span> <i class="ri-links-line"></i></button>
+                        <button type="button" id="anadir" class="main__action"><span>Añadir TAC</span> <i class="ri-add-line"></i></button>
+                    </div>
+                </div>
+
+                <div class="tac-filtros">
+                    <label for="buscador" class="form__label">Buscar</label>
+                    <input type="search" id="buscador" class="form__input" placeholder="Paciente, descripción o equipo..." autocomplete="off">
+                </div>
+
+                <div class="main__loading">
+                    <div class="sk-chase">
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                    </div>
+                    <p class="loading__message">Obteniendo los estudios...</p>
+                </div>
+                <div class="main__empty">
+                    <img src="/assets/svg/empty-illustration.svg" alt="Sin estudios">
+                    <p class="empty__message">No hay estudios TAC todavía. Pulsa «Añadir TAC» para subir el primero.</p>
+                </div>
+
+                <p class="tac-contador" id="contador"></p>
+                <div id="lista"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/tac/control.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,924 @@
+/* Estilos de la sección TAC (listado + visor). Se carga JUNTO a control.css, que
+   trae base.css (paleta y tipografía), cabecera, sidebar y tabla: aquí solo va lo
+   que no existe ya, reutilizando las variables de base.css. */
+
+/* El atributo hidden lo pone el JS, pero su display:none pierde contra cualquier
+   display de una clase (flex, grid...). Dentro de la sección manda siempre. */
+.tac-contenido [hidden], .tac-subir [hidden], .tac-envio [hidden]{
+    display: none !important;
+}
+
+/* --- Solo ordenador ---------------------------------------------------------
+   La misma condición que esEscritorio() (utilidades.js) y que oculta la entrada
+   del menú en sidebar.css. */
+
+.tac-solo-escritorio{
+    display: none;
+}
+
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine){
+    .tac-contenido{
+        display: none;
+    }
+
+    .tac-solo-escritorio{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 48px 16px;
+        text-align: center;
+        color: var(--light-gray);
+    }
+
+    .tac-solo-escritorio i{
+        font-size: 48px;
+        color: var(--primary);
+    }
+
+    .tac-solo-escritorio__titulo{
+        font-weight: 600;
+        font-size: 1.125em;
+        color: var(--dark-gray);
+    }
+}
+
+/* --- Botones ----------------------------------------------------------------- */
+
+/* "Añadir TAC" es un <button> en .main__actions: fuera lo que pone el navegador. */
+button.main__action{
+    border: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.tac-boton{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    background-color: var(--primary);
+    color: #fff;
+    font-size: 0.9375em;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .2s, border-color .2s;
+}
+
+.tac-boton:hover:not(:disabled){
+    background-color: var(--dark-primary);
+    border-color: var(--dark-primary);
+}
+
+.tac-boton:disabled{
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.tac-boton--secundario{
+    background-color: #fff;
+    border-color: #d9dce6;
+    color: var(--dark-gray);
+}
+
+.tac-boton--secundario:hover:not(:disabled){
+    background-color: #fff;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.tac-boton--pequeno{
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.875em;
+}
+
+.tac-enlace{
+    border: none;
+    background: none;
+    color: var(--primary);
+    font-size: 0.875em;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* --- Listado ----------------------------------------------------------------- */
+
+.tac-filtros{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 420px;
+    margin-bottom: 20px;
+}
+
+.tac-contador{
+    margin-bottom: 8px;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+.tac-tabla{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375em;
+    color: var(--dark-gray);
+}
+
+.tac-tabla th{
+    padding: 10px 12px;
+    border-bottom: 1px solid #eceef5;
+    text-align: left;
+    font-size: 0.8125em;
+    font-weight: 600;
+    color: var(--pale-gray);
+}
+
+.tac-tabla td{
+    padding: 14px 12px;
+    border-bottom: 1px solid #f1f2f7;
+    vertical-align: top;
+}
+
+.tac-tabla tbody tr:hover td{
+    background-color: var(--pale-primary);
+}
+
+.tac-tabla__paciente{
+    font-weight: 600;
+}
+
+.tac-tabla__detalle{
+    display: block;
+    margin-top: 2px;
+    font-size: 0.8125em;
+    color: var(--light-gray);
+}
+
+.tac-tabla__acciones{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- Modal "Añadir TAC" (ModalSubirTAC.js) ----------------------------------
+   margin:auto a mano: el reset de base.css (* { margin: 0 }) le quita al
+   <dialog> el centrado del navegador (mismo problema que en el inventario). */
+
+.tac-subir{
+    width: min(680px, 92vw);
+    max-height: 90vh;
+    margin: auto;
+    padding: 24px 28px;
+    border: none;
+    border-radius: 16px;
+    background-color: #fff;
+    color: var(--dark-gray);
+    overflow-y: auto;
+}
+
+.tac-subir::backdrop{
+    background-color: rgba(29, 36, 46, .6);
+}
+
+.tac-subir__cabecera{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tac-subir__titulo{
+    font-size: 1.25em;
+    font-weight: 600;
+}
+
+.tac-subir__cerrar{
+    border: none;
+    background: none;
+    color: var(--light-gray);
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.tac-subir__cerrar:hover{
+    color: var(--dark-gray);
+}
+
+.tac-subir__paso{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.tac-opcional{
+    font-weight: 400;
+    color: var(--light-gray);
+}
+
+.tac-subir__pie{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.tac-subir--ocupado .tac-zona{
+    pointer-events: none;
+}
+
+.tac-paciente{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    background-color: var(--pale-primary);
+    color: var(--dark-primary);
+}
+
+.tac-paciente__nombre{
+    flex: 1;
+    font-weight: 600;
+}
+
+.tac-buscador__resultados{
+    margin-top: 6px;
+    border: 1px solid #e3e6ef;
+    border-radius: 10px;
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.tac-buscador__resultados:empty{
+    display: none;
+}
+
+.tac-buscador__opcion{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    text-align: left;
+    font-size: 0.9375em;
+    color: var(--dark-gray);
+    cursor: pointer;
+}
+
+.tac-buscador__opcion:hover, .tac-buscador__opcion:focus-visible{
+    background-color: var(--pale-primary);
+    outline: none;
+}
+
+.tac-buscador__opcion small{
+    color: var(--light-gray);
+}
+
+.tac-buscador__vacio{
+    padding: 10px 14px;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+.tac-zona{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 28px 20px;
+    border: 2px dashed #c9d3ea;
+    border-radius: 14px;
+    background-color: var(--background);
+    text-align: center;
+    transition: border-color .2s, background-color .2s;
+}
+
+.tac-zona:hover, .tac-zona--encima{
+    border-color: var(--primary);
+    background-color: var(--pale-primary);
+}
+
+.tac-zona i{
+    font-size: 32px;
+    color: var(--primary);
+}
+
+.tac-zona__texto{
+    font-weight: 500;
+}
+
+.tac-zona__nota{
+    font-size: 0.8125em;
+    color: var(--light-gray);
+}
+
+.tac-progreso{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.875em;
+}
+
+.tac-progreso__barra{
+    width: 100%;
+    height: 6px;
+    border-radius: 99px;
+    background-color: #e6ecfa;
+    overflow: hidden;
+}
+
+.tac-progreso__barra span{
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background-color: var(--primary);
+}
+
+.tac-progreso__barra--indefinida span{
+    width: 35%;
+    animation: tac-progreso-indefinido 1.2s ease-in-out infinite;
+}
+
+@keyframes tac-progreso-indefinido{
+    from { transform: translateX(-100%); }
+    to { transform: translateX(290%); }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .tac-progreso__barra--indefinida span{
+        animation: none;
+        width: 100%;
+        opacity: .4;
+    }
+}
+
+.tac-resumen{
+    display: grid;
+    grid-template-columns: 168px 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 14px;
+    border: 1px solid #e8ebf3;
+    border-radius: 12px;
+}
+
+.tac-resumen__previa{
+    width: 168px;
+    height: auto;
+    border-radius: 8px;
+    background-color: #000;
+}
+
+.tac-resumen__datos{
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 14px;
+    font-size: 0.875em;
+}
+
+.tac-resumen__datos dt{
+    color: var(--light-gray);
+}
+
+.tac-resumen__datos dd{
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.tac-avisos{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 14px 10px 30px;
+    border-radius: 10px;
+    background-color: var(--pale-orange);
+    font-size: 0.875em;
+    color: var(--orange-status-text-color);
+}
+
+.tac-confirmar{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--red);
+    border-radius: 10px;
+    background-color: var(--pale-pink);
+    font-size: 0.875em;
+    cursor: pointer;
+}
+
+.tac-confirmar input{
+    margin-top: 2px;
+    accent-color: var(--red);
+}
+
+.tac-error{
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background-color: var(--pale-pink);
+    font-size: 0.875em;
+    color: var(--red);
+}
+
+/* --- Visor -------------------------------------------------------------------- */
+
+.tac-visor__cabecera{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.tac-volver{
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #e3e6ef;
+    border-radius: 50%;
+    color: var(--dark-gray);
+    font-size: 18px;
+    text-decoration: none;
+    transition: border-color .2s, color .2s;
+}
+
+.tac-volver:hover{
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.tac-visor__datos{
+    margin-top: 4px;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+.tac-herramientas{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    margin-bottom: 12px;
+}
+
+.tac-herramientas__grupo{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tac-herramientas__etiqueta{
+    margin-right: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--pale-gray);
+}
+
+.tac-herramienta{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #dfe3ee;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 0.875em;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: border-color .2s, background-color .2s, color .2s;
+}
+
+.tac-herramienta:hover:not(:disabled){
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.tac-herramienta.is-activo{
+    border-color: var(--primary);
+    background-color: var(--pale-primary);
+    color: var(--dark-primary);
+}
+
+.tac-herramienta:disabled{
+    opacity: .5;
+    cursor: default;
+}
+
+.tac-herramienta--icono{
+    margin-left: auto;
+    font-size: 1em;
+}
+
+.tac-umbral{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 6px;
+    font-size: 0.875em;
+    color: var(--light-gray);
+}
+
+.tac-umbral input{
+    width: 150px;
+    accent-color: var(--primary);
+}
+
+.tac-avisos--visor{
+    margin-bottom: 12px;
+}
+
+.tac-rejilla{
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    height: clamp(520px, calc(100vh - 330px), 1400px);
+    padding: 6px;
+    border-radius: 16px;
+    background-color: #0b0f15;
+}
+
+.tac-rejilla--ampliada{
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+
+.tac-rejilla--ampliada .tac-panel:not(.tac-panel--ampliado){
+    display: none;
+}
+
+.tac-panel{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 10px;
+    background-color: #000;
+    overflow: hidden;
+}
+
+.tac-panel__barra{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: #121822;
+}
+
+.tac-panel__titulo{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125em;
+    font-weight: 600;
+    color: #e6e9f0;
+}
+
+.tac-panel__titulo::before{
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--pale-gray);
+}
+
+/* Mismo color que las líneas de referencia de cada plano (PLANOS en VistaCorte.js). */
+.tac-panel__titulo--axial::before{ background-color: var(--primary); }
+.tac-panel__titulo--coronal::before{ background-color: var(--green); }
+.tac-panel__titulo--sagital::before{ background-color: var(--orange); }
+
+.tac-panel__ampliar{
+    display: grid;
+    place-items: center;
+    border: none;
+    background: none;
+    color: var(--pale-gray);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.tac-panel__ampliar:hover{
+    color: #fff;
+}
+
+.tac-panel__lienzo{
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.tac-panel__canvas{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.tac-rejilla--midiendo .tac-panel__canvas{
+    cursor: cell;
+}
+
+.tac-panel__lienzo--3d{
+    cursor: grab;
+}
+
+.tac-panel__lienzo--3d:active{
+    cursor: grabbing;
+}
+
+.tac-panel__mensaje{
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    text-align: center;
+    font-size: 0.875em;
+    color: var(--pale-gray);
+}
+
+.tac-carga{
+    position: absolute;
+    inset: 6px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: rgba(11, 15, 21, .94);
+    color: #fff;
+    text-align: center;
+}
+
+.tac-carga .tac-progreso__barra{
+    width: min(360px, 80%);
+    background-color: rgba(255, 255, 255, .15);
+}
+
+.tac-carga__detalle{
+    min-height: 1.2em;
+    font-size: 0.875em;
+    color: var(--pale-gray);
+}
+
+.tac-carga--error .sk-chase, .tac-carga--error .tac-progreso__barra{
+    display: none;
+}
+
+.tac-ayuda{
+    margin-top: 10px;
+    font-size: 0.8125em;
+    line-height: 1.5;
+    color: var(--light-gray);
+}
+
+.tac-nota-legal{
+    margin-top: 8px;
+    font-size: 0.75em;
+    color: var(--pale-gray);
+}
+
+/* Pantalla completa: barra de herramientas arriba y la rejilla ocupando el resto. */
+.tac-marco:fullscreen{
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background-color: var(--background);
+}
+
+.tac-marco:fullscreen .tac-rejilla{
+    flex: 1;
+    height: auto;
+}
+
+/* --- Selector de estudio: carpeta o .zip (SelectorEstudio.js) ------------------- */
+
+.tac-zona__botones{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tac-zona__botones .tac-boton i{
+    font-size: 1em;
+    color: inherit;
+}
+
+.tac-selector--bloqueado .tac-zona,
+.tac-selector--bloqueado .tac-resumen__otro{
+    pointer-events: none;
+    opacity: .5;
+}
+
+.tac-resumen__otro{
+    margin-top: 10px;
+    padding: 0;
+}
+
+/* --- Modales pequeños: asignar paciente y enlace para centros -------------------- */
+
+.tac-subir--estrecho{
+    width: min(560px, 92vw);
+}
+
+.tac-subir__nota{
+    margin-top: 10px;
+    font-size: 0.875em;
+    line-height: 1.5;
+    color: var(--light-gray);
+}
+
+.tac-copiar{
+    display: flex;
+    gap: 8px;
+}
+
+.tac-copiar .form__input{
+    flex: 1;
+    min-width: 0;
+}
+
+.tac-error--ok{
+    background-color: var(--pale-green);
+    color: var(--green-status);
+}
+
+/* --- Listado: TAC llegados de fuera ------------------------------------------- */
+
+.tac-etiqueta{
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 99px;
+    font-size: 0.75em;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.tac-etiqueta:first-child{
+    margin-left: 0;
+}
+
+.tac-etiqueta--nuevo{
+    background-color: var(--pale-primary);
+    color: var(--primary);
+}
+
+.tac-etiqueta--pendiente{
+    background-color: var(--pale-orange);
+    color: var(--orange-status-text-color);
+}
+
+.tac-tabla__fila--pendiente td{
+    background-color: #fffaf1;
+}
+
+.tac-boton--aviso{
+    border-color: var(--orange-status);
+    background-color: var(--orange-status);
+}
+
+.tac-boton--aviso:hover:not(:disabled){
+    border-color: var(--orange-status-text-color);
+    background-color: var(--orange-status-text-color);
+}
+
+/* --- Página pública de envío (enviar.html) -------------------------------------
+   Sin menú lateral: base.css pone el <body> en rejilla de 2 columnas para el
+   sidebar, aquí se anula. */
+
+body.tac-envio{
+    display: block;
+    min-height: 100vh;
+    padding: 32px 16px;
+}
+
+.tac-envio__tarjeta{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px;
+    border-radius: 24px;
+    background-color: #fff;
+    box-shadow: 0 10px 60px rgba(252, 225, 255, .5);
+}
+
+.tac-envio__cabecera{
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.tac-envio__logo{
+    height: 48px;
+}
+
+.tac-envio__titulo{
+    margin-top: 16px;
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.tac-envio__subtitulo{
+    margin-top: 6px;
+    font-size: 0.9375em;
+    color: var(--light-gray);
+}
+
+.tac-envio__mensaje{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 0 8px;
+    text-align: center;
+    color: var(--light-gray);
+}
+
+.tac-envio__mensaje i{
+    font-size: 44px;
+    color: var(--primary);
+}
+
+.tac-envio__destacado{
+    font-size: 1.125em;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.tac-envio__formulario fieldset{
+    border: none;
+}
+
+.tac-envio__formulario textarea{
+    resize: vertical;
+    font-family: inherit;
+}
+
+.tac-envio__pie{
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.8125em;
+    color: var(--pale-gray);
+}
+
+.tac-sedes{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tac-sede{
+    flex: 1 1 180px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #d9dce6;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color .2s, background-color .2s;
+}
+
+.tac-sede:hover{
+    border-color: var(--primary);
+}
+
+.tac-sede:has(input:checked){
+    border-color: var(--primary);
+    background-color: var(--pale-primary);
+    color: var(--dark-primary);
+}
+
+.tac-sede input{
+    accent-color: var(--primary);
+}
+
+.tac-sede i{
+    font-size: 20px;
+    color: var(--primary);
+}
