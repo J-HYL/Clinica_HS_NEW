@@ -83,14 +83,26 @@ export default class Vista3D {
         propiedad.setPreferSizeOverAccuracy?.(true);
         this.renderer.addVolume(actor);
 
+        this.cubo = crearCuboOrientacion(this.ventana.getInteractor());
+
+        // Oculto (otra disposición) mide 0: no se redimensiona a 0, que WebGL se queja.
         this.observador = new ResizeObserver(() => {
+            if (!contenedor.clientWidth || !contenedor.clientHeight) return;
             this.ventana.resize();
+            this.cubo?.updateViewport();
             this.renderWindow.render();
         });
         this.observador.observe(contenedor);
 
         this.aplicarPreset("hueso");
         this.restablecerCamara();
+    }
+
+    /** PNG de lo que se ve (vtk.js lo captura en el siguiente fotograma). */
+    async exportarPNG() {
+        const [captura] = this.renderWindow.captureImages("image/png");
+        const url = await captura;
+        return (await fetch(url)).blob();
     }
 
     /** Cambia de preset y devuelve el umbral con el que queda. */
@@ -130,9 +142,11 @@ export default class Vista3D {
     restablecerCamara() {
         const centro = this.volumen.dims.map((n, eje) => (n * this.volumen.espaciado[eje]) / 2);
         const camara = this.renderer.getActiveCamera();
+        // "Arriba" antes de mirar por -Y: si no, coincide un momento con el
+        // "arriba" por defecto (+Y) y vtk.js avisa de que lo reinicia.
         camara.setFocalPoint(...centro);
-        camara.setPosition(centro[0], centro[1] - 1, centro[2]);   // anterior = -Y
         camara.setViewUp(0, 0, 1);
+        camara.setPosition(centro[0], centro[1] - 1, centro[2]);   // anterior = -Y
         this.renderer.resetCamera();
         camara.zoom(1.2);
         this.renderWindow.render();
@@ -140,6 +154,48 @@ export default class Vista3D {
 
     destruir() {
         this.observador.disconnect();
+        this.cubo?.delete();
         this.ventana.delete();
+    }
+}
+
+/**
+ * Cubo con las letras de orientación en una esquina, que gira con el volumen.
+ * Los ejes del volumen ya son LPS (x hacia la izquierda del paciente, y hacia
+ * posterior, z hacia superior: ver lectorDicom.worker.js), así que las caras
+ * llevan las mismas letras que los cortes. Si esta versión de vtk.js no trae
+ * el widget, el 3D sigue igual sin cubo.
+ */
+function crearCuboOrientacion(interactor) {
+    try {
+        const cubo = vtk.Rendering.Core.vtkAnnotatedCubeActor.newInstance();
+        cubo.setDefaultStyle({
+            fontStyle: "bold",
+            fontFamily: "Arial",
+            fontColor: "#e6e9f0",
+            fontSizeScale: (resolucion) => resolucion / 2,
+            faceColor: "#1b2230",
+            edgeThickness: 0.08,
+            edgeColor: "#5b6475",
+            resolution: 400,
+        });
+        cubo.setXPlusFaceProperty({ text: "L" });
+        cubo.setXMinusFaceProperty({ text: "R" });
+        cubo.setYPlusFaceProperty({ text: "P" });
+        cubo.setYMinusFaceProperty({ text: "A" });
+        cubo.setZPlusFaceProperty({ text: "S" });
+        cubo.setZMinusFaceProperty({ text: "I" });
+
+        const Widget = vtk.Interaction.Widgets.vtkOrientationMarkerWidget;
+        const widget = Widget.newInstance({ actor: cubo, interactor });
+        widget.setEnabled(true);
+        widget.setViewportCorner(Widget.Corners.BOTTOM_RIGHT);
+        widget.setViewportSize(0.14);
+        widget.setMinPixelSize(64);
+        widget.setMaxPixelSize(104);
+        return widget;
+    } catch (error) {
+        console.warn("Cubo de orientación no disponible:", error);
+        return null;
     }
 }
