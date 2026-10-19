@@ -35,6 +35,8 @@ const CAPA_MAXIMA = 15;            // mm hacia cada lado
 const PASO_CAPA = 0.5;             // mm por muesca de rueda en la panorámica
 const RADIO_PUNTO = 8;             // px CSS para agarrar un punto de la curva
 const RADIO_CURVA = 6;             // px CSS para insertar un punto sobre la curva
+const CURVATURA_MINIMA = 0.02;     // por debajo, la curva se trata como recta (ver sentidoVestibular)
+const ESPERA_CALIDAD = 250;        // ms quieto tras la rueda o el arrastre antes de la pasada completa
 const SIN_CURVA = "Dibuja la curva de la arcada en el corte axial: herramienta Curva (C) y clics de un extremo a otro siguiendo los dientes.";
 
 export default class Panoramica {
@@ -61,7 +63,10 @@ export default class Panoramica {
         this.version = 0;         // cambia con la curva: las medidas de antes ya no valen
         this.muestras = null;
         this.arrastrando = null;
+        this.movido = false;       // si el punto agarrado se ha movido de verdad
         this.calculoPendiente = 0;
+        this.calidadPendiente = 0;
+        this.panoramicaPendiente = false;
         this.restaurar();
 
         vistaAxial.capas.push({
@@ -210,12 +215,7 @@ export default class Panoramica {
             y[n] = densa[tramo][1] + (densa[tramo + 1][1] - densa[tramo][1]) * t;
         }
 
-        // Área con signo del polígono curva + cuerda: dice de qué lado queda el interior.
-        let area = 0;
-        for (let n = 0; n < total; n++) {
-            const m = (n + 1) % total;
-            area += x[n] * y[m] - x[m] * y[n];
-        }
+        // Normales con un sentido cualquiera; luego se elige el que va hacia vestibular.
         const nx = new Float64Array(total);
         const ny = new Float64Array(total);
         for (let n = 0; n < total; n++) {
@@ -224,10 +224,38 @@ export default class Panoramica {
             const tx = x[b] - x[a];
             const ty = y[b] - y[a];
             const largo = Math.hypot(tx, ty) || 1;
-            nx[n] = (area > 0 ? ty : -ty) / largo;
-            ny[n] = (area > 0 ? -tx : tx) / largo;
+            nx[n] = ty / largo;
+            ny[n] = -tx / largo;
         }
-        this.muestras = { x, y, nx, ny, total, longitud: (total - 1) * this.paso };
+        const longitud = (total - 1) * this.paso;
+        if (this.sentidoVestibular(x, y, nx, ny, longitud) < 0) {
+            for (let n = 0; n < total; n++) { nx[n] = -nx[n]; ny[n] = -ny[n]; }
+        }
+        this.muestras = { x, y, nx, ny, total, longitud };
+    }
+
+    /**
+     * +1 si las normales (ty, -tx) ya apuntan hacia vestibular, -1 si al revés.
+     * Arcada curvada: el interior del polígono "curva + cuerda" es el lado
+     * lingual/palatino (el signo del área lo dice). Curva casi recta (un solo
+     * sector, dos puntos): el área es ~0 y su signo cambiaría con cualquier
+     * retoque, así que vestibular es el lado que se aleja del centro del corte.
+     */
+    sentidoVestibular(x, y, nx, ny, longitud) {
+        const total = x.length;
+        let area = 0;
+        for (let n = 0; n < total; n++) {
+            const m = (n + 1) % total;
+            area += x[n] * y[m] - x[m] * y[n];
+        }
+        // (área / 2) frente a longitud²: una semicircunferencia da ~0,16.
+        if (Math.abs(area) / 2 >= CURVATURA_MINIMA * longitud * longitud) return area > 0 ? 1 : -1;
+
+        const { dims: [nxVol, nyVol], espaciado: [sx, sy] } = this.visor.volumen;
+        const m = total >> 1;
+        const haciaFuera = nx[m] * (x[m] - (nxVol * sx) / 2) + ny[m] * (y[m] - (nyVol * sy) / 2);
+        // Justo en el centro: anterior (arriba en el axial) como vestibular.
+        return (haciaFuera || -ny[m]) >= 0 ? 1 : -1;
     }
 
     /** Punto de la curva y su normal a `s` mm del principio. */
@@ -308,8 +336,14 @@ export default class Panoramica {
 
     calcularPanoramica(rapido = false) {
         const m = this.muestras;
+        this.panoramicaPendiente = false;
         if (!m) {
             this.vistaPanoramica.quitarImagen(this.puntos.length ? "Añade otro punto a la curva para ver la panorámica." : SIN_CURVA);
+            return;
+        }
+        // Oculta (curva dibujada en otra disposición): se calcula al enseñarla.
+        if (!this.vistaPanoramica.visible()) {
+            this.panoramicaPendiente = true;
             return;
         }
         const maximo = rapido ? MUESTRAS_GROSOR_RAPIDO : MUESTRAS_GROSOR;
@@ -347,13 +381,30 @@ export default class Panoramica {
         });
     }
 
-    /** La panorámica tarda unas decenas de ms: como mucho una vez por fotograma. */
-    programarPanoramica(rapido = false) {
-        cancelAnimationFrame(this.calculoPendiente);
+    /** Si se dejó sin calcular por estar oculta, ahora que se ve. */
+    mostrar() {
+        if (this.panoramicaPendiente) this.calcularPanoramica();
+    }
+
+    /**
+     * Mientras se arrastra o se gira la rueda: como mucho una vez por fotograma
+     * y con pocas muestras de grosor; cuando se para, una pasada completa.
+     */
+    programarPanoramica() {
+        this.cancelarCalculos();
         this.calculoPendiente = requestAnimationFrame(() => {
-            this.calcularPanoramica(rapido);
+            this.calcularPanoramica(true);
             this.visor.alCambiar();
+            this.calidadPendiente = setTimeout(() => {
+                this.calcularPanoramica();
+                this.visor.alCambiar();
+            }, ESPERA_CALIDAD);
         });
+    }
+
+    cancelarCalculos() {
+        cancelAnimationFrame(this.calculoPendiente);
+        clearTimeout(this.calidadPendiente);
     }
 
     moverCapa(delta) {
@@ -593,6 +644,7 @@ export default class Panoramica {
                 this.cambiar();
             } else {
                 this.arrastrando = cercano;
+                this.movido = false;   // un clic sin mover no cambia la curva
             }
             return true;
         }
@@ -600,30 +652,36 @@ export default class Panoramica {
         const indice = this.sobreLaCurva(u, v, vista) ? this.indiceInsercion(punto) : this.puntos.length;
         this.puntos.splice(indice, 0, punto);
         this.arrastrando = indice;
+        this.movido = true;
         this.calcularMuestras();
-        vista.pintar();
+        vista.repintar();
         return true;
     }
 
     arrastrarEnAxial(u, v) {
         if (this.arrastrando === null) return;
-        this.puntos[this.arrastrando] = this.dentroDelCorte(u, v);
+        const punto = this.dentroDelCorte(u, v);
+        const actual = this.puntos[this.arrastrando];
+        if (punto[0] === actual[0] && punto[1] === actual[1]) return;
+        this.puntos[this.arrastrando] = punto;
+        this.movido = true;
         this.calcularMuestras();
         this.ajustarPosicion();
         this.calcularTransversales();
-        this.programarPanoramica(true);
+        this.programarPanoramica();
     }
 
     soltarEnAxial() {
         if (this.arrastrando === null) return;
         this.arrastrando = null;
-        cancelAnimationFrame(this.calculoPendiente);
+        if (!this.movido) return;   // las medidas de la panorámica y transversales siguen valiendo
+        this.cancelarCalculos();
         this.cambiar();
     }
 
     sobrevolarAxial(u, v, vista) {
         if (this.visor.herramienta !== "curva") return false;
-        if (this.puntos.length) vista.pintar();
+        if (this.puntos.length) vista.repintar();
         return this.puntoCercano(u, v, vista) !== null;
     }
 

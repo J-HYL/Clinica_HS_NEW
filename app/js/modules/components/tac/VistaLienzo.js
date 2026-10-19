@@ -88,6 +88,7 @@ export default class VistaLienzo {
         }
         Object.assign(this, { ancho, alto, mmX, mmY });
         this.mensaje = null;
+        this.firmaPintada = null;   // contenido nuevo: hay que volver a pasarlo a grises
     }
 
     /** Sin imagen que pintar (p. ej. panorámica sin curva): se enseña un mensaje. */
@@ -165,8 +166,15 @@ export default class VistaLienzo {
             return;
         }
 
-        this.rellenar(this.mapaGris());
-        this.ctxBuffer.putImageData(this.imagen, 0, 0);
+        // Pasar la imagen a grises es lo caro: solo si ha cambiado lo que se ve
+        // (corte, contraste, invertir). Al mover el ratón solo cambia lo de encima.
+        const { centro, ancho } = this.visor.ventana;
+        const firma = `${centro}|${ancho}|${this.visor.invertir}|${this.firmaImagen()}`;
+        if (firma !== this.firmaPintada) {
+            this.rellenar(this.mapaGris());
+            this.ctxBuffer.putImageData(this.imagen, 0, 0);
+            this.firmaPintada = firma;
+        }
         const e = this.encuadre();
         ctx.imageSmoothingEnabled = true;
         ctx.drawImage(this.buffer, e.x, e.y, e.w, e.h);
@@ -175,6 +183,21 @@ export default class VistaLienzo {
         for (const capa of this.capas) capa.pintar?.(ctx, e, this);
         this.pintarMedidas(ctx, e);
         this.actualizarRotulos(e);
+    }
+
+    /** Lo que define el contenido de la imagen (cada subclase dice qué). */
+    firmaImagen() {
+        return "";
+    }
+
+    /** Repinta en el siguiente fotograma: agrupa los movimientos del ratón. */
+    repintar() {
+        if (this.repintePendiente) return;
+        this.repintePendiente = true;
+        requestAnimationFrame(() => {
+            this.repintePendiente = false;
+            this.pintar();
+        });
     }
 
     ajustarTamano() {
@@ -277,9 +300,14 @@ export default class VistaLienzo {
         return (Math.acos(Math.min(1, Math.max(-1, coseno))) * 180) / Math.PI;
     }
 
+    /** El ángulo a medio marcar, solo si sigue en el corte donde se empezó. */
+    enCursoAqui() {
+        return this.enCurso && this.enCurso.clave === (this.claveCorte?.() ?? null) ? this.enCurso : null;
+    }
+
     pintarMedidas(ctx, e) {
         const visibles = this.medidasVisibles();
-        if (this.enCurso) {
+        if (this.enCursoAqui()) {
             const extremo = this.puntero ?? this.enCurso.puntos.at(-1);
             visibles.push({ ...this.enCurso, puntos: [...this.enCurso.puntos, extremo] });
         }
@@ -456,7 +484,8 @@ export default class VistaLienzo {
         l.addEventListener("pointerleave", () => {
             if (this.arrastre) return;
             this.puntero = null;
-            if (this.visor.herramienta === "sonda" || this.enCurso) this.pintar();
+            // Fuera lo que sigue al ratón: valor de gris, ángulo a medias, tramo de la curva...
+            this.repintar();
         });
         l.addEventListener("pointerenter", () => this.visor.activar(this));
         l.addEventListener("focus", () => this.visor.activar(this));
@@ -493,11 +522,11 @@ export default class VistaLienzo {
             }
         }
         // Agarrar un punto de una medida ya hecha, con cualquier herramienta.
-        const agarre = this.enCurso ? null : this.puntoCercano(px, py);
+        const agarre = this.enCursoAqui() ? null : this.puntoCercano(px, py);
         if (agarre) {
             this.seleccionada = agarre.medida;
             this.arrastre = { tipo: "punto", ...agarre };
-            this.pintar();
+            this.repintar();
             return;
         }
 
@@ -510,7 +539,8 @@ export default class VistaLienzo {
             this.arrastre = { tipo: "punto", medida, indice: 1, nueva: true };
         } else if (herramienta === "angulo") {
             // Tres clics: un extremo, el vértice y el otro extremo (con vista previa).
-            if (!this.enCurso) {
+            // Si entretanto se ha cambiado de corte, se empieza de nuevo en este.
+            if (!this.enCursoAqui()) {
                 this.enCurso = { tipo: "angulo", puntos: [[u, v]], clave };
             } else {
                 this.enCurso.puntos.push([u, v]);
@@ -520,12 +550,12 @@ export default class VistaLienzo {
                     this.enCurso = null;
                 }
             }
-            this.pintar();
+            this.repintar();
         } else if (herramienta === "sonda") {
             const medida = { tipo: "sonda", puntos: [[u, v]], clave };
             this.medidas.push(medida);
             this.seleccionada = medida;
-            this.pintar();
+            this.repintar();
         } else {
             if (this.seleccionada) this.seleccionada = null;
             this.arrastre = { tipo: "navegar" };
@@ -543,7 +573,7 @@ export default class VistaLienzo {
             if (!this.imagen) return;
             const sobreCapa = this.capas.some(capa => capa.alSobrevolar?.(u, v, this));
             this.lienzo.classList.toggle("tac-vista__lienzo--agarre", sobreCapa || !!this.puntoCercano(px, py));
-            if (this.visor.herramienta === "sonda" || this.enCurso) this.pintar();
+            if (this.visor.herramienta === "sonda" || this.enCursoAqui()) this.repintar();
             return;
         }
         if (a.tipo === "ventana") {
@@ -555,10 +585,10 @@ export default class VistaLienzo {
             });
         } else if (a.tipo === "mover") {
             this.desplazamiento = [a.inicial[0] + px - a.x, a.inicial[1] + py - a.y];
-            this.pintar();
+            this.repintar();
         } else if (a.tipo === "punto") {
             a.medida.puntos[a.indice] = [u, v];
-            this.pintar();
+            this.repintar();
         } else if (a.tipo === "capa") {
             a.capa.alArrastrar?.(u, v, this);
         } else if (a.tipo === "navegar") {
@@ -576,7 +606,7 @@ export default class VistaLienzo {
         if (a.nueva && this.longitud(...a.medida.puntos) < 0.3) {
             this.medidas = this.medidas.filter(m => m !== a.medida);
             this.seleccionada = null;
-            this.pintar();
+            this.repintar();
         }
     }
 
@@ -591,7 +621,7 @@ export default class VistaLienzo {
             const [nx, ny] = this.aPantalla(u, v, this.encuadre());
             this.desplazamiento[0] += px - nx;
             this.desplazamiento[1] += py - ny;
-            this.pintar();
+            this.repintar();
             return;
         }
         // Rueda de ratón (saltos grandes): un paso por muesca. Trackpad (saltos

@@ -211,6 +211,8 @@ function fijarDisposicion(disposicion, principal = activa) {
 
     // La vista activa siempre a la vista.
     if (!visibles.includes(activa)) activarVista(visibles.includes(principal) ? principal : visibles[0]);
+    // Si la curva se editó con la panorámica oculta, se calcula ahora que se ve.
+    panoramica.mostrar();
     // En la panorámica sin curva todavía, lo primero es dibujarla.
     if (disposicion === "panoramica" && !panoramica.tieneCurva) fijarHerramienta("curva");
 }
@@ -299,20 +301,20 @@ function confirmarBoton(boton, icono) {
     }, 1200);
 }
 
-function alternarPantallaCompleta() {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else document.documentElement.requestFullscreen?.();
+/** El navegador puede negarla (política, iframe sin permiso): se avisa en el propio botón. */
+async function alternarPantallaCompleta() {
+    try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
+    } catch (error) {
+        console.warn("Pantalla completa no disponible:", error);
+        confirmarBoton(botonPantalla, "ri-error-warning-line");
+    }
 }
 
-/** Lo que funciona aunque el estudio no haya cargado: ayuda y pantalla completa. */
+/** Lo que funciona aunque el estudio no haya cargado: ayuda, pantalla completa y sus atajos. */
 function cablearSiempre() {
-    // El title del navegador tarda en salir: los botones usan una descripción
-    // propia ([data-tip] en tac.css) con el mismo texto, atajo incluido.
-    marco.querySelectorAll("button[title]").forEach(boton => {
-        boton.dataset.tip = boton.title;
-        boton.removeAttribute("title");
-    });
-
+    document.addEventListener("keydown", alPulsarTecla);
     document.querySelector("#abrir-ayuda").addEventListener("click", () => ayuda.showModal());
     document.querySelector("#cerrar-ayuda").addEventListener("click", () => ayuda.close());
     ayuda.addEventListener("click", (e) => { if (e.target === ayuda) ayuda.close(); });   // clic fuera
@@ -360,16 +362,24 @@ function cablearHerramientas() {
         });
     });
     document.querySelector("#vista-frontal").addEventListener("click", () => vista3D?.restablecerCamara());
-
-    document.addEventListener("keydown", alPulsarTecla);
 }
 
 function alPulsarTecla(e) {
     if (e.ctrlKey || e.metaKey || e.altKey || ayuda.open) return;
     if (e.target instanceof Element && e.target.closest("input, select, textarea")) return;
     const tecla = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    const vista = vistas[activa];
 
+    // Con el estudio aún cargando (o si falló), solo lo que ya funciona sin él.
+    let usada = true;
+    if (tecla === "f") alternarPantallaCompleta();
+    else if (tecla === "?") ayuda.showModal();
+    else usada = visor !== null && atajoDelEstudio(tecla);
+    if (usada) e.preventDefault();
+}
+
+/** Atajos que necesitan el estudio montado. Devuelve si la tecla era suya. */
+function atajoDelEstudio(tecla) {
+    const vista = vistas[activa];
     if (TECLAS_HERRAMIENTA[tecla]) fijarHerramienta(TECLAS_HERRAMIENTA[tecla]);
     else if (tecla === "Escape") cancelar();
     else if (tecla === "Delete" || tecla === "Backspace") borrarMedida();
@@ -379,10 +389,8 @@ function alPulsarTecla(e) {
     else if (tecla === "i") fijarInvertir(!visor.invertir);
     else if (tecla === "r") restablecer();
     else if (tecla === "p") capturar();
-    else if (tecla === "f") alternarPantallaCompleta();
-    else if (tecla === "?") ayuda.showModal();
-    else return;
-    e.preventDefault();
+    else return false;
+    return true;
 }
 
 //* Carga y errores

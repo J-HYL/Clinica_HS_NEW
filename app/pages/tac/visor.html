@@ -47,27 +47,27 @@
 
             <div class="tac-barra__acciones" data-necesita-estudio>
                 <div class="tac-segmento" role="group" aria-label="Contraste de los cortes">
-                    <button type="button" data-ventana="estudio" aria-pressed="true" title="Contraste del estudio">Estudio</button>
-                    <button type="button" data-ventana="hueso" aria-pressed="false" title="Contraste para hueso">Hueso</button>
-                    <button type="button" data-ventana="dientes" aria-pressed="false" title="Contraste para dientes">Dientes</button>
+                    <button type="button" data-ventana="estudio" aria-pressed="true" data-tip="Contraste del estudio">Estudio</button>
+                    <button type="button" data-ventana="hueso" aria-pressed="false" data-tip="Contraste para hueso">Hueso</button>
+                    <button type="button" data-ventana="dientes" aria-pressed="false" data-tip="Contraste para dientes">Dientes</button>
                 </div>
-                <button type="button" class="tac-icono" id="invertir" aria-pressed="false" aria-label="Invertir grises" title="Invertir grises (I)"><i class="ri-contrast-2-line" aria-hidden="true"></i></button>
+                <button type="button" class="tac-icono" id="invertir" aria-pressed="false" aria-label="Invertir grises" data-tip="Invertir grises (I)"><i class="ri-contrast-2-line" aria-hidden="true"></i></button>
 
                 <span class="tac-barra__separador" aria-hidden="true"></span>
 
                 <div class="tac-segmento" role="group" aria-label="Disposición de las vistas">
-                    <button type="button" data-disposicion="2x2" aria-pressed="true" aria-label="Cuatro vistas" title="Cuatro vistas (1)"><i class="ri-layout-grid-line" aria-hidden="true"></i></button>
-                    <button type="button" data-disposicion="1+3" aria-pressed="false" aria-label="Una grande y tres pequeñas" title="Una grande y tres pequeñas (2)"><i class="ri-layout-left-line" aria-hidden="true"></i></button>
-                    <button type="button" data-disposicion="1x1" aria-pressed="false" aria-label="Solo la vista activa" title="Solo la vista activa (3)"><i class="ri-checkbox-blank-line" aria-hidden="true"></i></button>
-                    <button type="button" data-disposicion="panoramica" aria-pressed="false" aria-label="Panorámica y transversales" title="Panorámica y transversales (4)"><i class="ri-layout-top-2-line" aria-hidden="true"></i><span class="tac-barra__texto-opcional">Panorámica</span></button>
+                    <button type="button" data-disposicion="2x2" aria-pressed="true" aria-label="Cuatro vistas" data-tip="Cuatro vistas (1)"><i class="ri-layout-grid-line" aria-hidden="true"></i></button>
+                    <button type="button" data-disposicion="1+3" aria-pressed="false" aria-label="Una grande y tres pequeñas" data-tip="Una grande y tres pequeñas (2)"><i class="ri-layout-left-line" aria-hidden="true"></i></button>
+                    <button type="button" data-disposicion="1x1" aria-pressed="false" aria-label="Solo la vista activa" data-tip="Solo la vista activa (3)"><i class="ri-checkbox-blank-line" aria-hidden="true"></i></button>
+                    <button type="button" data-disposicion="panoramica" aria-pressed="false" aria-label="Panorámica y transversales" data-tip="Panorámica y transversales (4)"><i class="ri-layout-top-2-line" aria-hidden="true"></i><span class="tac-barra__texto-opcional">Panorámica</span></button>
                 </div>
 
                 <span class="tac-barra__separador" aria-hidden="true"></span>
 
-                <button type="button" class="tac-icono" id="captura" aria-label="Guardar imagen de la vista activa" title="Guardar imagen de la vista activa (P)"><i class="ri-camera-line" aria-hidden="true"></i></button>
+                <button type="button" class="tac-icono" id="captura" aria-label="Guardar imagen de la vista activa" data-tip="Guardar imagen de la vista activa (P)"><i class="ri-camera-line" aria-hidden="true"></i></button>
             </div>
-            <button type="button" class="tac-icono" id="abrir-ayuda" aria-label="Ayuda y atajos de teclado" title="Ayuda y atajos (?)"><i class="ri-question-line" aria-hidden="true"></i></button>
-            <button type="button" class="tac-icono" id="pantalla-completa" aria-label="Pantalla completa" title="Pantalla completa (F)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+            <button type="button" class="tac-icono" id="abrir-ayuda" aria-label="Ayuda y atajos de teclado" data-tip="Ayuda y atajos (?)"><i class="ri-question-line" aria-hidden="true"></i></button>
+            <button type="button" class="tac-icono" id="pantalla-completa" aria-label="Pantalla completa" data-tip="Pantalla completa (F)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
         </header>
 
         <div class="tac-avisos-visor" id="caja-avisos" hidden>
@@ -78,33 +78,33 @@
 
         <div class="tac-cuerpo">
             <div class="tac-rail" role="toolbar" aria-orientation="vertical" aria-label="Herramientas" data-necesita-estudio>
-                <button type="button" data-herramienta="navegar" aria-pressed="true" aria-label="Navegar" title="Navegar: mover la referencia (N)"><i class="ri-cursor-line" aria-hidden="true"></i></button>
-                <button type="button" data-herramienta="medir" aria-pressed="false" aria-label="Medir distancia" title="Distancia en mm (D)"><i class="ri-ruler-line" aria-hidden="true"></i></button>
-                <button type="button" data-herramienta="angulo" aria-pressed="false" aria-label="Medir ángulo" title="Ángulo: tres clics (A)"><i class="ri-compasses-2-line" aria-hidden="true"></i></button>
-                <button type="button" data-herramienta="sonda" aria-pressed="false" aria-label="Valor de gris" title="Valor de gris de un punto (V)"><i class="ri-focus-3-line" aria-hidden="true"></i></button>
-                <button type="button" data-herramienta="curva" aria-pressed="false" aria-label="Curva panorámica" title="Curva de la panorámica, en el corte axial (C)"><i class="ri-pen-nib-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="navegar" aria-pressed="true" aria-label="Navegar" data-tip="Navegar: mover la referencia (N)"><i class="ri-cursor-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="medir" aria-pressed="false" aria-label="Medir distancia" data-tip="Distancia en mm (D)"><i class="ri-ruler-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="angulo" aria-pressed="false" aria-label="Medir ángulo" data-tip="Ángulo: tres clics (A)"><i class="ri-compasses-2-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="sonda" aria-pressed="false" aria-label="Valor de gris" data-tip="Valor de gris de un punto (V)"><i class="ri-focus-3-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="curva" aria-pressed="false" aria-label="Curva panorámica" data-tip="Curva de la panorámica, en el corte axial (C)"><i class="ri-pen-nib-line" aria-hidden="true"></i></button>
                 <span class="tac-rail__separador" aria-hidden="true"></span>
-                <button type="button" id="borrar-medida" aria-label="Borrar medida" title="Borrar la medida seleccionada o la última (Supr)"><i class="ri-delete-back-2-line" aria-hidden="true"></i></button>
-                <button type="button" id="borrar-medidas" aria-label="Borrar todas las medidas" title="Borrar todas las medidas"><i class="ri-eraser-line" aria-hidden="true"></i></button>
+                <button type="button" id="borrar-medida" aria-label="Borrar medida" data-tip="Borrar la medida seleccionada o la última (Supr)"><i class="ri-delete-back-2-line" aria-hidden="true"></i></button>
+                <button type="button" id="borrar-medidas" aria-label="Borrar todas las medidas" data-tip="Borrar todas las medidas"><i class="ri-eraser-line" aria-hidden="true"></i></button>
                 <span class="tac-rail__separador" aria-hidden="true"></span>
-                <button type="button" id="restablecer" aria-label="Restablecer vistas" title="Volver a la vista inicial (R)"><i class="ri-restart-line" aria-hidden="true"></i></button>
+                <button type="button" id="restablecer" aria-label="Restablecer vistas" data-tip="Volver a la vista inicial (R)"><i class="ri-restart-line" aria-hidden="true"></i></button>
             </div>
 
             <div class="tac-area" id="area" data-disposicion="2x2" data-herramienta="navegar">
                 <section class="tac-vista" data-vista="axial" aria-label="Vista axial">
                     <div class="tac-vista__cuerpo"></div>
                     <input type="range" class="tac-vista__corte" aria-label="Recorrer cortes axiales">
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="axial" aria-label="Ampliar vista axial" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="axial" aria-label="Ampliar vista axial" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="coronal" aria-label="Vista coronal">
                     <div class="tac-vista__cuerpo"></div>
                     <input type="range" class="tac-vista__corte" aria-label="Recorrer cortes coronales">
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="coronal" aria-label="Ampliar vista coronal" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="coronal" aria-label="Ampliar vista coronal" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="sagital" aria-label="Vista sagital">
                     <div class="tac-vista__cuerpo"></div>
                     <input type="range" class="tac-vista__corte" aria-label="Recorrer cortes sagitales">
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="sagital" aria-label="Ampliar vista sagital" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="sagital" aria-label="Ampliar vista sagital" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista tac-vista--3d" data-vista="3d" aria-label="Vista 3D">
                     <div class="tac-vista__cuerpo tac-vista__cuerpo--3d"></div>
@@ -119,9 +119,9 @@
                             <span>Umbral</span>
                             <input type="range" id="umbral" disabled>
                         </label>
-                        <button type="button" class="tac-icono tac-icono--compacto" id="vista-frontal" aria-label="Vista de frente" title="Vista de frente"><i class="ri-user-3-line" aria-hidden="true"></i></button>
+                        <button type="button" class="tac-icono tac-icono--compacto" id="vista-frontal" aria-label="Vista de frente" data-tip="Vista de frente"><i class="ri-user-3-line" aria-hidden="true"></i></button>
                     </div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="3d" aria-label="Ampliar vista 3D" title="Ampliar"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="3d" aria-label="Ampliar vista 3D" data-tip="Ampliar"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
 
                 <section class="tac-vista" data-vista="panoramica" aria-label="Panorámica">
@@ -149,27 +149,27 @@
                         </label>
                         <button type="button" class="tac-boton-oscuro" data-pano="borrar"><i class="ri-delete-bin-6-line" aria-hidden="true"></i>Borrar curva</button>
                     </div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="panoramica" aria-label="Ampliar panorámica" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="panoramica" aria-label="Ampliar panorámica" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="t1" aria-label="Transversal 1">
                     <div class="tac-vista__cuerpo"></div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="t1" aria-label="Ampliar transversal 1" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t1" aria-label="Ampliar transversal 1" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="t2" aria-label="Transversal 2">
                     <div class="tac-vista__cuerpo"></div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="t2" aria-label="Ampliar transversal 2" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t2" aria-label="Ampliar transversal 2" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="t3" aria-label="Transversal 3">
                     <div class="tac-vista__cuerpo"></div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="t3" aria-label="Ampliar transversal 3" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t3" aria-label="Ampliar transversal 3" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="t4" aria-label="Transversal 4">
                     <div class="tac-vista__cuerpo"></div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="t4" aria-label="Ampliar transversal 4" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t4" aria-label="Ampliar transversal 4" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
                 <section class="tac-vista" data-vista="t5" aria-label="Transversal 5">
                     <div class="tac-vista__cuerpo"></div>
-                    <button type="button" class="tac-vista__ampliar" data-ampliar="t5" aria-label="Ampliar transversal 5" title="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t5" aria-label="Ampliar transversal 5" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
                 </section>
 
                 <div class="tac-carga" id="carga" role="status" aria-live="polite">

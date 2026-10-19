@@ -72,6 +72,11 @@ export default class VistaCorte extends VistaLienzo {
         return this.indice;
     }
 
+    /** La imagen solo depende del corte de su eje (el resto de la cruz, no). */
+    firmaImagen() {
+        return this.indice;
+    }
+
     moverCorte(pasos) {
         const eje = this.definicion.eje;
         const nuevo = Math.min(this.total - 1, Math.max(0, this.visor.cursor[eje] + pasos));
