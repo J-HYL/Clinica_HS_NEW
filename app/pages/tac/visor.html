@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
     <title>Visor TAC</title>
 
     <!-- Scripts -->
@@ -20,125 +21,240 @@
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
 
 </head>
-<body>
-    <nav class="sidebar" id="sidebar"></nav>
+<!-- Estación de trabajo: el visor ocupa toda la ventana, sin el menú ni la
+     cabecera del panel (se vuelve con "Estudios"). Por eso no carga main.js,
+     solo entorno.js para la marquesina de preproducción. -->
+<body class="tac-estacion">
+    <div class="tac-solo-escritorio">
+        <i class="ri-computer-line"></i>
+        <p class="tac-solo-escritorio__titulo">El visor TAC solo está disponible en ordenador</p>
+        <p>Un estudio ocupa cientos de MB de memoria y se maneja con ratón. Ábrelo desde un ordenador de la clínica.</p>
+        <a href="control.html" class="tac-boton tac-boton--secundario">Volver a los estudios</a>
+    </div>
 
-    <div class="wrapper">
-        <header class="header">
-            <div class="header__group">
-                <button class="header__menu" aria-label="Abrir Sidebar">
-                    <i class="ri-menu-line"></i>
-                </button>
-                <h1 class="header__heading">HS Dental - <span>TAC</span></h1>
+    <div class="tac-contenido tac-estacion__marco" id="marco">
+        <header class="tac-barra">
+            <a href="control.html" class="tac-barra__volver"><i class="ri-arrow-left-line" aria-hidden="true"></i>Estudios</a>
+
+            <div class="tac-barra__estudio">
+                <h1 class="tac-barra__paciente" id="titulo">Cargando estudio…</h1>
+                <ul class="tac-barra__datos" id="datos-estudio"></ul>
             </div>
+
+            <p class="tac-barra__legal" title="Visor de consulta. El diagnóstico se realiza con el software del equipo de radiología (Romexis).">
+                <i class="ri-information-line" aria-hidden="true"></i>Solo consulta<span class="tac-barra__legal-extra">· diagnóstico en Romexis</span>
+            </p>
+
+            <div class="tac-barra__acciones" data-necesita-estudio>
+                <div class="tac-segmento" role="group" aria-label="Contraste de los cortes">
+                    <button type="button" data-ventana="estudio" aria-pressed="true" data-tip="Contraste del estudio">Estudio</button>
+                    <button type="button" data-ventana="hueso" aria-pressed="false" data-tip="Contraste para hueso">Hueso</button>
+                    <button type="button" data-ventana="dientes" aria-pressed="false" data-tip="Contraste para dientes">Dientes</button>
+                </div>
+                <button type="button" class="tac-icono" id="invertir" aria-pressed="false" aria-label="Invertir grises" data-tip="Invertir grises (I)"><i class="ri-contrast-2-line" aria-hidden="true"></i></button>
+
+                <span class="tac-barra__separador" aria-hidden="true"></span>
+
+                <div class="tac-segmento" role="group" aria-label="Disposición de las vistas">
+                    <button type="button" data-disposicion="2x2" aria-pressed="true" aria-label="Cuatro vistas" data-tip="Cuatro vistas (1)"><i class="ri-layout-grid-line" aria-hidden="true"></i></button>
+                    <button type="button" data-disposicion="1+3" aria-pressed="false" aria-label="Una grande y tres pequeñas" data-tip="Una grande y tres pequeñas (2)"><i class="ri-layout-left-line" aria-hidden="true"></i></button>
+                    <button type="button" data-disposicion="1x1" aria-pressed="false" aria-label="Solo la vista activa" data-tip="Solo la vista activa (3)"><i class="ri-checkbox-blank-line" aria-hidden="true"></i></button>
+                    <button type="button" data-disposicion="panoramica" aria-pressed="false" aria-label="Panorámica y transversales" data-tip="Panorámica y transversales (4)"><i class="ri-layout-top-2-line" aria-hidden="true"></i><span class="tac-barra__texto-opcional">Panorámica</span></button>
+                </div>
+
+                <span class="tac-barra__separador" aria-hidden="true"></span>
+
+                <button type="button" class="tac-icono" id="captura" aria-label="Guardar imagen de la vista activa" data-tip="Guardar imagen de la vista activa (P)"><i class="ri-camera-line" aria-hidden="true"></i></button>
+            </div>
+            <button type="button" class="tac-icono" id="abrir-ayuda" aria-label="Ayuda y atajos de teclado" data-tip="Ayuda y atajos (?)"><i class="ri-question-line" aria-hidden="true"></i></button>
+            <button type="button" class="tac-icono" id="pantalla-completa" aria-label="Pantalla completa" data-tip="Pantalla completa (F)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
         </header>
 
-        <main class="container main tac-visor">
-            <div class="tac-solo-escritorio">
-                <i class="ri-computer-line"></i>
-                <p class="tac-solo-escritorio__titulo">El visor TAC solo está disponible en ordenador</p>
-                <p>Un estudio ocupa cientos de MB de memoria y se maneja con ratón. Ábrelo desde un ordenador de la clínica.</p>
+        <div class="tac-avisos-visor" id="caja-avisos" hidden>
+            <i class="ri-alert-line" aria-hidden="true"></i>
+            <ul id="avisos"></ul>
+            <button type="button" class="tac-icono tac-icono--compacto" id="cerrar-avisos" aria-label="Cerrar avisos"><i class="ri-close-line" aria-hidden="true"></i></button>
+        </div>
+
+        <div class="tac-cuerpo">
+            <div class="tac-rail" role="toolbar" aria-orientation="vertical" aria-label="Herramientas" data-necesita-estudio>
+                <button type="button" data-herramienta="navegar" aria-pressed="true" aria-label="Navegar" data-tip="Navegar: mover la referencia (N)"><i class="ri-cursor-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="medir" aria-pressed="false" aria-label="Medir distancia" data-tip="Distancia en mm (D)"><i class="ri-ruler-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="angulo" aria-pressed="false" aria-label="Medir ángulo" data-tip="Ángulo: tres clics (A)"><i class="ri-compasses-2-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="sonda" aria-pressed="false" aria-label="Valor de gris" data-tip="Valor de gris de un punto (V)"><i class="ri-focus-3-line" aria-hidden="true"></i></button>
+                <button type="button" data-herramienta="curva" aria-pressed="false" aria-label="Curva panorámica" data-tip="Curva de la panorámica, en el corte axial (C)"><i class="ri-pen-nib-line" aria-hidden="true"></i></button>
+                <span class="tac-rail__separador" aria-hidden="true"></span>
+                <button type="button" id="borrar-medida" aria-label="Borrar medida" data-tip="Borrar la medida seleccionada o la última (Supr)"><i class="ri-delete-back-2-line" aria-hidden="true"></i></button>
+                <button type="button" id="borrar-medidas" aria-label="Borrar todas las medidas" data-tip="Borrar todas las medidas"><i class="ri-eraser-line" aria-hidden="true"></i></button>
+                <span class="tac-rail__separador" aria-hidden="true"></span>
+                <button type="button" id="restablecer" aria-label="Restablecer vistas" data-tip="Volver a la vista inicial (R)"><i class="ri-restart-line" aria-hidden="true"></i></button>
             </div>
 
-            <div class="tac-contenido">
-                <div class="tac-visor__cabecera">
-                    <a href="control.html" class="tac-volver" aria-label="Volver a los estudios"><i class="ri-arrow-left-line"></i></a>
-                    <div>
-                        <h3 class="container__heading" id="titulo">Cargando estudio…</h3>
-                        <p class="tac-visor__datos" id="datos-estudio"></p>
+            <div class="tac-area" id="area" data-disposicion="2x2" data-herramienta="navegar">
+                <section class="tac-vista" data-vista="axial" aria-label="Vista axial">
+                    <div class="tac-vista__cuerpo"></div>
+                    <input type="range" class="tac-vista__corte" aria-label="Recorrer cortes axiales">
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="axial" aria-label="Ampliar vista axial" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="coronal" aria-label="Vista coronal">
+                    <div class="tac-vista__cuerpo"></div>
+                    <input type="range" class="tac-vista__corte" aria-label="Recorrer cortes coronales">
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="coronal" aria-label="Ampliar vista coronal" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="sagital" aria-label="Vista sagital">
+                    <div class="tac-vista__cuerpo"></div>
+                    <input type="range" class="tac-vista__corte" aria-label="Recorrer cortes sagitales">
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="sagital" aria-label="Ampliar vista sagital" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista tac-vista--3d" data-vista="3d" aria-label="Vista 3D">
+                    <div class="tac-vista__cuerpo tac-vista__cuerpo--3d"></div>
+                    <div class="tac-rotulo tac-rotulo--si" aria-hidden="true"><span class="tac-rotulo__titulo">3D</span></div>
+                    <div class="tac-controles" role="group" aria-label="Controles de la vista 3D">
+                        <div class="tac-segmento tac-segmento--compacto" role="group" aria-label="Qué mostrar en 3D">
+                            <button type="button" data-preset3d="hueso" aria-pressed="true">Hueso</button>
+                            <button type="button" data-preset3d="dientes" aria-pressed="false">Dientes</button>
+                            <button type="button" data-preset3d="piel" aria-pressed="false">Piel</button>
+                        </div>
+                        <label class="tac-campo">
+                            <span>Umbral</span>
+                            <input type="range" id="umbral" disabled>
+                        </label>
+                        <button type="button" class="tac-icono tac-icono--compacto" id="vista-frontal" aria-label="Vista de frente" data-tip="Vista de frente"><i class="ri-user-3-line" aria-hidden="true"></i></button>
                     </div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="3d" aria-label="Ampliar vista 3D" data-tip="Ampliar"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+
+                <section class="tac-vista" data-vista="panoramica" aria-label="Panorámica">
+                    <div class="tac-vista__cuerpo"></div>
+                    <div class="tac-controles" role="group" aria-label="Controles de la panorámica">
+                        <label class="tac-campo">
+                            <span>Grosor</span>
+                            <select data-pano="grosor">
+                                <option value="0">Fino</option>
+                                <option value="5">5 mm</option>
+                                <option value="10">10 mm</option>
+                                <option value="15">15 mm</option>
+                                <option value="20">20 mm</option>
+                                <option value="25">25 mm</option>
+                            </select>
+                        </label>
+                        <label class="tac-campo">
+                            <span>Transversales cada</span>
+                            <select data-pano="separacion">
+                                <option value="0.5">0,5 mm</option>
+                                <option value="1">1 mm</option>
+                                <option value="2">2 mm</option>
+                                <option value="5">5 mm</option>
+                            </select>
+                        </label>
+                        <button type="button" class="tac-boton-oscuro" data-pano="borrar"><i class="ri-delete-bin-6-line" aria-hidden="true"></i>Borrar curva</button>
+                    </div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="panoramica" aria-label="Ampliar panorámica" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="t1" aria-label="Transversal 1">
+                    <div class="tac-vista__cuerpo"></div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t1" aria-label="Ampliar transversal 1" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="t2" aria-label="Transversal 2">
+                    <div class="tac-vista__cuerpo"></div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t2" aria-label="Ampliar transversal 2" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="t3" aria-label="Transversal 3">
+                    <div class="tac-vista__cuerpo"></div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t3" aria-label="Ampliar transversal 3" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="t4" aria-label="Transversal 4">
+                    <div class="tac-vista__cuerpo"></div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t4" aria-label="Ampliar transversal 4" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+                <section class="tac-vista" data-vista="t5" aria-label="Transversal 5">
+                    <div class="tac-vista__cuerpo"></div>
+                    <button type="button" class="tac-vista__ampliar" data-ampliar="t5" aria-label="Ampliar transversal 5" data-tip="Ampliar (doble clic)"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
+                </section>
+
+                <div class="tac-carga" id="carga" role="status" aria-live="polite">
+                    <div class="sk-chase">
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                    </div>
+                    <p class="tac-carga__texto" id="carga-texto">Preparando el visor…</p>
+                    <div class="tac-progreso__barra tac-progreso__barra--indefinida" id="carga-barra"><span></span></div>
+                    <p class="tac-carga__detalle" id="carga-detalle"></p>
                 </div>
-
-                <div class="tac-marco" id="marco">
-                    <div class="tac-herramientas" role="toolbar" aria-label="Herramientas del visor">
-                        <div class="tac-herramientas__grupo" role="group" aria-label="Contraste de los cortes">
-                            <span class="tac-herramientas__etiqueta">Contraste</span>
-                            <button type="button" class="tac-herramienta is-activo" data-ventana="estudio">Estudio</button>
-                            <button type="button" class="tac-herramienta" data-ventana="hueso">Hueso</button>
-                            <button type="button" class="tac-herramienta" data-ventana="dientes">Dientes</button>
-                        </div>
-                        <div class="tac-herramientas__grupo" role="group" aria-label="Medidas y vista">
-                            <button type="button" class="tac-herramienta" id="medir" aria-pressed="false" title="Medir distancias en mm (Esc para salir)"><i class="ri-ruler-line"></i> Medir</button>
-                            <button type="button" class="tac-herramienta" id="borrar-medidas" title="Borrar todas las medidas"><i class="ri-eraser-line"></i></button>
-                            <button type="button" class="tac-herramienta" id="centrar" title="Volver a la vista inicial"><i class="ri-focus-3-line"></i> Centrar</button>
-                        </div>
-                        <div class="tac-herramientas__grupo" role="group" aria-label="Vista 3D">
-                            <span class="tac-herramientas__etiqueta">3D</span>
-                            <button type="button" class="tac-herramienta is-activo" data-preset3d="hueso">Hueso</button>
-                            <button type="button" class="tac-herramienta" data-preset3d="dientes">Dientes</button>
-                            <button type="button" class="tac-herramienta" data-preset3d="piel">Piel</button>
-                            <label class="tac-umbral">
-                                <span>Umbral</span>
-                                <input type="range" id="umbral" disabled>
-                            </label>
-                        </div>
-                        <button type="button" class="tac-herramienta tac-herramienta--icono" id="pantalla-completa" title="Pantalla completa"><i class="ri-fullscreen-line"></i></button>
-                    </div>
-
-                    <ul class="tac-avisos tac-avisos--visor" id="avisos" hidden></ul>
-
-                    <div class="tac-rejilla" id="rejilla">
-                        <section class="tac-panel" data-vista="axial">
-                            <header class="tac-panel__barra">
-                                <span class="tac-panel__titulo tac-panel__titulo--axial">Axial</span>
-                                <button type="button" class="tac-panel__ampliar" data-ampliar="axial" aria-label="Ampliar vista axial"><i class="ri-fullscreen-line"></i></button>
-                            </header>
-                            <div class="tac-panel__lienzo"></div>
-                        </section>
-                        <section class="tac-panel" data-vista="coronal">
-                            <header class="tac-panel__barra">
-                                <span class="tac-panel__titulo tac-panel__titulo--coronal">Coronal</span>
-                                <button type="button" class="tac-panel__ampliar" data-ampliar="coronal" aria-label="Ampliar vista coronal"><i class="ri-fullscreen-line"></i></button>
-                            </header>
-                            <div class="tac-panel__lienzo"></div>
-                        </section>
-                        <section class="tac-panel" data-vista="sagital">
-                            <header class="tac-panel__barra">
-                                <span class="tac-panel__titulo tac-panel__titulo--sagital">Sagital</span>
-                                <button type="button" class="tac-panel__ampliar" data-ampliar="sagital" aria-label="Ampliar vista sagital"><i class="ri-fullscreen-line"></i></button>
-                            </header>
-                            <div class="tac-panel__lienzo"></div>
-                        </section>
-                        <section class="tac-panel" data-vista="3d">
-                            <header class="tac-panel__barra">
-                                <span class="tac-panel__titulo">3D</span>
-                                <button type="button" class="tac-panel__ampliar" data-ampliar="3d" aria-label="Ampliar vista 3D"><i class="ri-fullscreen-line"></i></button>
-                            </header>
-                            <div class="tac-panel__lienzo tac-panel__lienzo--3d"></div>
-                        </section>
-
-                        <div class="tac-carga" id="carga" role="status" aria-live="polite">
-                            <div class="sk-chase">
-                                <div class="sk-chase-dot"></div>
-                                <div class="sk-chase-dot"></div>
-                                <div class="sk-chase-dot"></div>
-                                <div class="sk-chase-dot"></div>
-                                <div class="sk-chase-dot"></div>
-                                <div class="sk-chase-dot"></div>
-                            </div>
-                            <p class="tac-carga__texto" id="carga-texto">Preparando el visor…</p>
-                            <div class="tac-progreso__barra tac-progreso__barra--indefinida" id="carga-barra"><span></span></div>
-                            <p class="tac-carga__detalle" id="carga-detalle"></p>
-                        </div>
-                    </div>
-
-                    <p class="tac-ayuda">
-                        <strong>Cortes:</strong> clic = mover la referencia · rueda = recorrer cortes · Ctrl + rueda = zoom · botón derecho arrastrando = contraste · Mayús + arrastrar = desplazar · doble clic = ampliar.
-                        <strong>3D:</strong> arrastrar = girar · rueda = zoom.
-                    </p>
-                </div>
-
-                <p class="tac-nota-legal">Visor de consulta. El diagnóstico se realiza con el software del equipo de radiología (p. ej. Romexis).</p>
             </div>
-        </main>
+        </div>
     </div>
+
+    <dialog class="tac-ayuda" id="ayuda" aria-labelledby="ayuda-titulo">
+        <header class="tac-ayuda__cabecera">
+            <h2 id="ayuda-titulo">Cómo se maneja el visor</h2>
+            <button type="button" class="tac-icono" id="cerrar-ayuda" aria-label="Cerrar ayuda"><i class="ri-close-line" aria-hidden="true"></i></button>
+        </header>
+        <div class="tac-ayuda__columnas">
+            <section>
+                <h3>Ratón en los cortes</h3>
+                <dl class="tac-atajos">
+                    <dt>Clic o arrastrar</dt><dd>Mover la referencia; las otras vistas la siguen</dd>
+                    <dt>Rueda o barra lateral</dt><dd>Recorrer cortes</dd>
+                    <dt><kbd>Ctrl</kbd> + rueda</dt><dd>Zoom</dd>
+                    <dt>Botón derecho arrastrando</dt><dd>Contraste: horizontal = ventana, vertical = nivel</dd>
+                    <dt><kbd>Mayús</kbd> + arrastrar</dt><dd>Desplazar la imagen (también con el botón central)</dd>
+                    <dt>Doble clic</dt><dd>Ampliar o reducir la vista</dd>
+                    <dt>Arrastrar un punto</dt><dd>Corregir una medida ya hecha</dd>
+                </dl>
+
+                <h3>Panorámica</h3>
+                <dl class="tac-atajos">
+                    <dt>Curva <kbd>C</kbd></dt><dd>En el corte axial, clics de un extremo a otro de la arcada siguiendo los dientes</dd>
+                    <dt>Sobre la curva</dt><dd>Arrastrar un punto lo mueve; clic en la línea añade uno; <kbd>Alt</kbd> + clic lo quita</dd>
+                    <dt>Rueda en la panorámica</dt><dd>Mover la capa hacia vestibular o lingual</dd>
+                    <dt>Clic en la panorámica</dt><dd>Llevar las transversales a ese punto</dd>
+                    <dt>Rueda en una transversal</dt><dd>Avanzar por la curva</dd>
+                </dl>
+
+                <h3>3D</h3>
+                <dl class="tac-atajos">
+                    <dt>Arrastrar</dt><dd>Girar</dd>
+                    <dt>Rueda</dt><dd>Zoom</dd>
+                    <dt><kbd>Mayús</kbd> + arrastrar</dt><dd>Desplazar</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Teclado</h3>
+                <dl class="tac-atajos tac-atajos--teclas">
+                    <dt><kbd>N</kbd></dt><dd>Navegar</dd>
+                    <dt><kbd>D</kbd></dt><dd>Medir distancia</dd>
+                    <dt><kbd>A</kbd></dt><dd>Medir ángulo (tres clics)</dd>
+                    <dt><kbd>V</kbd></dt><dd>Valor de gris de un punto</dd>
+                    <dt><kbd>C</kbd></dt><dd>Curva de la panorámica</dd>
+                    <dt><kbd>Supr</kbd></dt><dd>Borrar la medida seleccionada o la última</dd>
+                    <dt><kbd>Esc</kbd></dt><dd>Cancelar lo que se está marcando o volver a Navegar</dd>
+                    <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Corte anterior o siguiente en la vista activa</dd>
+                    <dt><kbd>RePág</kbd> <kbd>AvPág</kbd></dt><dd>Diez cortes de golpe</dd>
+                    <dt><kbd>1</kbd> – <kbd>4</kbd></dt><dd>Disposición: cuatro vistas, una grande, solo la activa, panorámica</dd>
+                    <dt><kbd>I</kbd></dt><dd>Invertir grises</dd>
+                    <dt><kbd>R</kbd></dt><dd>Volver a la vista inicial</dd>
+                    <dt><kbd>P</kbd></dt><dd>Guardar imagen de la vista activa</dd>
+                    <dt><kbd>F</kbd></dt><dd>Pantalla completa</dd>
+                    <dt><kbd>?</kbd></dt><dd>Esta ayuda</dd>
+                </dl>
+                <p class="tac-ayuda__nota">La vista activa es la que tiene el borde de color: la última sobre la que ha pasado el ratón.</p>
+                <p class="tac-ayuda__nota">El valor de gris no son unidades Hounsfield: un TAC dental (CBCT) no está calibrado. Sirve para comparar zonas del mismo estudio.</p>
+                <p class="tac-ayuda__nota">En la panorámica las distancias horizontales son aproximadas: para medir, usa las transversales o los cortes.</p>
+                <p class="tac-ayuda__nota">Visor de consulta. El diagnóstico se realiza con el software del equipo de radiología (Romexis).</p>
+            </section>
+        </div>
+    </dialog>
 
     <!-- Dependencias (globales, como en el resto del panel). vtk.js pesa ~2,5 MB:
          solo se carga en esta página y con defer, para no frenar el primer pintado. -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/vtk.js@37.3.1/vtk.js" defer></script>
 
-    <script src="/js/main.js" type="module"></script>
+    <script src="/js/entorno.js"></script>
     <script src="/js/pages/tac/visor.js" type="module"></script>
 </body>
 </html>

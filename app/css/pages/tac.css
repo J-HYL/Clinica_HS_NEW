@@ -432,286 +432,916 @@ button.main__action{
     color: var(--red);
 }
 
-/* --- Visor -------------------------------------------------------------------- */
+/* --- Visor: estación de trabajo ------------------------------------------------
+   Modo propio, oscuro y a toda la ventana (sin el menú ni la cabecera del
+   panel): las imágenes se leen mejor sobre fondo oscuro y sin nada brillante
+   alrededor, como en el software de radiología. Los colores de cada plano son
+   los de PLANOS (VistaCorte.js) y COLOR_CURVA (Panoramica.js): si cambian allí,
+   aquí también. */
 
-.tac-visor__cabecera{
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 18px;
+.tac-estacion{
+    --est-fondo: #07090d;
+    --est-barra: #0e1218;
+    --est-superficie: #161b23;
+    --est-superficie-2: #1e252f;
+    --est-borde: #262e3a;
+    --est-texto: #e6e9f0;
+    --est-texto-2: #a3acbd;
+    --est-acento: #5c9dff;
+    --est-acento-fondo: rgba(43, 128, 247, .2);
+    --est-acento-borde: rgba(92, 157, 255, .45);
+    --est-acento-texto: #d3e5ff;
+    --est-aviso: #f2c063;
+    --est-foco: #8fbcff;
+    display: block;   /* el body del panel es una rejilla con la columna del menú, que aquí no hay */
+    color-scheme: dark;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--est-fondo);
+    color: var(--est-texto);
 }
 
-.tac-volver{
-    flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    display: grid;
-    place-items: center;
-    border: 1px solid #e3e6ef;
-    border-radius: 50%;
-    color: var(--dark-gray);
-    font-size: 18px;
-    text-decoration: none;
-    transition: border-color .2s, color .2s;
+.tac-estacion :focus-visible{
+    outline: 2px solid var(--est-foco);
+    outline-offset: 2px;
 }
 
-.tac-volver:hover{
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.tac-visor__datos{
-    margin-top: 4px;
-    font-size: 0.875em;
-    color: var(--light-gray);
-}
-
-.tac-herramientas{
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px 24px;
-    margin-bottom: 12px;
-}
-
-.tac-herramientas__grupo{
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.tac-herramientas__etiqueta{
-    margin-right: 4px;
-    font-size: 0.75em;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--pale-gray);
-}
-
-.tac-herramienta{
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border: 1px solid #dfe3ee;
-    border-radius: 8px;
-    background-color: #fff;
-    font-size: 0.875em;
-    color: var(--dark-gray);
-    cursor: pointer;
-    transition: border-color .2s, background-color .2s, color .2s;
-}
-
-.tac-herramienta:hover:not(:disabled){
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.tac-herramienta.is-activo{
-    border-color: var(--primary);
-    background-color: var(--pale-primary);
-    color: var(--dark-primary);
-}
-
-.tac-herramienta:disabled{
-    opacity: .5;
+.tac-estacion :is(button, select, input):disabled{
+    opacity: .4;
     cursor: default;
 }
 
-.tac-herramienta--icono{
-    margin-left: auto;
-    font-size: 1em;
-}
-
-.tac-umbral{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: 6px;
-    font-size: 0.875em;
-    color: var(--light-gray);
-}
-
-.tac-umbral input{
-    width: 150px;
-    accent-color: var(--primary);
-}
-
-.tac-avisos--visor{
-    margin-bottom: 12px;
-}
-
-.tac-rejilla{
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 6px;
-    height: clamp(520px, calc(100vh - 330px), 1400px);
-    padding: 6px;
-    border-radius: 16px;
-    background-color: #0b0f15;
-}
-
-.tac-rejilla--ampliada{
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-}
-
-.tac-rejilla--ampliada .tac-panel:not(.tac-panel--ampliado){
-    display: none;
-}
-
-.tac-panel{
-    position: relative;
+.tac-estacion__marco{
     display: flex;
     flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    border-radius: 10px;
-    background-color: #000;
-    overflow: hidden;
+    height: 100%;
 }
 
-.tac-panel__barra{
+/* La marquesina de preproducción (entorno.js) va fija abajo: que no tape nada. */
+body:has(#pre-env-banner) .tac-estacion__marco{
+    padding-bottom: 34px;
+}
+
+/* --- Barra superior --- */
+
+.tac-barra{
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 6px 10px;
-    background-color: #121822;
+    gap: 12px;
+    min-height: 52px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--est-borde);
+    background-color: var(--est-barra);
 }
 
-.tac-panel__titulo{
+.tac-barra__volver{
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.8125em;
+    gap: 6px;
+    padding: 6px 10px 6px 6px;
+    border-radius: 8px;
+    color: var(--est-texto-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color .15s, color .15s;
+}
+
+.tac-barra__volver i{
+    font-size: 18px;
+}
+
+.tac-barra__volver:hover{
+    background-color: var(--est-superficie);
+    color: var(--est-texto);
+}
+
+.tac-barra__estudio{
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 12px;
+    border-left: 1px solid var(--est-borde);
+}
+
+.tac-barra__paciente{
+    overflow: hidden;
+    font-size: 0.9375rem;
     font-weight: 600;
-    color: #e6e9f0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-.tac-panel__titulo::before{
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--pale-gray);
+/* En línea (no flex) para que lo que no quepa acabe en "…" y no cortado a pelo. */
+.tac-barra__datos{
+    overflow: hidden;
+    list-style: none;
+    font-size: 0.75rem;
+    color: var(--est-texto-2);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-variant-numeric: tabular-nums;
 }
 
-/* Mismo color que las líneas de referencia de cada plano (PLANOS en VistaCorte.js). */
-.tac-panel__titulo--axial::before{ background-color: var(--primary); }
-.tac-panel__titulo--coronal::before{ background-color: var(--green); }
-.tac-panel__titulo--sagital::before{ background-color: var(--orange); }
+.tac-barra__datos li{
+    display: inline;
+}
 
-.tac-panel__ampliar{
-    display: grid;
-    place-items: center;
+.tac-barra__datos li + li::before{
+    content: "·";
+    margin: 0 6px;
+    color: #5d6676;
+}
+
+.tac-barra__legal{
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid rgba(242, 192, 99, .35);
+    border-radius: 999px;
+    background-color: rgba(242, 192, 99, .08);
+    color: var(--est-aviso);
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.tac-barra__legal i{
+    font-size: 14px;
+}
+
+.tac-barra__acciones{
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tac-barra__separador{
+    width: 1px;
+    height: 24px;
+    background-color: var(--est-borde);
+}
+
+/* Botones de la estación: grupo segmentado e icono. */
+.tac-segmento{
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--est-borde);
+    border-radius: 9px;
+    background-color: var(--est-superficie);
+}
+
+.tac-segmento button{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
     border: none;
-    background: none;
-    color: var(--pale-gray);
-    font-size: 16px;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--est-texto-2);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color .15s, color .15s;
 }
 
-.tac-panel__ampliar:hover{
-    color: #fff;
+.tac-segmento button i{
+    font-size: 16px;
 }
 
-.tac-panel__lienzo{
+.tac-segmento button:hover:not(:disabled){
+    background-color: var(--est-superficie-2);
+    color: var(--est-texto);
+}
+
+.tac-segmento button[aria-pressed="true"]{
+    background-color: var(--est-acento-fondo);
+    box-shadow: inset 0 0 0 1px var(--est-acento-borde);
+    color: var(--est-acento-texto);
+}
+
+.tac-segmento--compacto button{
+    height: 26px;
+    padding: 0 8px;
+    font-size: 0.75rem;
+}
+
+.tac-icono{
+    flex-shrink: 0;
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--est-texto-2);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color .15s, color .15s;
+}
+
+.tac-icono:hover:not(:disabled){
+    background-color: var(--est-superficie);
+    color: var(--est-texto);
+}
+
+.tac-icono[aria-pressed="true"]{
+    border-color: var(--est-acento-borde);
+    background-color: var(--est-acento-fondo);
+    color: var(--est-acento-texto);
+}
+
+.tac-icono.is-hecho{
+    color: #6ee7a0;
+}
+
+.tac-icono--compacto{
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+}
+
+.tac-boton-oscuro{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--est-borde);
+    border-radius: 7px;
+    background-color: var(--est-superficie);
+    color: var(--est-texto);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color .15s;
+}
+
+.tac-boton-oscuro:hover:not(:disabled){
+    border-color: var(--est-acento);
+}
+
+/* Descripción emergente de los botones de icono (visor.js pasa el title a
+   data-tip: el del navegador tarda y no enseña el atajo de forma legible). */
+:where(.tac-estacion) [data-tip]{   /* sin subir la especificidad: el botón de ampliar sigue absoluto */
     position: relative;
+}
+
+.tac-estacion [data-tip]::after{
+    content: attr(data-tip);
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 8px);
+    right: 0;
+    padding: 5px 9px;
+    border: 1px solid var(--est-borde);
+    border-radius: 6px;
+    background-color: #000;
+    color: var(--est-texto);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .12s;
+}
+
+.tac-estacion [data-tip]:hover::after,
+.tac-estacion [data-tip]:focus-visible::after{
+    opacity: 1;
+    transition-delay: .35s;
+}
+
+.tac-rail [data-tip]::after{
+    top: 50%;
+    right: auto;
+    left: calc(100% + 10px);
+    transform: translateY(-50%);
+}
+
+/* --- Avisos del lector (cortes que faltan, etc.) --- */
+
+.tac-avisos-visor{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(242, 192, 99, .3);
+    background-color: rgba(242, 192, 99, .08);
+    color: var(--est-aviso);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.tac-avisos-visor > i{
+    margin-top: 1px;
+    font-size: 16px;
+}
+
+.tac-avisos-visor ul{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    list-style: none;
+}
+
+/* --- Cuerpo: carril de herramientas + área de vistas --- */
+
+.tac-cuerpo{
     flex: 1;
     min-height: 0;
+    display: flex;
 }
 
-.tac-panel__canvas{
+.tac-rail{
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 52px;
+    padding: 8px 0;
+    border-right: 1px solid var(--est-borde);
+    background-color: var(--est-barra);
+}
+
+.tac-rail button{
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--est-texto-2);
+    font-size: 19px;
+    cursor: pointer;
+    transition: background-color .15s, color .15s;
+}
+
+.tac-rail button:hover:not(:disabled){
+    background-color: var(--est-superficie);
+    color: var(--est-texto);
+}
+
+.tac-rail button[aria-pressed="true"]{
+    border-color: var(--est-acento-borde);
+    background-color: var(--est-acento-fondo);
+    color: var(--est-acento-texto);
+}
+
+.tac-rail__separador{
+    width: 24px;
+    height: 1px;
+    margin: 6px 0;
+    background-color: var(--est-borde);
+}
+
+.tac-area{
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+    padding: 2px;
+    background-color: var(--est-fondo);
+}
+
+/* Cada vista solo se ve en las disposiciones que la usan. */
+.tac-vista{
+    position: relative;
+    display: none;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 4px;
+    background-color: #000;
+}
+
+.tac-vista[data-vista="axial"]{ --color-plano: #2b80f7; }
+.tac-vista[data-vista="coronal"]{ --color-plano: #3cd856; }
+.tac-vista[data-vista="sagital"]{ --color-plano: #ff947a; }
+.tac-vista[data-vista="3d"]{ --color-plano: var(--est-texto-2); }
+.tac-vista:is([data-vista="panoramica"], [data-vista^="t"]){ --color-plano: #a87dff; }
+
+/* Marco encima de todo; el de la vista activa, del color de su plano. */
+.tac-vista::after{
+    content: "";
     position: absolute;
     inset: 0;
+    z-index: 3;
+    border: 1px solid var(--est-borde);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.tac-vista.is-activa::after{
+    border-color: var(--color-plano);
+}
+
+.tac-area[data-disposicion="2x2"]{
+    grid-template: 1fr 1fr / 1fr 1fr;
+}
+
+.tac-area:is([data-disposicion="2x2"], [data-disposicion="1+3"]) .tac-vista:is([data-vista="axial"], [data-vista="coronal"], [data-vista="sagital"], [data-vista="3d"]){
+    display: block;
+}
+
+.tac-area[data-disposicion="1+3"]{
+    grid-template: repeat(3, 1fr) / 3fr 1fr;
+}
+
+.tac-area[data-disposicion="1+3"] .tac-vista{
+    grid-column: 2;
+}
+
+.tac-area[data-disposicion="1+3"] .tac-vista.is-principal{
+    grid-column: 1;
+    grid-row: 1 / -1;
+}
+
+.tac-area[data-disposicion="1x1"]{
+    grid-template: 1fr / 1fr;
+}
+
+.tac-area[data-disposicion="1x1"] .tac-vista.is-principal{
+    display: block;
+}
+
+.tac-area[data-disposicion="panoramica"]{
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 1fr 1.1fr;
+    grid-template-areas:
+        "pano pano pano axial axial"
+        "t1 t2 t3 t4 t5";
+}
+
+.tac-area[data-disposicion="panoramica"] .tac-vista:is([data-vista="panoramica"], [data-vista="axial"], [data-vista^="t"]){
+    display: block;
+}
+
+.tac-area[data-disposicion="panoramica"] [data-vista="panoramica"]{ grid-area: pano; }
+.tac-area[data-disposicion="panoramica"] [data-vista="axial"]{ grid-area: axial; }
+.tac-area[data-disposicion="panoramica"] [data-vista="t1"]{ grid-area: t1; }
+.tac-area[data-disposicion="panoramica"] [data-vista="t2"]{ grid-area: t2; }
+.tac-area[data-disposicion="panoramica"] [data-vista="t3"]{ grid-area: t3; }
+.tac-area[data-disposicion="panoramica"] [data-vista="t4"]{ grid-area: t4; }
+.tac-area[data-disposicion="panoramica"] [data-vista="t5"]{ grid-area: t5; }
+
+/* --- Dentro de cada vista --- */
+
+.tac-vista__cuerpo{
+    position: absolute;
+    inset: 0;
+}
+
+.tac-vista__lienzo{
+    position: absolute;
+    inset: 0;
+    display: block;
     width: 100%;
     height: 100%;
-    display: block;
+    outline: none;   /* el foco se ve en el marco de la vista activa */
     cursor: crosshair;
     touch-action: none;
 }
 
-.tac-rejilla--midiendo .tac-panel__canvas{
+.tac-area:is([data-herramienta="medir"], [data-herramienta="angulo"]) .tac-vista__lienzo{
     cursor: cell;
 }
 
-.tac-panel__lienzo--3d{
+.tac-area[data-herramienta="curva"] [data-vista="axial"] .tac-vista__lienzo{
+    cursor: copy;
+}
+
+/* Sobre un punto de una medida o de la curva: se puede arrastrar. */
+.tac-area[data-herramienta] .tac-vista .tac-vista__lienzo--agarre{
     cursor: grab;
 }
 
-.tac-panel__lienzo--3d:active{
+.tac-vista__cuerpo--3d{
+    cursor: grab;
+}
+
+.tac-vista__cuerpo--3d:active{
     cursor: grabbing;
 }
 
-.tac-panel__mensaje{
+.tac-vista__aviso{
     position: absolute;
     inset: 0;
     display: grid;
     place-items: center;
     padding: 24px;
     text-align: center;
-    font-size: 0.875em;
-    color: var(--pale-gray);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--est-texto-2);
 }
+
+/* Rótulos de las esquinas (VistaLienzo.js): HTML encima del lienzo. */
+.tac-rotulos{
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.tac-rotulo, .tac-letra, .tac-escala{
+    position: absolute;
+    z-index: 1;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: #dfe4ec;
+    text-shadow: 0 0 3px #000, 0 1px 2px #000;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+}
+
+.tac-rotulo{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tac-rotulo--si{
+    top: 8px;
+    left: 10px;
+}
+
+.tac-rotulo--sd{
+    top: 10px;
+    right: 44px;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.tac-rotulo--ii{
+    bottom: 8px;
+    left: 10px;
+}
+
+.tac-rotulo__lineas{
+    display: flex;
+    flex-direction: column;
+    color: #c4cbd7;
+}
+
+.tac-rotulo--sd .tac-rotulo__lineas{
+    align-items: flex-end;
+}
+
+/* Las transversales son estrechas: el contraste ya se lee en las otras vistas. */
+.tac-vista[data-vista^="t"] .tac-rotulo--sd{
+    display: none;
+}
+
+.tac-rotulo__titulo{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--est-texto);
+}
+
+.tac-rotulo__titulo::before{
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-plano, var(--est-texto-2));
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .6);
+}
+
+.tac-letra{
+    transform: translate(-50%, -50%);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #f0f3f8;
+}
+
+.tac-escala{
+    right: 12px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-size: 0.6875rem;
+    color: #c4cbd7;
+}
+
+/* Las vistas con barra de cortes la tienen a la derecha. */
+.tac-vista:has(.tac-vista__corte) .tac-escala{
+    right: 34px;
+}
+
+.tac-escala__barra{
+    height: 5px;
+    border: 1.5px solid #dfe4ec;
+    border-top: none;
+    box-shadow: 0 1px 2px #000;
+}
+
+.tac-rotulos__mensaje{
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    text-align: center;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--est-texto-2);
+}
+
+/* Barra vertical de cortes, del color del plano. */
+.tac-vista__corte{
+    position: absolute;
+    z-index: 2;
+    top: 44px;
+    right: 6px;
+    bottom: 36px;
+    width: 18px;
+    margin: 0;
+    writing-mode: vertical-lr;
+    direction: rtl;   /* arriba = último corte */
+    accent-color: var(--color-plano);
+    opacity: .5;
+    cursor: pointer;
+    transition: opacity .15s;
+}
+
+.tac-vista:hover .tac-vista__corte, .tac-vista__corte:focus-visible{
+    opacity: 1;
+}
+
+.tac-vista__ampliar{
+    position: absolute;
+    z-index: 2;
+    top: 6px;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background-color: rgba(14, 18, 24, .75);
+    color: var(--est-texto-2);
+    font-size: 15px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .15s, color .15s;
+}
+
+.tac-vista:hover .tac-vista__ampliar,
+.tac-vista__ampliar:focus-visible,
+.tac-area[data-disposicion="1x1"] .tac-vista__ampliar{
+    opacity: 1;
+}
+
+.tac-vista__ampliar:hover{
+    color: var(--est-texto);
+}
+
+/* Controles flotantes de la vista 3D y de la panorámica. */
+.tac-controles{
+    position: absolute;
+    z-index: 2;
+    left: 8px;
+    bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100% - 130px);
+    padding: 5px 8px;
+    border: 1px solid var(--est-borde);
+    border-radius: 10px;
+    background-color: rgba(14, 18, 24, .88);
+}
+
+/* En la panorámica abajo a la izquierda van el zoom y el valor de gris. */
+.tac-vista[data-vista="panoramica"] .tac-controles{
+    left: auto;
+    right: 8px;
+    max-width: calc(100% - 160px);
+}
+
+.tac-vista[data-vista="panoramica"] .tac-escala{
+    bottom: 52px;
+}
+
+.tac-campo{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--est-texto-2);
+    white-space: nowrap;
+}
+
+.tac-campo input[type="range"]{
+    width: 120px;
+    accent-color: var(--est-acento);
+}
+
+.tac-campo select{
+    height: 26px;
+    padding: 0 6px;
+    border: 1px solid var(--est-borde);
+    border-radius: 6px;
+    background-color: var(--est-superficie);
+    color: var(--est-texto);
+    font: inherit;
+    font-size: 0.75rem;
+}
+
+/* --- Carga y error --- */
 
 .tac-carga{
     position: absolute;
-    inset: 6px;
-    z-index: 2;
+    inset: 0;
+    z-index: 5;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 16px;
     padding: 24px;
-    border-radius: 12px;
-    background-color: rgba(11, 15, 21, .94);
-    color: #fff;
+    background-color: var(--est-fondo);
+    color: var(--est-texto);
     text-align: center;
+}
+
+.tac-carga__texto{
+    font-size: 0.9375rem;
+    font-weight: 500;
 }
 
 .tac-carga .tac-progreso__barra{
     width: min(360px, 80%);
-    background-color: rgba(255, 255, 255, .15);
+    background-color: rgba(255, 255, 255, .12);
 }
 
 .tac-carga__detalle{
     min-height: 1.2em;
-    font-size: 0.875em;
-    color: var(--pale-gray);
+    font-size: 0.8125rem;
+    color: var(--est-texto-2);
+    font-variant-numeric: tabular-nums;
 }
 
 .tac-carga--error .sk-chase, .tac-carga--error .tac-progreso__barra{
     display: none;
 }
 
+/* --- Ayuda --- */
+
 .tac-ayuda{
-    margin-top: 10px;
-    font-size: 0.8125em;
-    line-height: 1.5;
-    color: var(--light-gray);
+    width: min(880px, calc(100vw - 32px));
+    max-height: calc(100dvh - 48px);
+    margin: auto;   /* el reset de base.css le quita el centrado al <dialog> */
+    padding: 0;
+    overflow: auto;
+    border: 1px solid var(--est-borde);
+    border-radius: 14px;
+    background-color: var(--est-barra);
+    color: var(--est-texto);
 }
 
-.tac-nota-legal{
-    margin-top: 8px;
-    font-size: 0.75em;
-    color: var(--pale-gray);
+.tac-ayuda::backdrop{
+    background-color: rgba(0, 0, 0, .6);
 }
 
-/* Pantalla completa: barra de herramientas arriba y la rejilla ocupando el resto. */
-.tac-marco:fullscreen{
+.tac-ayuda__cabecera{
+    position: sticky;
+    top: 0;
     display: flex;
-    flex-direction: column;
-    padding: 16px;
-    background-color: var(--background);
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px 14px 20px;
+    border-bottom: 1px solid var(--est-borde);
+    background-color: var(--est-barra);
 }
 
-.tac-marco:fullscreen .tac-rejilla{
-    flex: 1;
-    height: auto;
+.tac-ayuda__cabecera h2{
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.tac-ayuda__columnas{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 18px 20px 22px;
+}
+
+.tac-ayuda h3{
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--est-texto-2);
+}
+
+.tac-ayuda dl + h3{
+    margin-top: 20px;
+}
+
+.tac-atajos{
+    display: grid;
+    grid-template-columns: 12.5rem 1fr;   /* igual en todas las listas: columnas alineadas */
+    gap: 7px 14px;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.tac-atajos dt{
+    font-weight: 500;
+}
+
+.tac-atajos dd{
+    color: var(--est-texto-2);
+}
+
+.tac-atajos--teclas{
+    grid-template-columns: max-content 1fr;
+}
+
+.tac-ayuda kbd{
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 6px;
+    border: 1px solid #3a4352;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background-color: var(--est-superficie);
+    font: 600 0.75rem/1.4 "Figtree", Arial, sans-serif;
+    text-align: center;
+}
+
+.tac-ayuda__nota{
+    margin-top: 12px;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--est-texto-2);
+}
+
+/* --- Pantallas justas (1024-1279 px): se acortan textos de la barra --- */
+
+@media (max-width: 1279px){
+    .tac-barra__legal-extra, .tac-barra__texto-opcional{
+        display: none;
+    }
+
+    .tac-campo input[type="range"]{
+        width: 84px;
+    }
+}
+
+/* --- Móvil y tablet: solo el aviso (misma condición que esEscritorio()) --- */
+
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine){
+    .tac-estacion .tac-estacion__marco{
+        display: none;
+    }
+
+    .tac-estacion{
+        overflow: auto;
+    }
+
+    .tac-estacion .tac-solo-escritorio{
+        color: var(--est-texto-2);
+    }
+
+    .tac-estacion .tac-solo-escritorio__titulo{
+        color: var(--est-texto);
+    }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .tac-estacion *, .tac-estacion *::after{
+        transition: none !important;
+    }
 }
 
 /* --- Selector de estudio: carpeta o .zip (SelectorEstudio.js) ------------------- */
