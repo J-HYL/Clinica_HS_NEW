@@ -1,10 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+@import url("tokens.css");
+@import url("../components/ui.css");
 
+/* Variables ANTIGUAS como alias de los tokens nuevos (tokens.css). Asi las
+   paginas que aun no se han migrado al diseño nuevo toman ya la paleta comun
+   sin tocarlas. Codigo nuevo: usar SIEMPRE --hs-*. Cuando no quede ninguna
+   pagina que use estas, se borra este bloque.
+   Los colores de ESTADO (citas, calendario, gabinetes) no se tocan: van
+   ligados a la logica y siguen con su valor. */
 :root{
-    --primary: #2b80f7;
-    --dark-primary: #191fbe;
-    --light-primary: #839cff;
-    --pale-primary: #e8f7ff;
+    --primary: var(--hs-acento);
+    --dark-primary: var(--hs-acento-hover);
+    --light-primary: var(--hs-acento-claro);
+    --pale-primary: var(--hs-acento-suave);
+    --background: var(--hs-fondo);
+    --dark-gray: var(--hs-texto-fuerte);
+    --light-gray: var(--hs-texto-suave);
+    --pale-gray: var(--hs-texto-tenue);
+
     --blue: #2381ED;
     --orange: #FF947A;
     --dark-orange: #E7690F;
@@ -25,11 +38,6 @@
     --light-blue-status: rgba(35, 129, 237, 0.38);
     --light-red-status: rgba(222, 87, 83, 0.38);
 
-    --background: #FAFBFF;
-    --dark-gray: #1D242E;
-    --light-gray: #6D6D6D;
-    --pale-gray: #9197B3;
-
     --calendar-gradient: linear-gradient(to bottom, var(--primary), var(--primary));
     --calendar--appointment-text-color: #836942;
     --calendar-green-status: #DEFFD2;
@@ -37,9 +45,8 @@
     --calendar-orange-status: #FCEEDF;
     --calendar-red-status: #FCDFDF;
 
-
     --medico-border-color: #6a98ee;
-    --medico-hover-text-color : #ffffff;
+    --medico-hover-text-color: #ffffff;
     --medico-bg-color: #e8f7ff;
 }
 
@@ -50,73 +57,78 @@
 }
 
 body{
-    background-color: var(--background);
-    font-family: "Figtree", Arial, sans-serif;
+    min-height: 100vh;
+    background-color: var(--hs-fondo);
+    color: var(--hs-texto);
+    font-family: var(--hs-fuente);
+    -webkit-font-smoothing: antialiased;
 }
 
-input, label, button, select{
-    font-family: "Figtree", Arial, sans-serif;
+input, label, button, select, textarea{
+    font-family: var(--hs-fuente);
+}
+
+:focus-visible{
+    outline: 2px solid var(--hs-acento-claro);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- Marco
+   Rejilla de dos columnas (menu + contenido) solo en escritorio y solo si la
+   pagina tiene menu. Por debajo de 1024px el menu es un panel lateral que se
+   abre con el boton de la barra superior (shell.css). */
+@media (min-width: 1024px){
+    body:has(> .sidebar){
+        display: grid;
+        grid-template-columns: var(--hs-sidebar-ancho) minmax(0, 1fr);
+    }
 }
 
 .wrapper{
-    padding: 35px 30px;
     grid-column: 2;
+    min-width: 0;
+    padding: 0 var(--hs-margen-x) 40px;
 }
 
+/* Hasta que AppShell.js pinta la barra superior, se reserva su alto para que
+   el contenido no salte al aparecer. */
+.wrapper:not(:has(> .topbar)){
+    padding-top: var(--hs-topbar-alto);
+}
+
+/* ---------------------------------------------------------------- Bloques
+   .container es la tarjeta de las paginas antiguas: mismo aspecto que .tarjeta. */
 .container{
-    margin-top: 18px;
-    background-color: #fff;
-    border-radius: 30px;
-    padding: 25px;
-    box-shadow: 0 10px 60px rgba(252, 225, 255, 0.5);
+    margin-top: 20px;
+    background-color: var(--hs-superficie);
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio-lg);
+    padding: 20px;
+    box-shadow: var(--hs-sombra-tarjeta);
 }
 
 .container__heading{
     display: flex;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
     font-weight: 600;
-    font-size: 1.125em;
-    color: var(--dark-gray);
+    font-size: 1.0625rem;
+    color: var(--hs-texto-fuerte);
 }
 
-/* Responsive */
-
-@media screen and (min-width: 744px) {
-    body{
-       display: grid;
-       grid-template-columns: 100px 1fr;
-       transition: .3s ease-in-out grid-template-columns;
-    }
-
-    .wrapper{
-       padding: 35px 40px;
-   }
-
-   .container{
-        margin-top: 28px;
-   }
-
-   .container__heading{
-       font-size: 1.375em;
-   }
-}
-
-@media screen and (min-width: 964px) {
+@media (min-width: 744px){
     .container{
-        margin-top: 40px;
+        margin-top: 24px;
+        padding: 24px;
     }
 
     .container__heading{
-        font-size: 1.5em;   
+        font-size: 1.125rem;
     }
 }
 
-@media screen and (min-width: 1280px) {
-    .wrapper{
-       padding: 35px 50px;
-   }
-
-   .container{
-        padding: 35px 40px;
+@media (min-width: 1280px){
+    .container{
+        padding: 28px 32px;
     }
 }

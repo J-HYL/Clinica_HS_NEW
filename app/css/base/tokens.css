@@ -1,0 +1,81 @@
+/* tokens.css — Fuente UNICA de los valores visuales del panel (colores, radios,
+   sombras, tipografia y medidas del marco). Traducidos del diseño de referencia
+   (2026-11). Cualquier estilo nuevo usa estas variables, nunca un hex suelto:
+   cambiar un valor aqui lo cambia en toda la app.
+
+   Las variables antiguas (--primary, --dark-gray...) siguen existiendo en
+   base.css como ALIAS de estas mientras quedan paginas sin migrar. */
+
+:root{
+    /* Superficies */
+    --hs-fondo: #f7f8fa;
+    --hs-superficie: #ffffff;
+    --hs-superficie-suave: #fafbfc;
+    --hs-hover: #f5f7f9;
+
+    /* Bordes */
+    --hs-borde: #e6e8ec;
+    --hs-borde-suave: #edf0f2;
+    --hs-borde-control: #e1e6ea;
+
+    /* Texto (de mas a menos peso). --hs-texto-suave cumple contraste AA sobre
+       blanco; --hs-texto-tenue solo para datos secundarios (horas, rotulos). */
+    --hs-texto-fuerte: #1e2835;
+    --hs-texto: #3b4a57;
+    --hs-texto-suave: #687482;
+    --hs-texto-tenue: #8f98a3;
+
+    /* Acento (azul acero del diseño) */
+    --hs-acento: #477697;
+    --hs-acento-hover: #396883;
+    --hs-acento-claro: #7da5bd;
+    --hs-acento-suave: #eaf3f9;
+    --hs-acento-mas-suave: #f0f5fa;
+    --hs-acento-contador: #d8eaf5;
+
+    /* Estados. Cada uno: texto, fondo suave y borde/marca. Los usan las citas
+       (pendiente/completada/cancelada/bloqueada) y los importes. */
+    --hs-exito: #3f7f5c;
+    --hs-exito-suave: #f1f7f3;
+    --hs-exito-marca: #74a589;
+    --hs-aviso: #9a6534;
+    --hs-aviso-suave: #fbf6f0;
+    --hs-aviso-marca: #c99a6b;
+    --hs-peligro: #a8504c;
+    --hs-peligro-suave: #fbf3f3;
+    --hs-peligro-marca: #d39391;
+    --hs-neutro: #5f7484;
+    --hs-neutro-suave: #f5f8fa;
+    --hs-neutro-marca: #9aaebd;
+
+    /* Radios */
+    --hs-radio-sm: 8px;
+    --hs-radio: 12px;
+    --hs-radio-lg: 16px;
+    --hs-radio-pastilla: 999px;
+
+    /* Sombras */
+    --hs-sombra-tarjeta: 0 4px 18px rgba(26, 35, 50, .03);
+    --hs-sombra-boton: 0 5px 14px rgba(71, 118, 151, .22);
+    --hs-sombra-flotante: 0 18px 50px rgba(26, 35, 50, .16);
+    --hs-foco: 0 0 0 3px rgba(71, 118, 151, .28);
+
+    /* Tipografia */
+    --hs-fuente: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /* Marco (sidebar + barra superior) */
+    --hs-sidebar-ancho: 248px;
+    --hs-topbar-alto: 64px;
+    --hs-margen-x: 16px;
+}
+
+@media (min-width: 640px){
+    :root{ --hs-margen-x: 20px; }
+}
+
+@media (min-width: 1024px){
+    :root{
+        --hs-topbar-alto: 76px;
+        --hs-margen-x: 32px;
+    }
+}
