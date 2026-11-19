@@ -20,7 +20,7 @@ if (empty($_SESSION['logged_in']) || empty($_SESSION['clinic_id'])) {
 // Libera el lock del fichero de sesion. PHP lo mantiene EN EXCLUSIVA desde
 // session_start() hasta el final del script, asi que sin esto las peticiones de
 // una misma sesion no corren en paralelo: se encolan. El panel lanza ~9 a la vez
-// (Stats.js + Notificaciones.js + clinica.js) y las ultimas agotaban los 60 s del
+// (Resumen + Notificaciones.js + clinica.js) y las ultimas agotaban los 60 s del
 // proxy -> 504. De aqui en adelante no se escribe en $_SESSION; leerla (getConnection()
 // necesita clinic_id) sigue funcionando igual.
 session_write_close();
@@ -132,6 +132,42 @@ function borrarFotoInventario($rutaRelativa) {
     $real = realpath(__DIR__ . '/../' . $rutaRelativa);
     if ($base === false || $real === false || strpos($real, $base) !== 0) return;
     if (is_file($real)) unlink($real);
+}
+
+/**
+ * Ejecuta una consulta preparada y devuelve todas sus filas (array asociativo).
+ * Lanza excepcion si falla, para que el llamador responda 500 con el motivo.
+ */
+function consultarFilas(mysqli $conn, $sql, $tipos = '', array $params = []) {
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) throw new Exception($conn->error);
+    if ($tipos !== '') $stmt->bind_param($tipos, ...$params);
+    if (!$stmt->execute()) throw new Exception($stmt->error);
+    $filas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $filas;
+}
+
+/**
+ * Citas de UN dia para el Resumen, en orden de hora. Marca los bloqueos de
+ * gabinete (estado 'Bloqueado' o los "NO TRABAJO" antiguos, mismo criterio que
+ * esBloqueo() en vistaDiaria.js) para que no cuenten como citas.
+ * OJO: en appointments `servicio` guarda el PACIENTE y `cliente` las observaciones.
+ */
+function citasDelDia(mysqli $conn, DateTimeImmutable $dia) {
+    $filas = consultarFilas($conn,
+        "SELECT id, fecha, servicio, cliente, medico, estado,
+                (LOWER(COALESCE(estado, '')) = 'bloqueado'
+                 OR COALESCE(servicio, '') REGEXP 'no[[:space:]]*trabajo') AS bloqueo
+         FROM appointments
+         WHERE fecha >= ? AND fecha < ?
+         ORDER BY fecha",
+        'ss', [$dia->format('Y-m-d 00:00:00'), $dia->modify('+1 day')->format('Y-m-d 00:00:00')]);
+    foreach ($filas as &$f) {
+        $f['id'] = (int)$f['id'];
+        $f['bloqueo'] = (bool)$f['bloqueo'];
+    }
+    return $filas;
 }
 
 // Resto de tu lógica: switch(GET/POST/PUT/DELETE) ...
@@ -993,6 +1029,93 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                     echo json_encode(["data" => $visits]);
                     $stmt->close();
+                }
+                break;
+            case 'dashboard':
+                // Resumen (pantalla principal). Solo lectura: recuentos y sumas en SQL
+                // para no bajar tablas enteras al navegador. La BD ya es la de la
+                // clinica de la sesion (getConnection), asi que sirve igual para las
+                // dos sedes y en local/pre/prod.
+                //   ?fecha=AAAA-MM-DD  dia LOCAL del navegador (el servidor puede estar
+                //                      en otra zona horaria); sin ella, hoy del servidor.
+                //   ?solo=agenda       solo las citas de ese dia (pasar de dia en la agenda).
+                try {
+                    $fechaTxt = (string)($_GET['fecha'] ?? '');
+                    $dia = DateTimeImmutable::createFromFormat('!Y-m-d', $fechaTxt);
+                    if (!$dia || $dia->format('Y-m-d') !== $fechaTxt) {
+                        $dia = new DateTimeImmutable('today');
+                    }
+                    $agenda = citasDelDia($conn, $dia);
+                    if (($_GET['solo'] ?? '') === 'agenda') {
+                        echo json_encode(["fecha" => $dia->format('Y-m-d'), "agenda" => $agenda]);
+                        break;
+                    }
+
+                    // Mes en curso hasta el dia pedido (incluido), frente al MISMO tramo
+                    // del mes anterior: del 1 al mismo dia (si ese mes es mas corto, entero).
+                    $fmt = 'Y-m-d H:i:s';
+                    $finDia = $dia->modify('+1 day');
+                    $mesIni = $dia->modify('first day of this month');
+                    $mesAntIni = $mesIni->modify('-1 month');
+                    $mesAntFin = $mesAntIni->modify('+' . (int)$dia->format('j') . ' days');
+                    if ($mesAntFin > $mesIni) $mesAntFin = $mesIni;
+                    $tramos = [$mesIni->format($fmt), $finDia->format($fmt), $mesAntIni->format($fmt), $mesAntFin->format($fmt)];
+
+                    $pac = consultarFilas($conn,
+                        "SELECT COUNT(*) AS total,
+                                SUM(Alta >= ? AND Alta < ?) AS altas_mes,
+                                SUM(Alta >= ? AND Alta < ?) AS altas_mes_anterior
+                         FROM clients", 'ssss', $tramos)[0];
+
+                    $ing = consultarFilas($conn,
+                        "SELECT COALESCE(SUM(CASE WHEN fecha_pago >= ? AND fecha_pago < ? THEN monto END), 0) AS mes,
+                                COALESCE(SUM(CASE WHEN fecha_pago >= ? AND fecha_pago < ? THEN monto END), 0) AS mes_anterior
+                         FROM payments
+                         WHERE fecha_pago >= ? AND fecha_pago < ?", 'ssssss',
+                        array_merge($tramos, [$tramos[2], $tramos[1]]))[0];
+
+                    $deuda = consultarFilas($conn,
+                        "SELECT COALESCE(SUM(deuda), 0) AS total, COUNT(*) AS tratamientos
+                         FROM treatments WHERE deuda > 0")[0];
+
+                    // Pacientes con actividad mas reciente: su ultima visita o, si no
+                    // tienen, la fecha de alta. Su deuda = suma de sus tratamientos.
+                    $recientes = consultarFilas($conn,
+                        "SELECT r.* FROM (
+                            SELECT c.id, c.nombre, c.Alta AS alta,
+                                   (SELECT MAX(v.fecha) FROM visits v WHERE v.client_id = c.id) AS ultima_visita,
+                                   COALESCE((SELECT SUM(t.deuda) FROM treatments t WHERE t.client_id = c.id), 0) AS deuda
+                            FROM clients c
+                         ) r
+                         ORDER BY GREATEST(COALESCE(r.ultima_visita, '1000-01-01 00:00:00'),
+                                           COALESCE(r.alta, '1000-01-01 00:00:00')) DESC, r.id DESC
+                         LIMIT 5");
+
+                    $citas = array_values(array_filter($agenda, fn($c) => !$c['bloqueo']));
+                    $pendientes = count(array_filter($citas, fn($c) => strcasecmp($c['estado'] ?: 'Pendiente', 'Pendiente') === 0));
+
+                    echo json_encode([
+                        "fecha" => $dia->format('Y-m-d'),
+                        "pacientes" => [
+                            "total" => (int)$pac['total'],
+                            "altas_mes" => (int)$pac['altas_mes'],
+                            "altas_mes_anterior" => (int)$pac['altas_mes_anterior'],
+                        ],
+                        "citas" => ["total" => count($citas), "pendientes" => $pendientes],
+                        "ingresos" => ["mes" => (float)$ing['mes'], "mes_anterior" => (float)$ing['mes_anterior']],
+                        "deuda" => ["total" => (float)$deuda['total'], "tratamientos" => (int)$deuda['tratamientos']],
+                        "agenda" => $agenda,
+                        "recientes" => array_map(fn($r) => [
+                            "id" => (int)$r['id'],
+                            "nombre" => $r['nombre'],
+                            "alta" => $r['alta'],
+                            "ultima_visita" => $r['ultima_visita'],
+                            "deuda" => (float)$r['deuda'],
+                        ], $recientes),
+                    ]);
+                } catch (Exception $e) {
+                    http_response_code(500);
+                    echo json_encode(["error" => "No se pudo calcular el resumen: " . $e->getMessage()]);
                 }
                 break;
             case 'clinica':

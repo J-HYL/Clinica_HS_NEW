@@ -178,6 +178,28 @@ class DB {
     return this._normalizeDatesArray(data);
   }
 
+  /**
+   * Resumen de la pantalla principal (table=dashboard): indicadores, agenda del
+   * dia, pacientes recientes. Todo calculado en el servidor sobre la BD de la sede.
+   * @param {string} fecha  'AAAA-MM-DD' (dia local del navegador)
+   * @param {{soloAgenda?: boolean}} [opts]  soloAgenda: solo las citas de ese dia
+   * @returns {Promise<object>} lanza Error (con .status) si falla o la BD no esta disponible
+   */
+  async getDashboard(fecha, { soloAgenda = false } = {}) {
+    const params = new URLSearchParams({ table: 'dashboard', fecha });
+    if (soloAgenda) params.set('solo', 'agenda');
+    const res = await fetch(`${this.baseUrl}?${params}`, { credentials: 'include' });
+    // getConnection() responde {"error"} con HTTP 200 si la sede no tiene BD en
+    // este entorno (p. ej. Mostoles en PRE): tambien es un fallo.
+    const data = await res.json().catch(() => ({ error: 'Respuesta no valida del servidor' }));
+    if (!res.ok || data.error) {
+      const error = new Error(data.error || `Error ${res.status} al cargar el resumen`);
+      error.status = res.status;
+      throw error;
+    }
+    return data;
+  }
+
   async updateState(id) {
     const estado = modalAppointmentStateInput.value;
     try {
