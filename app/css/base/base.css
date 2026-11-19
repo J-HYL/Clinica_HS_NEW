@@ -6,12 +6,11 @@
    paginas que aun no se han migrado al diseño nuevo toman ya la paleta comun
    sin tocarlas. Codigo nuevo: usar SIEMPRE --hs-*. Cuando no quede ninguna
    pagina que use estas, se borra este bloque.
-   Los colores de ESTADO (citas, calendario, gabinetes) no se tocan: van
-   ligados a la logica y siguen con su valor. */
+   Los de abajo (sin alias) son colores sueltos que aun usa alguna pantalla
+   antigua; los estados de las citas ya van con los tokens --hs-aviso/exito/... */
 :root{
     --primary: var(--hs-acento);
     --dark-primary: var(--hs-acento-hover);
-    --light-primary: var(--hs-acento-claro);
     --pale-primary: var(--hs-acento-suave);
     --background: var(--hs-fondo);
     --dark-gray: var(--hs-texto-fuerte);
@@ -19,35 +18,13 @@
     --pale-gray: var(--hs-texto-tenue);
 
     --blue: #2381ED;
-    --orange: #FF947A;
-    --dark-orange: #E7690F;
     --pale-orange: #FFF4DE;
-    --pink: #FA5A7D;
     --pale-pink: #FFE2E5;
-    --green: #3CD856;
     --pale-green: #DCFCE7;
-    --yellow: #FED600;
     --red: #DE5753;
-    --purple: #955cff;
 
     --green-status: #008767;
-    --orange-status: #F78E2B;
     --orange-status-text-color: #D07621;
-    --light-green-status: rgba(22, 192, 152, 0.38);
-    --light-orange-status: rgba(247, 142, 43, 0.38);
-    --light-blue-status: rgba(35, 129, 237, 0.38);
-    --light-red-status: rgba(222, 87, 83, 0.38);
-
-    --calendar-gradient: linear-gradient(to bottom, var(--primary), var(--primary));
-    --calendar--appointment-text-color: #836942;
-    --calendar-green-status: #DEFFD2;
-    --calendar-blue-status: #EEECFD;
-    --calendar-orange-status: #FCEEDF;
-    --calendar-red-status: #FCDFDF;
-
-    --medico-border-color: #6a98ee;
-    --medico-hover-text-color: #ffffff;
-    --medico-bg-color: #e8f7ff;
 }
 
 *{

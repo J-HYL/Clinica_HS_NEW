@@ -630,22 +630,3 @@ export function formatDateString(date){
     }
 }
 
-export function formatTime(date) {
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const timePeriod = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12 || 12;
-    return `${hours}:${minutes} ${timePeriod}`;
-}
-export function toCustomISOFormat(date) {
-    return date.toISOString().slice(0, 16);
-}
-export function getDailyRange(){
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
-    return [todayStr + "T00:00", todayStr + "T23:59"];
-}
-export function formatDateRange(range) {
-    const [start, end] = range.map(d => d.toISOString().split("T")[0]);
-    return [start + "T00:00", end + "T23:59"];
-}
