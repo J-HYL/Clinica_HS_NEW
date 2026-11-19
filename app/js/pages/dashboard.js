@@ -10,10 +10,9 @@ import { escapeHtml } from "../modules/html.js";
 import { fechaISO, fechaLarga, sumarDias } from "../modules/formato.js";
 import { marcarContador, obtenerSede } from "../modules/components/AppShell.js";
 import {
-  pintarIndicadores, indicadoresError,
+  pintarIndicadores, pintarSolicitudes, indicadoresError,
   agendaCargando, pintarAgenda, agendaError,
   pintarRecientes, recientesError,
-  pintarAvisoSolicitudes,
 } from "../modules/components/Resumen.js";
 
 const hoy = fechaISO(); // dia LOCAL (no UTC)
@@ -23,7 +22,6 @@ let ultimaPeticionAgenda = 0;
 const indicadores = document.getElementById("indicadores");
 const agenda = document.getElementById("agenda");
 const recientes = document.getElementById("recientes");
-const avisoSolicitudes = document.getElementById("aviso-solicitudes");
 
 function mensajeError(err) {
   if (err.status === 401) {
@@ -51,10 +49,10 @@ async function cargarResumen() {
     pintarIndicadores(indicadores, datos);
     pintarAgenda(agenda, datos.fecha, datos.agenda, true);
     pintarRecientes(recientes, datos.recientes);
-    marcarContador("citas", datos.citas.pendientes);
+    marcarContador("citas", datos.citas.pendientes_hoy);
   } catch (err) {
     const mensaje = mensajeError(err);
-    indicadoresError(indicadores);
+    indicadoresError(indicadores, ["citas", "pendientes", "clientes"]);
     agendaError(agenda, mensaje);
     recientesError(recientes, mensaje);
   }
@@ -76,21 +74,25 @@ async function verDia(fecha) {
 /** Solicitudes del portal pendientes (mismas fuentes que la campana de avisos). */
 async function cargarSolicitudes() {
   const contar = (url) => fetch(url, { credentials: "include" })
-    .then((r) => (r.ok ? r.json() : null))
-    .then((d) => (d && d.count) || 0)
-    .catch(() => 0);
-  const [citas, facturas] = await Promise.all([
-    contar("/api/solicitudes.php?accion=count"),
-    contar("/api/facturas_solicitudes.php?accion=count"),
-  ]);
-  pintarAvisoSolicitudes(avisoSolicitudes, { citas, facturas });
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+    .then((d) => (d && d.count) || 0);
+  try {
+    const [citas, facturas] = await Promise.all([
+      contar("/api/solicitudes.php?accion=count"),
+      contar("/api/facturas_solicitudes.php?accion=count"),
+    ]);
+    pintarSolicitudes(indicadores, { citas, facturas });
+  } catch {
+    indicadoresError(indicadores, ["solicitudes"]);
+  }
 }
 
 agenda.querySelector('[data-agenda="anterior"]').addEventListener("click", () => verDia(sumarDias(diaAgenda, -1)));
 agenda.querySelector('[data-agenda="siguiente"]').addEventListener("click", () => verDia(sumarDias(diaAgenda, 1)));
 agenda.querySelector('[data-agenda="hoy"]').addEventListener("click", () => verDia(hoy));
-avisoSolicitudes.querySelector('[data-aviso="abrir"]').addEventListener("click", () => {
-  window.dispatchEvent(new CustomEvent("hs:abrir-avisos"));
+// "Revisar" en el indicador de solicitudes: abre la campana de avisos.
+indicadores.addEventListener("click", (e) => {
+  if (e.target.closest("[data-abrir-avisos]")) window.dispatchEvent(new CustomEvent("hs:abrir-avisos"));
 });
 
 pintarCabecera();

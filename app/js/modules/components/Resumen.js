@@ -9,7 +9,7 @@
 // Los textos que vienen de la BD pasan SIEMPRE por escapeHtml().
 
 import { escapeHtml } from "../html.js";
-import { euros, numero, variacion, mesAnterior, hora, fechaCorta, fechaLarga, iniciales } from "../formato.js";
+import { euros, numero, hora, fechaCorta, fechaLarga, iniciales } from "../formato.js";
 
 const GABINETES = { med1: "Gabinete 1", med2: "Gabinete 2" };
 const ESTADOS = ["pendiente", "completada", "cancelada"]; // el color de la cita va por estado
@@ -18,28 +18,32 @@ const plural = (n, uno, varios) => `${numero(n)} ${n === 1 ? uno : varios}`;
 
 // ================================================================ Indicadores
 
-export function pintarIndicadores(raiz, { fecha, pacientes, citas, ingresos, deuda }) {
-  const mes = mesAnterior(fecha);
-  const cambio = variacion(ingresos.mes, ingresos.mes_anterior);
+// Los cuatro de siempre del panel: citas de hoy, pendientes, clientes registrados
+// y solicitudes del portal (esta ultima la pinta pintarSolicitudes, otra fuente).
+export function pintarIndicadores(raiz, { pacientes, citas }) {
+  ponerIndicador(raiz, "citas", numero(citas.hoy),
+    !citas.hoy ? "No hay citas hoy"
+      : citas.pendientes_hoy ? `<strong>${numero(citas.pendientes_hoy)}</strong> por atender` : "Todas atendidas");
 
-  ponerIndicador(raiz, "pacientes", numero(pacientes.total),
+  ponerIndicador(raiz, "pendientes", numero(citas.pendientes),
+    citas.pendientes ? "Desde hoy en adelante" : "Ninguna pendiente");
+
+  ponerIndicador(raiz, "clientes", numero(pacientes.total),
     pacientes.altas_mes ? `<strong>+${numero(pacientes.altas_mes)}</strong> altas este mes` : "Sin altas este mes");
-
-  ponerIndicador(raiz, "citas", numero(citas.total),
-    !citas.total ? "No hay citas hoy"
-      : citas.pendientes ? `<strong>${numero(citas.pendientes)}</strong> por atender` : "Todas atendidas");
-
-  ponerIndicador(raiz, "ingresos", euros(ingresos.mes, 0),
-    cambio
-      ? `<strong class="${cambio.sube ? "" : "kpi__baja"}">${cambio.texto}</strong> frente al mismo tramo de ${mes}`
-      : `Sin cobros en el mismo tramo de ${mes}`);
-
-  ponerIndicador(raiz, "deuda", euros(deuda.total, 0),
-    deuda.tratamientos ? `<strong>${plural(deuda.tratamientos, "tratamiento", "tratamientos")}</strong> con saldo` : "Todo cobrado");
 }
 
-export function indicadoresError(raiz) {
-  raiz.querySelectorAll("[data-kpi]").forEach((kpi) => ponerIndicador(raiz, kpi.dataset.kpi, "—", "No disponible"));
+/** Solicitudes del portal pendientes (de cita y de factura), con acceso a la campana. */
+export function pintarSolicitudes(raiz, { citas, facturas }) {
+  const total = citas + facturas;
+  const detalle = [citas && `${numero(citas)} de cita`, facturas && `${numero(facturas)} de factura`]
+    .filter(Boolean).join(" · ");
+  ponerIndicador(raiz, "solicitudes", numero(total), total
+    ? `${detalle} · <button type="button" class="enlace kpi__accion" data-abrir-avisos>Revisar</button>`
+    : "Ninguna pendiente");
+}
+
+export function indicadoresError(raiz, claves) {
+  claves.forEach((clave) => ponerIndicador(raiz, clave, "—", "No disponible"));
 }
 
 // pie: HTML construido aqui solo con cifras y textos fijos (nada de la BD).
@@ -154,20 +158,4 @@ export function recientesError(raiz, mensajeHtml) {
   const lista = raiz.querySelector('[data-recientes="lista"]');
   lista.removeAttribute("aria-busy");
   lista.innerHTML = `<li class="estado-error"><i class="ri-error-warning-line" aria-hidden="true"></i>${mensajeHtml}</li>`;
-}
-
-// ================================================================ Aviso de solicitudes
-
-/** Solicitudes del portal pendientes (de cita y de factura). Sin ninguna, no se ve. */
-export function pintarAvisoSolicitudes(raiz, { citas, facturas }) {
-  const total = citas + facturas;
-  raiz.hidden = total === 0;
-  if (!total) return;
-  raiz.querySelector("[data-aviso='titulo']").textContent = total === 1
-    ? "Hay 1 solicitud del portal pendiente"
-    : `Hay ${numero(total)} solicitudes del portal pendientes`;
-  raiz.querySelector("[data-aviso='detalle']").textContent = [
-    citas && `${numero(citas)} de cita`,
-    facturas && `${numero(facturas)} de factura`,
-  ].filter(Boolean).join(" · ");
 }

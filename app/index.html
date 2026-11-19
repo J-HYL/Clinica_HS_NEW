@@ -43,43 +43,43 @@
             </section>
 
             <section class="kpis" id="indicadores" aria-label="Indicadores de la clínica">
-                <article class="kpi" data-kpi="pacientes" aria-busy="true">
-                    <div class="kpi__cabecera">
-                        <div>
-                            <h2 class="kpi__etiqueta">Pacientes</h2>
-                            <p class="kpi__valor" data-valor>—</p>
-                        </div>
-                        <span class="kpi__icono" aria-hidden="true"><i class="ri-group-line"></i></span>
-                    </div>
-                    <p class="kpi__pie" data-pie>Cargando…</p>
-                </article>
                 <article class="kpi" data-kpi="citas" aria-busy="true">
                     <div class="kpi__cabecera">
                         <div>
                             <h2 class="kpi__etiqueta">Citas de hoy</h2>
                             <p class="kpi__valor" data-valor>—</p>
                         </div>
-                        <span class="kpi__icono" aria-hidden="true"><i class="ri-calendar-line"></i></span>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-calendar-schedule-line"></i></span>
                     </div>
                     <p class="kpi__pie" data-pie>Cargando…</p>
                 </article>
-                <article class="kpi" data-kpi="ingresos" aria-busy="true">
+                <article class="kpi" data-kpi="pendientes" aria-busy="true">
                     <div class="kpi__cabecera">
                         <div>
-                            <h2 class="kpi__etiqueta">Ingresos del mes</h2>
+                            <h2 class="kpi__etiqueta">Pendientes</h2>
                             <p class="kpi__valor" data-valor>—</p>
                         </div>
-                        <span class="kpi__icono" aria-hidden="true"><i class="ri-money-euro-circle-line"></i></span>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-calendar-event-line"></i></span>
                     </div>
                     <p class="kpi__pie" data-pie>Cargando…</p>
                 </article>
-                <article class="kpi" data-kpi="deuda" aria-busy="true">
+                <article class="kpi" data-kpi="clientes" aria-busy="true">
                     <div class="kpi__cabecera">
                         <div>
-                            <h2 class="kpi__etiqueta">Deuda pendiente</h2>
+                            <h2 class="kpi__etiqueta">Clientes registrados</h2>
                             <p class="kpi__valor" data-valor>—</p>
                         </div>
-                        <span class="kpi__icono" aria-hidden="true"><i class="ri-wallet-3-line"></i></span>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-group-line"></i></span>
+                    </div>
+                    <p class="kpi__pie" data-pie>Cargando…</p>
+                </article>
+                <article class="kpi" data-kpi="solicitudes" aria-busy="true">
+                    <div class="kpi__cabecera">
+                        <div>
+                            <h2 class="kpi__etiqueta">Solicitudes portal</h2>
+                            <p class="kpi__valor" data-valor>—</p>
+                        </div>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-inbox-2-line"></i></span>
                     </div>
                     <p class="kpi__pie" data-pie>Cargando…</p>
                 </article>
@@ -124,15 +124,6 @@
                     </ul>
                 </section>
             </div>
-
-            <section class="aviso-resumen" id="aviso-solicitudes" aria-live="polite" hidden>
-                <span class="aviso-resumen__icono" aria-hidden="true"><i class="ri-inbox-2-line"></i></span>
-                <div class="aviso-resumen__texto">
-                    <p class="aviso-resumen__titulo" data-aviso="titulo"></p>
-                    <p class="aviso-resumen__detalle" data-aviso="detalle"></p>
-                </div>
-                <button type="button" class="boton boton--secundario boton--pequeno" data-aviso="abrir">Revisar solicitudes</button>
-            </section>
         </main>
     </div>
 

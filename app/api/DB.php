@@ -1051,32 +1051,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         break;
                     }
 
-                    // Mes en curso hasta el dia pedido (incluido), frente al MISMO tramo
-                    // del mes anterior: del 1 al mismo dia (si ese mes es mas corto, entero).
                     $fmt = 'Y-m-d H:i:s';
-                    $finDia = $dia->modify('+1 day');
                     $mesIni = $dia->modify('first day of this month');
-                    $mesAntIni = $mesIni->modify('-1 month');
-                    $mesAntFin = $mesAntIni->modify('+' . (int)$dia->format('j') . ' days');
-                    if ($mesAntFin > $mesIni) $mesAntFin = $mesIni;
-                    $tramos = [$mesIni->format($fmt), $finDia->format($fmt), $mesAntIni->format($fmt), $mesAntFin->format($fmt)];
-
                     $pac = consultarFilas($conn,
-                        "SELECT COUNT(*) AS total,
-                                SUM(Alta >= ? AND Alta < ?) AS altas_mes,
-                                SUM(Alta >= ? AND Alta < ?) AS altas_mes_anterior
-                         FROM clients", 'ssss', $tramos)[0];
+                        "SELECT COUNT(*) AS total, SUM(Alta >= ? AND Alta < ?) AS altas_mes FROM clients",
+                        'ss', [$mesIni->format($fmt), $dia->modify('+1 day')->format($fmt)])[0];
 
-                    $ing = consultarFilas($conn,
-                        "SELECT COALESCE(SUM(CASE WHEN fecha_pago >= ? AND fecha_pago < ? THEN monto END), 0) AS mes,
-                                COALESCE(SUM(CASE WHEN fecha_pago >= ? AND fecha_pago < ? THEN monto END), 0) AS mes_anterior
-                         FROM payments
-                         WHERE fecha_pago >= ? AND fecha_pago < ?", 'ssssss',
-                        array_merge($tramos, [$tramos[2], $tramos[1]]))[0];
-
-                    $deuda = consultarFilas($conn,
-                        "SELECT COALESCE(SUM(deuda), 0) AS total, COUNT(*) AS tratamientos
-                         FROM treatments WHERE deuda > 0")[0];
+                    // Citas pendientes de ese dia en adelante (como la lista de Citas),
+                    // sin contar los bloqueos de gabinete. Estado vacio = pendiente.
+                    $pendientes = consultarFilas($conn,
+                        "SELECT COUNT(*) AS total FROM appointments
+                         WHERE fecha >= ?
+                           AND COALESCE(NULLIF(estado, ''), 'Pendiente') = 'Pendiente'
+                           AND NOT (COALESCE(servicio, '') REGEXP 'no[[:space:]]*trabajo')",
+                        's', [$dia->format($fmt)])[0];
 
                     // Pacientes con actividad mas reciente: su ultima visita o, si no
                     // tienen, la fecha de alta. Su deuda = suma de sus tratamientos.
@@ -1091,19 +1079,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                                            COALESCE(r.alta, '1000-01-01 00:00:00')) DESC, r.id DESC
                          LIMIT 5");
 
-                    $citas = array_values(array_filter($agenda, fn($c) => !$c['bloqueo']));
-                    $pendientes = count(array_filter($citas, fn($c) => strcasecmp($c['estado'] ?: 'Pendiente', 'Pendiente') === 0));
+                    $citasHoy = array_values(array_filter($agenda, fn($c) => !$c['bloqueo']));
+                    $pendientesHoy = count(array_filter($citasHoy, fn($c) => strcasecmp($c['estado'] ?: 'Pendiente', 'Pendiente') === 0));
 
                     echo json_encode([
                         "fecha" => $dia->format('Y-m-d'),
-                        "pacientes" => [
-                            "total" => (int)$pac['total'],
-                            "altas_mes" => (int)$pac['altas_mes'],
-                            "altas_mes_anterior" => (int)$pac['altas_mes_anterior'],
+                        "pacientes" => ["total" => (int)$pac['total'], "altas_mes" => (int)$pac['altas_mes']],
+                        "citas" => [
+                            "hoy" => count($citasHoy),
+                            "pendientes_hoy" => $pendientesHoy,
+                            "pendientes" => (int)$pendientes['total'],
                         ],
-                        "citas" => ["total" => count($citas), "pendientes" => $pendientes],
-                        "ingresos" => ["mes" => (float)$ing['mes'], "mes_anterior" => (float)$ing['mes_anterior']],
-                        "deuda" => ["total" => (float)$deuda['total'], "tratamientos" => (int)$deuda['tratamientos']],
                         "agenda" => $agenda,
                         "recientes" => array_map(fn($r) => [
                             "id" => (int)$r['id'],
