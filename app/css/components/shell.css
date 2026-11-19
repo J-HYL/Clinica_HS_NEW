@@ -52,6 +52,12 @@
     .sidebar, .sidebar.open{ transition: none; }
 }
 
+/* En PRE, entorno.js pone una marquesina fija de 34px abajo: que no tape el
+   pie del menu (la sede). */
+body:has(#pre-env-banner) .sidebar{
+    padding-bottom: 54px;
+}
+
 /* Velo detras del menu abierto en movil (cierra al pulsarlo). */
 .shell-velo{
     position: fixed;
