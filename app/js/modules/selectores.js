@@ -1,17 +1,3 @@
-//* Header
-export const headerProfileAvatar = document.querySelector(".header__avatar")
-export const headerProfileUser = document.querySelector(".profile__user");
-export const headerProfileRole = document.querySelector(".profile__role");
-
-//* Dashboard
-export const preloader = document.querySelector("#preloader");
-export const todayAppointmentStats = document.querySelector("#citas-hoy");
-export const pendingAppointmentStats = document.querySelector("#citas-pendientes");
-export const clientsStats = document.querySelector("#clientes-registrados");
-export const servicesStats = document.querySelector("#servicios-registrados");
-//export const incomesStats = document.querySelector("#incomes");
-export const incomesSpinner = document.querySelector("#spinner-incomes");
-export const incomesRangeSelect = document.querySelector("#ingresos-select");
 
 //* Form
 export const form = document.querySelector(".form")

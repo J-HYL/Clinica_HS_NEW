@@ -3,19 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Principal</title>
-  
-    <!-- Scripts -->
+    <title>Resumen · HS Dental</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!-- Styles -->
-    <!-- Tailwind CSS CDN (required for Flowbite) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Flowbite CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
-
-    <link rel="stylesheet" href="css/pages/dashboard.css">
+    <link rel="stylesheet" href="/css/pages/dashboard.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
@@ -29,135 +20,123 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="HS Dental">
     <script src="/js/pwa.js" defer></script>
-
 </head>
 <body>
-    <div class="preloader" id="preloader">
-        <div class="sk-folding-cube">
-            <div class="sk-cube1 sk-cube"></div>
-            <div class="sk-cube2 sk-cube"></div>
-            <div class="sk-cube4 sk-cube"></div>
-            <div class="sk-cube3 sk-cube"></div>
-        </div>
-    </div>
-
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
-        <header class="header">
-            <div class="header__group">
-                <button class="header__menu" aria-label="Abrir Sidebar">
-                    <i class="ri-menu-line"></i>
-                </button>
-                <div class="header__titles">
-                    <h1 class="header__heading">HS Dental - <span>Principal</span></h1>
-                    <p class="header__greeting" id="header-greeting"></p>
+        <main class="resumen">
+            <section class="resumen__cabecera">
+                <div>
+                    <p class="resumen__fecha" data-resumen="fecha"></p>
+                    <h1 class="resumen__saludo" data-resumen="saludo">Hola</h1>
+                    <p class="resumen__intro" data-resumen="intro">Este es el resumen de la clínica para hoy.</p>
                 </div>
-            </div>
-        </header>
-    
-        <section class="container stats">
-            <div class="stats__items">
-                <div class="stats__item">
-                    <div class="stat__icon"><i class="ri-calendar-schedule-line"></i></div>
-                    <div class="stat__content">
-                        <h4 class="stat__title">Citas para Hoy</h4>
-                        <p class="stat__number" id="citas-hoy"><strong></strong></p>
-                    </div>
-                </div>
-                <div class="stats__item">
-                    <div class="stat__icon"><i class="ri-calendar-event-line"></i></div>
-                    <div class="stat__content">
-                        <h4 class="stat__title">Pendientes</h4>
-                        <p class="stat__number" id="citas-pendientes"><strong></strong></p>
-                    </div>
-                </div>
-                <div class="stats__item">
-                    <div class="stat__icon"><i class="ri-group-line"></i></div>
-                    <div class="stat__content">
-                        <h4 class="stat__title">Clientes Reg.</h4>
-                        <p class="stat__number" id="clientes-registrados"><strong></strong></p>
-                    </div>
-                </div>
-                <div class="stats__item">
-                    <div class="stat__icon"><i class="ri-inbox-2-line"></i></div>
-                    <div class="stat__content">
-                        <h4 class="stat__title">Solicitudes portal</h4>
-                        <p class="stat__number" id="solicitudes-portal"><strong>0</strong></p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    
-        <section class="container sections">
-            <div class="sections__wrapper">
-                <div class="sections__container" >
-                    <h3 class="container__heading"><i class="ri-star-line"></i> Secciones Recomendadas</h3>
-                    <div class="sections__cards">
-                        <div class="sections__card">
-                            <a href="pages/citas/control.html" aria-label="Ir a Citas">
-                                <div class="sections__picture">
-                                    <img src="assets/svg/citas-agendadas.svg" alt="Citas Agendadas">
-                                </div>
-                                <h4 class="sections__heading">Ir a Citas</h4>
-                            </a>
-                        </div>
-                        <div class="sections__card">
-                            <a href="pages/clientes/control.html" aria-label="Ir a Clientes">
-                                <div class="sections__picture">
-                                    <img src="assets/svg/clientes-registrados.svg" alt="Clientes Registrados">
-                                </div>
-                                <h4 class="sections__heading">Ir a Clientes</h4>
-                            </a>
-                        </div>
-                        <div class="sections__card sections__card--pay">
-                            <a href="pages/admin/login_facturas.php" aria-label="Registrar pago">
-                                <div class="sections__picture sections__picture--pay">
-                                    <img src="assets/svg/registrar-pago.svg" alt="Registrar pago">
-                                </div>
-                                <h4 class="sections__heading">Registrar pago</h4>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel panel--agenda sections__agenda">
-                    <div class="panel__head">
-                        <h3 class="container__heading"><i class="ri-calendar-check-line"></i> Citas de hoy</h3>
-                        <div class="panel__head-right">
-                            <span class="panel__count" id="agenda-count"></span>
-                            <div class="agenda__nav" id="agenda-nav" hidden>
-                                <button type="button" class="agenda__nav-btn" id="agenda-prev" aria-label="Citas anteriores"><i class="ri-arrow-left-s-line"></i></button>
-                                <button type="button" class="agenda__nav-btn" id="agenda-next" aria-label="Citas siguientes"><i class="ri-arrow-right-s-line"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="agenda__viewport">
-                        <div class="agenda__track" id="agenda-track"></div>
-                    </div>
-                    <div class="agenda__dots" id="agenda-dots"></div>
-                    <a class="agenda__cta" href="/pages/citas/calendario.html" aria-label="Ir al calendario">
-                        <i class="ri-calendar-2-line"></i> Ver calendario
+                <div class="resumen__acciones">
+                    <a class="boton boton--secundario" href="/pages/admin/login_facturas.php">
+                        <i class="ri-bank-card-line" aria-hidden="true"></i> Registrar pago
+                    </a>
+                    <a class="boton boton--primario" href="/pages/citas/vista_diaria.html?nueva=1">
+                        <i class="ri-add-line" aria-hidden="true"></i> Nueva cita
                     </a>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="container panels">
-            <div class="panels__grid">
-                <div class="panel panel--donut">
-                    <h3 class="container__heading"><i class="ri-pie-chart-2-line"></i> Estado de tratamientos</h3>
-                    <div class="donut" id="donut"></div>
-                </div>
+            <section class="kpis" id="indicadores" aria-label="Indicadores de la clínica">
+                <article class="kpi" data-kpi="pacientes" aria-busy="true">
+                    <div class="kpi__cabecera">
+                        <div>
+                            <h2 class="kpi__etiqueta">Pacientes</h2>
+                            <p class="kpi__valor" data-valor>—</p>
+                        </div>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-group-line"></i></span>
+                    </div>
+                    <p class="kpi__pie" data-pie>Cargando…</p>
+                </article>
+                <article class="kpi" data-kpi="citas" aria-busy="true">
+                    <div class="kpi__cabecera">
+                        <div>
+                            <h2 class="kpi__etiqueta">Citas de hoy</h2>
+                            <p class="kpi__valor" data-valor>—</p>
+                        </div>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-calendar-line"></i></span>
+                    </div>
+                    <p class="kpi__pie" data-pie>Cargando…</p>
+                </article>
+                <article class="kpi" data-kpi="ingresos" aria-busy="true">
+                    <div class="kpi__cabecera">
+                        <div>
+                            <h2 class="kpi__etiqueta">Ingresos del mes</h2>
+                            <p class="kpi__valor" data-valor>—</p>
+                        </div>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-money-euro-circle-line"></i></span>
+                    </div>
+                    <p class="kpi__pie" data-pie>Cargando…</p>
+                </article>
+                <article class="kpi" data-kpi="deuda" aria-busy="true">
+                    <div class="kpi__cabecera">
+                        <div>
+                            <h2 class="kpi__etiqueta">Deuda pendiente</h2>
+                            <p class="kpi__valor" data-valor>—</p>
+                        </div>
+                        <span class="kpi__icono" aria-hidden="true"><i class="ri-wallet-3-line"></i></span>
+                    </div>
+                    <p class="kpi__pie" data-pie>Cargando…</p>
+                </article>
+            </section>
+
+            <div class="resumen__rejilla">
+                <section class="tarjeta agenda" id="agenda" aria-labelledby="agenda-titulo">
+                    <div class="tarjeta__cabecera">
+                        <div>
+                            <h2 class="tarjeta__titulo" id="agenda-titulo">Agenda del día</h2>
+                            <p class="tarjeta__subtitulo" data-agenda="resumen">Cargando…</p>
+                        </div>
+                        <a class="boton boton--secundario boton--pequeno" data-agenda="ver-dia" href="/pages/citas/vista_diaria.html">
+                            <i class="ri-calendar-2-line" aria-hidden="true"></i> Ver el día
+                        </a>
+                    </div>
+                    <div class="agenda__dia">
+                        <button type="button" class="boton boton--icono boton--fantasma" data-agenda="anterior" aria-label="Día anterior">
+                            <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+                        </button>
+                        <div class="agenda__dia-centro">
+                            <p class="agenda__fecha" data-agenda="fecha" aria-live="polite"></p>
+                            <button type="button" class="enlace agenda__hoy" data-agenda="hoy" hidden>Volver a hoy</button>
+                        </div>
+                        <button type="button" class="boton boton--icono boton--fantasma" data-agenda="siguiente" aria-label="Día siguiente">
+                            <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <ol class="agenda__lista" data-agenda="lista" aria-busy="true"></ol>
+                </section>
+
+                <section class="tarjeta recientes" id="recientes" aria-labelledby="recientes-titulo">
+                    <div class="tarjeta__cabecera">
+                        <div>
+                            <h2 class="tarjeta__titulo" id="recientes-titulo">Pacientes recientes</h2>
+                            <p class="tarjeta__subtitulo">Última actividad</p>
+                        </div>
+                        <a class="enlace" href="/pages/clientes/control.html">Ver todos</a>
+                    </div>
+                    <ul class="recientes__lista" data-recientes="lista" aria-busy="true">
+                        <li class="estado-vacio">Cargando…</li>
+                    </ul>
+                </section>
             </div>
-        </section>
+
+            <section class="aviso-resumen" id="aviso-solicitudes" aria-live="polite" hidden>
+                <span class="aviso-resumen__icono" aria-hidden="true"><i class="ri-inbox-2-line"></i></span>
+                <div class="aviso-resumen__texto">
+                    <p class="aviso-resumen__titulo" data-aviso="titulo"></p>
+                    <p class="aviso-resumen__detalle" data-aviso="detalle"></p>
+                </div>
+                <button type="button" class="boton boton--secundario boton--pequeno" data-aviso="abrir">Revisar solicitudes</button>
+            </section>
+        </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Flowbite JS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-
-    <script src="js/main.js" type="module"></script>
-    <script src="js/pages/dashboard.js" type="module"></script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/dashboard.js" type="module"></script>
 </body>
 </html>

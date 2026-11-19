@@ -166,6 +166,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   modeBtns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
   todoDia.addEventListener('change', actualizarDurGroup);
 
+  // Boton "Nueva cita" del Resumen (?nueva=1): formulario abierto y listo.
+  if (params.get('nueva') === '1') {
+    openSheet();
+    servicioInput.focus({ preventScroll: true });
+  }
+
   // --- 6) FullCalendar ---
   calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
     schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
