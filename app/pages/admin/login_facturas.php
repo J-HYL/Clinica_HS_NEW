@@ -63,12 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
-        <header class="header">
-            <div class="header__group">
-                <button class="header__menu" aria-label="Abrir Sidebar"><i class="ri-menu-line"></i></button>
-                <h1 class="header__heading">HS Dental - <span>Acceso Admin</span></h1>
-            </div>
-        </header>
+        <h1 class="page-title">Acceso Admin</h1>
 
         <main class="container">
             <div class="admin-login">

@@ -1,0 +1,508 @@
+/* shell.css — Marco COMUN de todas las pantallas del panel: menu lateral,
+   barra superior, titulo de pagina y campana de avisos. El HTML lo pinta
+   AppShell.js (y la campana Notificaciones.js); aqui solo va su aspecto.
+   Sustituye a los antiguos sidebar.css y header.css. */
+
+/* ================================================================ Menu lateral
+   Movil/tablet: panel que entra desde la izquierda (boton de la barra).
+   Escritorio (>=1024px): columna fija de la rejilla del body (base.css). */
+.sidebar{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    width: var(--hs-sidebar-ancho);
+    max-width: 86vw;
+    padding: 20px 16px;
+    background: var(--hs-superficie);
+    border-right: 1px solid var(--hs-borde);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .25s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .25s;
+}
+
+.sidebar.open{
+    transform: none;
+    visibility: visible;
+    box-shadow: var(--hs-sombra-flotante);
+    transition: transform .25s cubic-bezier(.2, .8, .2, 1);
+}
+
+@media (min-width: 1024px){
+    .sidebar{
+        position: sticky;
+        align-self: start;
+        z-index: 20;
+        height: 100vh;
+        max-width: none;
+        transform: none;
+        visibility: visible;
+        transition: none;
+    }
+
+    .sidebar__cerrar{ display: none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .sidebar, .sidebar.open{ transition: none; }
+}
+
+/* Velo detras del menu abierto en movil (cierra al pulsarlo). */
+.shell-velo{
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    background: rgba(38, 52, 66, .25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+.shell-velo.visible{
+    opacity: 1;
+    pointer-events: auto;
+}
+@media (min-width: 1024px){
+    .shell-velo{ display: none; }
+}
+
+.sidebar__cabecera{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 4px 0 12px;
+}
+
+.sidebar__marca{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.sidebar__logo{
+    display: block;
+    width: auto;
+    height: 36px;
+}
+
+.sidebar__sede{
+    min-height: 1em;
+    font-size: .6875rem;
+    color: var(--hs-texto-tenue);
+}
+
+.sidebar__nav{
+    flex: 1;
+    margin-top: 28px;
+}
+
+.sidebar__grupo + .sidebar__grupo{
+    margin-top: 24px;
+}
+
+.sidebar__grupo-titulo{
+    margin-bottom: 8px;
+    padding: 0 12px;
+    font-size: .625rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--hs-texto-tenue);
+}
+
+.sidebar__lista{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    list-style: none;
+}
+
+.sidebar__enlace{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--hs-radio);
+    color: var(--hs-texto-suave);
+    font-size: .875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.sidebar__enlace i{ font-size: 18px; }
+
+.sidebar__enlace:hover{
+    background: var(--hs-hover);
+    color: var(--hs-texto);
+}
+
+.sidebar__enlace[aria-current="page"]{
+    background: var(--hs-acento-suave);
+    color: var(--hs-acento);
+}
+
+.sidebar__contador{
+    min-width: 20px;
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: var(--hs-radio-pastilla);
+    background: var(--hs-acento-contador);
+    color: var(--hs-acento);
+    font-size: .625rem;
+    font-weight: 600;
+    text-align: center;
+}
+.sidebar__contador[hidden]{ display: none; }
+
+/* Secciones que solo funcionan en ordenador (TAC): fuera del menu en movil y
+   tablet. MISMA condicion que esEscritorio() en tac/utilidades.js y que el
+   aviso de tac.css: si cambias una, cambia las tres. */
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine){
+    .sidebar__item--escritorio{ display: none; }
+}
+
+/* Pie: la sede de la sesion (las dos clinicas comparten esta misma UI). */
+.sidebar__pie{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 16px 8px 0;
+    border-top: 1px solid var(--hs-borde-suave);
+}
+.sidebar__pie[hidden]{ display: none; }
+
+.sidebar__pie-icono{
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--hs-acento-mas-suave);
+    color: var(--hs-acento);
+}
+
+.sidebar__pie-texto{ min-width: 0; }
+
+.sidebar__pie-nombre{
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+}
+
+.sidebar__pie-detalle{
+    margin-top: 2px;
+    overflow: hidden;
+    font-size: .6875rem;
+    color: var(--hs-texto-tenue);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ================================================================ Barra superior */
+.topbar{
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: var(--hs-topbar-alto);
+    margin: 0 calc(var(--hs-margen-x) * -1);
+    padding: 0 var(--hs-margen-x);
+    background: rgba(255, 255, 255, .92);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--hs-borde);
+}
+
+.topbar__inicio{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.topbar__menu{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: var(--hs-radio-sm);
+    background: none;
+    color: var(--hs-texto-suave);
+    font-size: 20px;
+    cursor: pointer;
+}
+.topbar__menu:hover{ background: var(--hs-hover); }
+
+@media (min-width: 1024px){
+    .topbar__menu{ display: none; }
+}
+
+.topbar__estado{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
+    white-space: nowrap;
+}
+
+.topbar__punto{
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--hs-acento-claro);
+}
+
+.topbar__separador{ color: var(--hs-borde-control); }
+
+.topbar__separador,
+.topbar__fecha{ display: none; }
+
+@media (min-width: 640px){
+    .topbar__separador,
+    .topbar__fecha{ display: inline; }
+}
+
+.topbar__fecha::first-letter{ text-transform: uppercase; }
+
+.topbar__fin{
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Buscador de pacientes: formulario GET a la lista de pacientes, que ya filtra
+   con ?search= (Datatables.js). Sin JS. */
+.topbar__buscador{
+    display: none;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--hs-borde-suave);
+    border-radius: var(--hs-radio);
+    background: var(--hs-superficie-suave);
+    color: var(--hs-texto-tenue);
+}
+
+.topbar__buscador:focus-within{
+    border-color: var(--hs-acento-claro);
+    box-shadow: var(--hs-foco);
+}
+
+.topbar__buscador input{
+    width: 170px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--hs-texto);
+    font-size: .75rem;
+}
+
+.topbar__buscador input::placeholder{ color: var(--hs-texto-tenue); }
+
+@media (min-width: 768px){
+    .topbar__buscador{ display: flex; }
+}
+
+/* Titulo de cada pagina, debajo de la barra. */
+.page-title{
+    margin-top: 24px;
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: var(--hs-texto-fuerte);
+}
+
+@media (min-width: 1024px){
+    .page-title{
+        margin-top: 32px;
+        font-size: 1.5rem;
+    }
+}
+
+/* ================================================================ Avisos (campana)
+   Notificaciones.js. Va en la barra superior; en pantallas sin barra (las que
+   no tienen .wrapper) queda flotando arriba a la derecha. */
+.avisos{ position: relative; }
+
+.avisos--flotante{
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    z-index: 60;
+}
+
+.avisos__boton{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: var(--hs-radio);
+    background: none;
+    color: var(--hs-texto-suave);
+    font-size: 18px;
+    cursor: pointer;
+}
+.avisos__boton:hover{ background: var(--hs-hover); color: var(--hs-texto); }
+
+.avisos--flotante .avisos__boton{
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--hs-superficie);
+    box-shadow: var(--hs-sombra-flotante);
+}
+
+.avisos__contador{
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: var(--hs-radio-pastilla);
+    background: var(--hs-acento);
+    color: #fff;
+    font-size: .625rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px var(--hs-superficie);
+}
+.avisos__contador.visible{ display: flex; }
+
+.avisos__panel{
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 61;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+    background: var(--hs-superficie);
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio-lg);
+    box-shadow: var(--hs-sombra-flotante);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transform-origin: top right;
+    transition: opacity .16s ease, transform .2s cubic-bezier(.16, 1, .3, 1), visibility 0s linear .2s;
+}
+
+.avisos__panel.abierto{
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity .16s ease, transform .2s cubic-bezier(.16, 1, .3, 1);
+}
+
+@media (max-width: 479px){
+    .avisos__panel{
+        position: fixed;
+        top: calc(var(--hs-topbar-alto) + 8px);
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .avisos__panel, .avisos__panel.abierto{ transition: none; }
+}
+
+.avisos__cabecera{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 12px 12px 16px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+}
+
+.avisos__lista{
+    max-height: min(62vh, 440px);
+    overflow: auto;
+}
+
+.avisos__item{
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color .12s ease;
+}
+.avisos__item:hover{ background: var(--hs-hover); }
+
+.avisos__icono{
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--hs-acento-mas-suave);
+    color: var(--hs-acento);
+    font-size: 18px;
+}
+.avisos__icono--espera{ background: var(--hs-aviso-suave); color: var(--hs-aviso); }
+.avisos__icono--factura{ background: var(--hs-exito-suave); color: var(--hs-exito); }
+.avisos__icono--tac{ background: var(--hs-neutro-suave); color: var(--hs-neutro); }
+
+.avisos__nombre{
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+}
+
+.avisos__detalle{
+    display: block;
+    margin-top: 2px;
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
+}
+
+.avisos__vacio{
+    padding: 32px 20px;
+    text-align: center;
+    font-size: .8125rem;
+    color: var(--hs-texto-tenue);
+}
+.avisos__vacio--error{ color: var(--hs-peligro); }
+
+.avisos__pie{
+    padding: 10px 16px;
+    text-align: center;
+    font-size: .75rem;
+    color: var(--hs-texto-tenue);
+}

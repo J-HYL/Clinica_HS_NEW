@@ -1,7 +1,7 @@
 // vistaDiaria.js
 import { getFormData } from '../../modules/funciones.js';
 import DB from '../../modules/classes/DB_API.js';
-import "../../modules/components/SidebarNav.js"; // sidebar del panel (se autoinicializa y cablea abrir/cerrar)
+import "../../modules/components/AppShell.js"; // marco comun del panel (menu + barra superior, se autoinicializa)
 
 // --- Parámetros ---
 const params = new URLSearchParams(window.location.search);

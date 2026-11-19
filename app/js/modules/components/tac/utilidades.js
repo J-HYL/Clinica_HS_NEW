@@ -3,7 +3,7 @@
 
 // La sección TAC solo funciona en ordenador: el volumen ocupa cientos de MB de
 // memoria y se maneja con ratón (rueda para recorrer cortes, botón derecho para
-// el contraste). La MISMA condición oculta la entrada del menú en sidebar.css.
+// el contraste). La MISMA condición oculta la entrada del menú en shell.css.
 const CONSULTA_ESCRITORIO = "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
 
 export function esEscritorio() {

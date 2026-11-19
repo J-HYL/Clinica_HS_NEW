@@ -10,7 +10,7 @@
 
 /* --- Solo ordenador ---------------------------------------------------------
    La misma condición que esEscritorio() (utilidades.js) y que oculta la entrada
-   del menú en sidebar.css. */
+   del menú en shell.css. */
 
 .tac-solo-escritorio{
     display: none;
