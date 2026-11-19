@@ -1,12 +1,12 @@
-// vistaDiaria.js
+// vistaDiaria.js — el marco comun (menu, barra, campana, soporte) lo carga main.js en el HTML.
 import { getFormData } from '../../modules/funciones.js';
+import { fechaISO } from '../../modules/formato.js';
 import DB from '../../modules/classes/DB_API.js';
-import "../../modules/components/AppShell.js"; // marco comun del panel (menu + barra superior, se autoinicializa)
 
 // --- Parámetros ---
 const params = new URLSearchParams(window.location.search);
 const dateParam = params.get('date');
-const hoy = new Date().toISOString().slice(0, 10);
+const hoy = fechaISO(); // día LOCAL (toISOString() daría el día anterior de madrugada)
 const horaMin = '09:00';
 
 // Día visible y bloqueos cargados (para impedir reservar encima).
@@ -14,13 +14,16 @@ let diaActual = dateParam || hoy;
 let bloqueos = []; // [{ medico, inicio:Date, fin:Date }]
 let calendar;
 
-// Colores del evento según su estado.
+// Colores del evento según su estado: los tokens de estado de tokens.css,
+// el mismo criterio que la agenda del Resumen y las vistas Mes/Semana.
+const COLORES_ESTADO = {
+  pendiente:  { backgroundColor: 'var(--hs-aviso-suave)',   borderColor: 'var(--hs-aviso-marca)',   textColor: 'var(--hs-aviso)' },
+  completada: { backgroundColor: 'var(--hs-exito-suave)',   borderColor: 'var(--hs-exito-marca)',   textColor: 'var(--hs-exito)' },
+  cancelada:  { backgroundColor: 'var(--hs-peligro-suave)', borderColor: 'var(--hs-peligro-marca)', textColor: 'var(--hs-peligro)' },
+  bloqueado:  { backgroundColor: 'var(--hs-neutro-suave)',  borderColor: 'var(--hs-neutro-marca)',  textColor: 'var(--hs-neutro)' }
+};
 function coloresEstado(estado) {
-  const e = (estado || 'Pendiente').toLowerCase();
-  if (e === 'completada') return { backgroundColor: '#DEFFD2', borderColor: '#3CD856', textColor: '#087443' };
-  if (e === 'cancelada')  return { backgroundColor: '#FCDFDF', borderColor: '#DE5753', textColor: '#B23935' };
-  if (e === 'bloqueado')  return { backgroundColor: '#EEF0F4', borderColor: '#C9CFDA', textColor: '#5B6472' };
-  return { backgroundColor: '#FCEEDF', borderColor: '#F78E2B', textColor: '#C46A16' }; // pendiente
+  return COLORES_ESTADO[(estado || 'Pendiente').toLowerCase()] || COLORES_ESTADO.pendiente;
 }
 
 // ¿Este registro es un bloqueo? (estado 'Bloqueado' nuevo, o los "NO TRABAJO" antiguos).
@@ -156,11 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     submitBtn.innerHTML = isBloq ? 'Bloquear horario <i class="ri-lock-2-line"></i>' : 'Crear Cita <i class="ri-add-line"></i>';
     formTitle.textContent = isBloq ? 'Bloquear horario' : 'Crear Cita';
     formTitle.classList.toggle('is-block', isBloq);
-    modeBtns.forEach(b => {
-      const on = b.dataset.mode === mode;
-      b.classList.toggle('is-active', on);
-      b.setAttribute('aria-selected', on ? 'true' : 'false');
-    });
+    modeBtns.forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === mode)));
     if (isBloq) actualizarDurGroup();
   };
   modeBtns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
@@ -195,6 +194,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       { id: 'med1', title: 'GABINETE 1' },
       { id: 'med2', title: 'GABINETE 2' }
     ],
+    // Cabecera de cada gabinete con su punto de color (.gabinete, components/calendar.css).
+    resourceLabelDidMount: info => {
+      const texto = info.el.querySelector('.fc-col-header-cell-cushion');
+      if (!texto) return;
+      texto.classList.add('gabinete');
+      texto.dataset.gabinete = info.resource.id;
+    },
 
     dateClick: info => {
       inputFecha.value = info.dateStr.slice(0, 16);
@@ -219,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           showCancelButton: true,
           confirmButtonText: 'Sí, quitar',
           cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#DE5753'
+          confirmButtonColor: 'var(--hs-peligro)'
         });
         if (r.isConfirmed) {
           try {

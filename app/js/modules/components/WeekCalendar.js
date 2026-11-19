@@ -1,24 +1,30 @@
 // WeekCalendar.js
 // Vista semanal 100% propia (rejilla horas × días, sin FullCalendar),
-// con el estilo del calendario custom. La usa la página semana.html.
+// con el estilo del calendario custom. La usa la página semana.html
+// (estilos en css/pages/calendario.css; color de cada cita por su estado,
+// .color-estado de css/components/calendar.css).
 
 import { reloadPage } from "../funciones.js";
 import DB from "../classes/DB_API.js";
 import Alert from "./Alert.js";
 import { escapeHtml } from "../html.js";
 
-// --- Configuración de la rejilla (debe coincidir con el CSS de semana.html) ---
+// --- Configuración de la rejilla. El CSS la recibe por variables (--alto-hora,
+// --horas) que se ponen en #week-grid al pintar: no hay que repetirla allí. ---
 const HORA_INICIO = 9;      // primera hora visible
 const HORA_FIN = 21;        // última hora visible (exclusiva)
 const ALTO_HORA = 48;       // px por hora
 const DURACION_DEF = 30;    // duración por defecto de una cita (min)
 const TOTAL_MIN = (HORA_FIN - HORA_INICIO) * 60;
+const SEPARACION = 2;       // px entre dos citas seguidas de la misma columna
 
 const MESES = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
 ];
 const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const DIAS_LARGOS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+const GABINETES = { med1: "Gabinete 1", med2: "Gabinete 2" };
 
 // Fecha de referencia de la semana mostrada (se muta al navegar).
 const semanaActual = new Date();
@@ -74,17 +80,21 @@ export function renderSemana() {
 
   const hoyStr = ymd(new Date());
 
-  // --- Cabecera de días ---
+  // --- Cabecera de días (cada una abre la vista diaria de ese día) ---
   head.innerHTML = '<div class="week__corner"></div>';
   dias.forEach((d, i) => {
-    const el = document.createElement("div");
+    const el = document.createElement("a");
     el.className = "week__dayhead" + (ymd(d) === hoyStr ? " week__dayhead--today" : "");
-    el.innerHTML = `<span class="week__dayname">${DIAS[i]}</span> ${d.getDate()}/${d.getMonth() + 1}`;
+    el.href = `/pages/citas/vista_diaria.html?date=${ymd(d)}`;
+    el.setAttribute("aria-label", `Ver el ${DIAS_LARGOS[i]} ${d.getDate()} de ${MESES[d.getMonth()]}`);
+    el.innerHTML = `<span class="week__dayname">${DIAS[i]}</span><span class="week__daynum">${d.getDate()}</span>`;
     head.appendChild(el);
   });
 
   // --- Cuerpo: columna de horas + 7 columnas de día ---
   grid.innerHTML = "";
+  grid.style.setProperty("--alto-hora", `${ALTO_HORA}px`);
+  grid.style.setProperty("--horas", HORA_FIN - HORA_INICIO);
 
   const horas = document.createElement("div");
   horas.className = "week__hours";
@@ -198,17 +208,23 @@ function posicionar(evs) {
 }
 
 function crearEvento(ev) {
+  const estado = ev.estado || "Pendiente";
   const el = document.createElement("div");
-  el.className = `week__event appointment__${(ev.estado || "pendiente").toLowerCase()}`;
+  el.className = "week__event color-estado";
+  el.dataset.estado = estado.toLowerCase();
 
   const ancho = 100 / ev.carriles;
   el.style.top = `${(ev.inicio / 60) * ALTO_HORA}px`;
-  el.style.height = `${((ev.fin - ev.inicio) / 60) * ALTO_HORA}px`;
+  el.style.height = `${((ev.fin - ev.inicio) / 60) * ALTO_HORA - SEPARACION}px`;
   el.style.left = `calc(${ev.carril * ancho}% + 2px)`;
   el.style.width = `calc(${ancho}% - 4px)`;
 
-  el.innerHTML = `<span class="hora">${escapeHtml(ev.hora)}</span> ${escapeHtml(ev.servicio ?? "")}`;
-  el.title = `${ev.hora} · ${ev.servicio ?? ""}${ev.cliente ? " · " + ev.cliente : ""}`;
+  // En un bloqueo, `cliente` guarda la fecha y hora de fin.
+  const detalle = el.dataset.estado === "bloqueado"
+    ? (ev.cliente ? `hasta las ${String(ev.cliente).slice(11, 16)}` : "")
+    : ev.cliente;
+  el.innerHTML = `<span class="week__hora">${escapeHtml(ev.hora)}</span><span class="week__nombre">${escapeHtml(ev.servicio ?? "")}</span>`;
+  el.title = [ev.hora, ev.servicio, detalle, GABINETES[ev.medico], estado].filter(Boolean).join(" · ");
 
   // Arrastrar para cambiar la cita de día (conserva la hora).
   el.draggable = true;

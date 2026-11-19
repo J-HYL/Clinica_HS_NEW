@@ -18,197 +18,6 @@
     <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-
-    <style>
-        /* Toggle Mes / Semana (control segmentado sobre la barra del calendario) */
-        .calendar__views{
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: inline-flex;
-            gap: 2px;
-            padding: 3px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 999px;
-        }
-        .calendar__view-btn{
-            padding: 5px 16px;
-            border-radius: 999px;
-            color: #fff;
-            background: transparent;
-            text-decoration: none;
-            font-size: 0.8em;
-            font-weight: 600;
-            transition: .2s ease background, .2s ease color;
-        }
-        .calendar__view-btn--active{
-            background: #fff;
-            color: var(--primary);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
-        }
-
-        @media (max-width: 600px){
-            .calendar__views{ right: 16px; }
-            .calendar__view-btn{ padding: 4px 12px; font-size: 0.72em; }
-        }
-
-        /* Día actual: sin marco ni círculo, solo el número en azul y en negrita */
-        .calendar__day--today .day__info h5{
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        /* Switch de gabinete (control segmentado bajo la cabecera) */
-        .calendar__toolbar{
-            display: flex;
-            gap: 6px;
-            padding: 12px 16px;
-            background: #fff;
-            border-bottom: 1px solid #eef0f4;
-        }
-        .gab-chip{
-            flex: 1;
-            padding: 8px 6px;
-            border: none;
-            border-radius: 10px;
-            background: #f1f3f7;
-            color: var(--light-gray);
-            font-size: 0.82em;
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: background .2s ease, color .2s ease, box-shadow .2s ease;
-        }
-        .gab-chip:hover{ background: #e7ebf3; }
-        .gab-chip--active{
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(43, 128, 247, .35);
-        }
-        .gab-chip--active:hover{ background: var(--primary); }
-
-        /* ===== Vista móvil: calendario tipo app nativa ===== */
-        @media (max-width: 743px){
-            /* Aprovechar el ancho: menos margen y tarjeta a pantalla casi completa */
-            .wrapper{ padding: 14px 10px; }
-            .main{
-                margin-top: 14px;
-                border-radius: 20px;
-                box-shadow: 0 6px 24px rgba(17, 24, 39, .06);
-            }
-
-            /* Cabecera blanca y limpia, en lugar de la barra degradada */
-            .calendar__header{
-                background: #fff;
-                background-image: none;
-                height: auto;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-                padding: 16px 16px 12px;
-                border-bottom: 1px solid #eef0f4;
-            }
-            .calendar__header .header__container{
-                width: 100%;
-                justify-content: space-between;
-                gap: 8px;
-            }
-            .container__heading{
-                color: var(--dark-gray);
-                font-size: 1.15em;
-                font-weight: 700;
-            }
-            /* Flechas como iconos limpios (sin círculo blanco), en azul de marca */
-            .calendar__button{
-                background: transparent;
-                width: 38px;
-                height: 38px;
-                font-size: 1.6em;
-            }
-            .calendar__header .calendar__button i{ color: var(--primary) !important; }
-
-            /* El toggle Mes/Semana pasa al flujo, centrado bajo el título */
-            .calendar__views{
-                position: static;
-                transform: none;
-                right: auto;
-                top: auto;
-                align-self: center;
-                background: #f1f3f7;
-            }
-            .calendar__view-btn{ color: var(--light-gray); }
-            .calendar__view-btn--active{ background: #fff; color: var(--primary); }
-
-            /* Rejilla de días sin bordes duros: separadores finos, look nativo */
-            .calendar__days{ background: #fff; }
-            .calendar__day{
-                min-height: 58px;
-                padding: 8px 2px;
-                border: none;
-                border-top: 1px solid #f1f2f5;
-                justify-content: flex-start;
-                align-items: center;
-                gap: 5px;
-            }
-            .calendar__day:hover{ background: transparent; }
-
-            /* Número centrado arriba y punto indicador debajo */
-            .day__info{
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-                width: 100%;
-            }
-            .day__info h5{
-                font-size: 0.95em;
-                color: var(--dark-gray);
-                width: 1.9em;
-                height: 1.9em;
-                display: grid;
-                place-items: center;
-            }
-
-            /* Cada cita se muestra como un punto bajo el número (estilo app de
-               calendario). El color respeta el estado de la cita, igual que
-               las píldoras del escritorio: pendiente / completada / cancelada. */
-            .day__info button.day__notification{ display: none; }
-            .calendar__day .calendar__appointments{
-                display: flex;
-                flex-flow: row wrap;
-                justify-content: center;
-                gap: 4px;
-                max-height: none;
-                margin: 0;
-                padding: 0;
-                list-style: none;
-            }
-            .calendar__appointments li{
-                width: 7px;
-                height: 7px;
-                padding: 0;
-                border-radius: 50%;
-                background: var(--pale-gray);
-                overflow: hidden;
-            }
-            .calendar__appointments li button{ display: none; }
-            .calendar__appointments li.appointment__pendiente{ background: var(--orange-status); }
-            .calendar__appointments li.appointment__completada{ background: var(--green); }
-            .calendar__appointments li.appointment__cancelada{ background: var(--red); }
-            /* No más de 5 puntos para que no desborde la celda */
-            .calendar__appointments li:nth-child(n+6){ display: none; }
-
-            /* Hoy: solo el círculo azul del número (sin marco alrededor de la celda) */
-            .calendar__day--today{ box-shadow: none; }
-
-            /* Evitar el resalte naranja al tocar un día en el móvil */
-            .calendar__day--content:hover,
-            .calendar__day--content:focus{ background: transparent; }
-            .calendar__day--content:hover .day__info h5,
-            .calendar__day--content:focus .day__info h5{ color: var(--dark-gray); }
-        }
-    </style>
 </head>
 <body>
     <nav class="sidebar" id="sidebar"></nav>
@@ -216,157 +25,112 @@
     <div class="wrapper">
         <h1 class="page-title">Calendario</h1>
 
-        <main class="container main">
-            <section class="calendar">
-                <header class="calendar__header">
-                    <div class="header__container">
-                        <button class="calendar__button calendar__button--previous" aria-label="Ir al Anterior Mes"><i class="ri-arrow-left-s-line" style="color:#839cff;"></i></button>
-                        <h3 class="container__heading" id="calendar-date"></h3>
-                        <button class="calendar__button calendar__button--next" aria-label="Ir al Siguiente Mes"><i class="ri-arrow-right-s-line"  style="color:#839cff;"></i></button>
-                    </div>
-
-                    <!-- Toggle Mes / Semana -->
-                    <nav class="calendar__views">
-                        <a href="calendario.html" class="calendar__view-btn calendar__view-btn--active">Mes</a>
-                        <a href="semana.html" class="calendar__view-btn">Semana</a>
-                    </nav>
-                </header>
-
-                <!-- Switch de gabinete: elige qué gabinete quieres ver -->
-                <div class="calendar__toolbar" role="group" aria-label="Filtrar por gabinete">
-                    <button type="button" class="gab-chip gab-chip--active" data-medico="all">Todos</button>
-                    <button type="button" class="gab-chip" data-medico="med1">Gabinete 1</button>
-                    <button type="button" class="gab-chip" data-medico="med2">Gabinete 2</button>
+        <main class="tarjeta calendario">
+            <header class="calendario__cabecera">
+                <div class="calendario__navegacion">
+                    <button type="button" class="boton boton--icono boton--secundario calendar__button--previous" aria-label="Mes anterior">
+                        <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="boton boton--icono boton--secundario calendar__button--next" aria-label="Mes siguiente">
+                        <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                    </button>
+                    <h2 class="calendario__titulo" id="calendar-date" aria-live="polite"></h2>
                 </div>
 
-                <!-- Días de la semana -->
-                <section class="calendar__weekdays">
-                    <div class="calendar__weekday"><h4>Lunes</h4><abbr>Lun</abbr></div>
-                    <div class="calendar__weekday"><h4>Martes</h4><abbr>Mar</abbr></div>
-                    <div class="calendar__weekday"><h4>Miércoles</h4><abbr>Mié</abbr></div>
-                    <div class="calendar__weekday"><h4>Jueves</h4><abbr>Jue</abbr></div>
-                    <div class="calendar__weekday"><h4>Viernes</h4><abbr>Vie</abbr></div>
-                    <div class="calendar__weekday"><h4>Sábado</h4><abbr>Sáb</abbr></div>
-                    <div class="calendar__weekday"><h4>Domingo</h4><abbr>Dom</abbr></div>
-                </section>
-            
-                <!-- Días del mes -->
-                <ol class="calendar__days">
-                    <li class="calendar__day" data-day="1">
-                        <div class="day__info"><h5>1</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="2">
-                        <div class="day__info"><h5>2</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="3">
-                        <div class="day__info"><h5>3</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="4">
-                        <div class="day__info"><h5>4</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="5">
-                        <div class="day__info"><h5>5</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="6">
-                        <div class="day__info"><h5>6</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="7">
-                        <div class="day__info"><h5>7</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="8">
-                        <div class="day__info"><h5>8</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="9">
-                        <div class="day__info"><h5>9</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="10">
-                        <div class="day__info"><h5>10</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="11">
-                        <div class="day__info"><h5>11</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="12">
-                        <div class="day__info"><h5>12</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="13">
-                        <div class="day__info"><h5>13</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="14">
-                        <div class="day__info"><h5>14</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="15">
-                        <div class="day__info"><h5>15</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="16">
-                        <div class="day__info"><h5>16</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="17">
-                        <div class="day__info"><h5>17</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="18">
-                        <div class="day__info"><h5>18</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="19">
-                        <div class="day__info"><h5>19</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="20">
-                        <div class="day__info"><h5>20</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="21">
-                        <div class="day__info"><h5>21</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="22">
-                        <div class="day__info"><h5>22</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="23">
-                        <div class="day__info"><h5>23</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="24">
-                        <div class="day__info"><h5>24</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="25">
-                        <div class="day__info"><h5>25</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="26">
-                        <div class="day__info"><h5>26</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="27">
-                        <div class="day__info"><h5>27</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="28">
-                        <div class="day__info"><h5>28</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="29">
-                        <div class="day__info"><h5>29</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="30">
-                        <div class="day__info"><h5>30</h5></div>
-                    </li>
-                    <li class="calendar__day" data-day="31">
-                        <div class="day__info"><h5>31</h5></div>
-                    </li>
-                </ol>
-            </section>
+                <nav class="segmentado" aria-label="Vista del calendario">
+                    <a href="calendario.html" class="segmentado__opcion" aria-current="page">Mes</a>
+                    <a href="semana.html" class="segmentado__opcion">Semana</a>
+                    <a href="vista_diaria.html" class="segmentado__opcion">Día</a>
+                </nav>
+            </header>
+
+            <div class="calendario__herramientas">
+                <!-- Filtro de gabinete (calendario.js) -->
+                <div class="segmentado" role="group" aria-label="Filtrar por gabinete">
+                    <button type="button" class="segmentado__opcion" data-medico="all" aria-pressed="true">Todos</button>
+                    <button type="button" class="segmentado__opcion" data-medico="med1" aria-pressed="false">Gabinete 1</button>
+                    <button type="button" class="segmentado__opcion" data-medico="med2" aria-pressed="false">Gabinete 2</button>
+                </div>
+
+                <ul class="leyenda" aria-label="Estados de las citas">
+                    <li class="leyenda__item color-estado" data-estado="pendiente">Pendiente</li>
+                    <li class="leyenda__item color-estado" data-estado="completada">Completada</li>
+                    <li class="leyenda__item color-estado" data-estado="cancelada">Cancelada</li>
+                    <li class="leyenda__item color-estado" data-estado="bloqueado">Bloqueo</li>
+                </ul>
+            </div>
+
+            <!-- Días de la semana -->
+            <div class="calendar__weekdays">
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Lunes</span><abbr title="Lunes">Lun</abbr></div>
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Martes</span><abbr title="Martes">Mar</abbr></div>
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Miércoles</span><abbr title="Miércoles">Mié</abbr></div>
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Jueves</span><abbr title="Jueves">Jue</abbr></div>
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Viernes</span><abbr title="Viernes">Vie</abbr></div>
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Sábado</span><abbr title="Sábado">Sáb</abbr></div>
+                <div class="calendar__weekday"><span class="calendar__weekday-largo">Domingo</span><abbr title="Domingo">Dom</abbr></div>
+            </div>
+
+            <!-- Días del mes (Calendar.js coloca el 1 en su columna, oculta los que
+                 sobran y pinta las citas de cada día) -->
+            <ol class="calendar__days">
+                <li class="calendar__day" data-day="1"><div class="day__info"><h5>1</h5></div></li>
+                <li class="calendar__day" data-day="2"><div class="day__info"><h5>2</h5></div></li>
+                <li class="calendar__day" data-day="3"><div class="day__info"><h5>3</h5></div></li>
+                <li class="calendar__day" data-day="4"><div class="day__info"><h5>4</h5></div></li>
+                <li class="calendar__day" data-day="5"><div class="day__info"><h5>5</h5></div></li>
+                <li class="calendar__day" data-day="6"><div class="day__info"><h5>6</h5></div></li>
+                <li class="calendar__day" data-day="7"><div class="day__info"><h5>7</h5></div></li>
+                <li class="calendar__day" data-day="8"><div class="day__info"><h5>8</h5></div></li>
+                <li class="calendar__day" data-day="9"><div class="day__info"><h5>9</h5></div></li>
+                <li class="calendar__day" data-day="10"><div class="day__info"><h5>10</h5></div></li>
+                <li class="calendar__day" data-day="11"><div class="day__info"><h5>11</h5></div></li>
+                <li class="calendar__day" data-day="12"><div class="day__info"><h5>12</h5></div></li>
+                <li class="calendar__day" data-day="13"><div class="day__info"><h5>13</h5></div></li>
+                <li class="calendar__day" data-day="14"><div class="day__info"><h5>14</h5></div></li>
+                <li class="calendar__day" data-day="15"><div class="day__info"><h5>15</h5></div></li>
+                <li class="calendar__day" data-day="16"><div class="day__info"><h5>16</h5></div></li>
+                <li class="calendar__day" data-day="17"><div class="day__info"><h5>17</h5></div></li>
+                <li class="calendar__day" data-day="18"><div class="day__info"><h5>18</h5></div></li>
+                <li class="calendar__day" data-day="19"><div class="day__info"><h5>19</h5></div></li>
+                <li class="calendar__day" data-day="20"><div class="day__info"><h5>20</h5></div></li>
+                <li class="calendar__day" data-day="21"><div class="day__info"><h5>21</h5></div></li>
+                <li class="calendar__day" data-day="22"><div class="day__info"><h5>22</h5></div></li>
+                <li class="calendar__day" data-day="23"><div class="day__info"><h5>23</h5></div></li>
+                <li class="calendar__day" data-day="24"><div class="day__info"><h5>24</h5></div></li>
+                <li class="calendar__day" data-day="25"><div class="day__info"><h5>25</h5></div></li>
+                <li class="calendar__day" data-day="26"><div class="day__info"><h5>26</h5></div></li>
+                <li class="calendar__day" data-day="27"><div class="day__info"><h5>27</h5></div></li>
+                <li class="calendar__day" data-day="28"><div class="day__info"><h5>28</h5></div></li>
+                <li class="calendar__day" data-day="29"><div class="day__info"><h5>29</h5></div></li>
+                <li class="calendar__day" data-day="30"><div class="day__info"><h5>30</h5></div></li>
+                <li class="calendar__day" data-day="31"><div class="day__info"><h5>31</h5></div></li>
+            </ol>
         </main>
     </div>
 
-    <dialog class="modal" id="appointments-modal" role="dialog" aria-labelledby="Modal vista de Citas" aria-describedby="Citas para un día en específico">
+    <dialog class="modal modal--calendario" id="appointments-modal" aria-labelledby="appointments-modal-titulo">
         <div class="modal__container">
             <section class="modal__card">
-            <header class="modal__header">
-                <h3 class="modal__heading"></h3>
-                <button type="button" class="modal__close" aria-label="Cerrar Modal"><i class="ri-close-line"></i></button>
-            </header>
-            <div class="modal__list__container">
-                <ul class="modal__list"></ul>
-            </div>
-            <footer class="modal__footer">
-                <a href="#" class="modal__button modal__button--primary modal__button--control">Ver en Control de Citas</a>
-            </footer>
-        </section>
+                <header class="modal__header">
+                    <h3 class="modal__heading" id="appointments-modal-titulo"></h3>
+                    <button type="button" class="boton boton--icono boton--fantasma modal__close" aria-label="Cerrar">
+                        <i class="ri-close-line" aria-hidden="true"></i>
+                    </button>
+                </header>
+                <div class="modal__list__container">
+                    <ol class="modal__list"></ol>
+                </div>
+                <footer class="modal__footer">
+                    <a href="vista_diaria.html" class="boton boton--secundario" id="appointments-modal-dia">
+                        <i class="ri-calendar-2-line" aria-hidden="true"></i> Ver el día
+                    </a>
+                    <a href="control.html" class="boton boton--primario modal__button--control">Ver en Control de Citas</a>
+                </footer>
+            </section>
         </div>
     </dialog>
-    
+
     <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

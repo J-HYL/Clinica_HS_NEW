@@ -3,3 +3,418 @@
 @import url("../components/calendar.css");
 @import url("../components/modal.css");
 @import url("../components/appointmentsModal.css");
+
+/* Vistas Mes (calendario.html + Calendar.js) y Semana (semana.html +
+   WeekCalendar.js) del calendario de citas. Las dos comparten la tarjeta con
+   su cabecera (navegacion + vista) y la barra de herramientas (gabinete +
+   leyenda). El color de cada cita sale de .color-estado (calendar.css).
+   Los cambios de diseño se deciden por el ANCHO DE LA TARJETA (container
+   query), no de la ventana: asi funciona igual con o sin menu lateral. */
+
+/* ================================================================ Tarjeta */
+.calendario{
+    container: calendario / inline-size;
+    margin: 20px 0 40px;   /* abajo: hueco para la burbuja de soporte */
+    overflow: hidden;
+}
+
+@media (min-width: 1024px){
+    .calendario{ margin-top: 24px; }
+}
+
+.calendario__cabecera{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+}
+
+.calendario__navegacion{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.calendario__navegacion .boton--icono{
+    width: 36px;
+    min-height: 36px;
+}
+
+.calendario__navegacion .boton i{ font-size: 1.25rem; }
+
+.calendario__titulo{
+    margin-left: 8px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: var(--hs-texto-fuerte);
+}
+
+.calendario__herramientas{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+}
+
+/* Tarjeta estrecha (movil): controles a todo el ancho, uno debajo de otro. */
+@container calendario (max-width: 559px){
+    .calendario__cabecera,
+    .calendario__herramientas{ padding: 12px 14px; }
+
+    .calendario__titulo{ font-size: 1rem; }
+
+    .calendario__cabecera > .segmentado,
+    .calendario__herramientas > .segmentado{ width: 100%; }
+
+    .segmentado__opcion{ padding: 0 8px; }
+}
+
+/* ================================================================ Mes */
+.calendar__weekdays,
+.calendar__days{
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar__weekdays{ border-bottom: 1px solid var(--hs-borde-suave); }
+
+.calendar__weekday{
+    padding: 10px 2px;
+    text-align: center;
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--hs-texto-suave);
+}
+
+.calendar__weekday abbr{ text-decoration: none; }
+.calendar__weekday-largo{ display: none; }
+
+/* Las lineas de la rejilla son el hueco de 1px entre celdas. Los huecos de
+   antes del dia 1 y despues del ultimo quedan con el color de fondo. */
+.calendar__days{
+    gap: 1px;
+    background: var(--hs-borde-suave);
+    list-style: none;
+}
+
+.calendar__day{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    min-height: 58px;
+    padding: 8px 2px;
+    background: var(--hs-superficie);
+    cursor: pointer;
+    transition: background-color .15s ease;
+}
+
+.calendar__day:hover{ background: var(--hs-hover); }
+
+.calendar__day--hidden{ display: none; }
+
+.day__info{
+    display: flex;
+    justify-content: center;
+}
+
+.day__info h5{
+    font-size: .875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--hs-texto);
+}
+
+/* Hoy: solo el numero en acento y en negrita (sin marco ni circulo). */
+.calendar__day--today .day__info h5{
+    font-weight: 700;
+    color: var(--hs-acento);
+}
+
+/* Arrastrar una cita a otro dia (Calendar.js). */
+.calendar__day.drag__over{
+    background: var(--hs-acento-suave);
+    box-shadow: inset 0 0 0 2px var(--hs-acento-claro);
+}
+
+/* Citas del dia. En la tarjeta estrecha cada cita es un punto bajo el numero
+   (con el color de su estado); en la ancha, una fila con hora y paciente. */
+.calendar__appointments{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    list-style: none;
+}
+
+.calendar__appointments li{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--estado-marca);
+}
+
+.calendar__appointments li:nth-child(n+6){ display: none; }   /* 5 puntos como mucho */
+
+.calendar__appointments li.dragging{ opacity: .5; }
+
+.calendar__cita{ display: none; }
+
+@container calendario (min-width: 640px){
+    .calendar__day{
+        min-height: 128px;
+        padding: 8px;
+    }
+
+    .day__info{ justify-content: flex-start; }
+
+    .day__info h5{
+        padding-left: 2px;
+        font-size: .9375rem;
+    }
+
+    .calendar__appointments{
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    .calendar__appointments li{
+        width: auto;
+        height: auto;
+        border-left: 3px solid var(--estado-marca);
+        border-radius: var(--hs-radio-sm);
+        background: var(--estado-fondo);
+    }
+
+    /* 3 citas por celda (= CITAS_POR_DIA en UI.js); el resto, en el modal del dia. */
+    .calendar__appointments li:nth-child(n+4){ display: none; }
+
+    .calendar__appointments[data-mas]::after{
+        content: "+" attr(data-mas) " más";
+        padding: 0 4px;
+        font-size: .6875rem;
+        font-weight: 500;
+        color: var(--hs-texto-suave);
+    }
+
+    .calendar__cita{
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        width: 100%;
+        min-width: 0;
+        padding: 4px 6px;
+        border: 0;
+        background: none;
+        color: var(--hs-texto-fuerte);
+        font-size: .6875rem;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    /* La hora solo cuando la celda da para hora + nombre (>= 900px, abajo); antes,
+       todo el sitio para el paciente (la hora sigue en el title y en el modal). */
+    .calendar__cita-hora{
+        display: none;
+        flex: 0 0 auto;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--estado-texto);
+    }
+
+    .calendar__cita-nombre{
+        min-width: 0;
+        overflow: hidden;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    [data-estado="cancelada"] > .calendar__cita .calendar__cita-nombre{
+        text-decoration: line-through;
+        text-decoration-color: var(--hs-peligro-marca);
+    }
+}
+
+@container calendario (min-width: 900px){
+    .calendar__weekday{ padding: 12px 4px; }
+    .calendar__weekday-largo{ display: inline; }
+    .calendar__weekday abbr{ display: none; }
+
+    .calendar__day{ min-height: 136px; }
+    .calendar__cita{ font-size: .75rem; }
+    .calendar__cita-hora{ display: inline; }
+}
+
+/* ================================================================ Semana
+   Rejilla horas x dias. El alto de una hora (--alto-hora) y el numero de
+   horas (--horas) los pone WeekCalendar.js en #week-grid, que es quien coloca
+   las citas: asi no hay que mantener el mismo numero en dos sitios. */
+.week__scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.week__head,
+.week__grid{
+    display: grid;
+    grid-template-columns: 56px repeat(7, minmax(0, 1fr));
+}
+
+.week__head{ border-bottom: 1px solid var(--hs-borde-suave); }
+
+.week__dayhead{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 4px;
+    border-left: 1px solid var(--hs-borde-suave);
+    color: var(--hs-texto-fuerte);
+    text-decoration: none;
+    transition: background-color .15s ease;
+}
+
+.week__dayhead:hover{ background: var(--hs-hover); }
+
+.week__dayname{
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--hs-texto-suave);
+}
+
+.week__daynum{
+    font-size: 1rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.week__dayhead--today .week__dayname,
+.week__dayhead--today .week__daynum{ color: var(--hs-acento); }
+
+.week__hour-label{
+    height: var(--alto-hora);
+    padding: 4px 8px 0 0;
+    text-align: right;
+    font-size: .6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--hs-texto-tenue);
+}
+
+.week__col{
+    position: relative;
+    min-height: calc(var(--horas) * var(--alto-hora));
+    border-left: 1px solid var(--hs-borde-suave);
+    /* Una linea por hora */
+    background-image: repeating-linear-gradient(to bottom, var(--hs-borde) 0 1px, transparent 1px var(--alto-hora));
+    transition: background-color .15s ease;
+}
+
+.week__col.drag__over{ background-color: var(--hs-acento-mas-suave); }
+
+.week__event{
+    position: absolute;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 6px;
+    overflow: hidden;
+    border-left: 3px solid var(--estado-marca);
+    border-radius: var(--hs-radio-sm);
+    background: var(--estado-fondo);
+    color: var(--hs-texto-fuerte);
+    font-size: .6875rem;
+    line-height: 1.3;
+    cursor: grab;
+}
+
+.week__event:hover{
+    z-index: 4;
+    box-shadow: inset 0 0 0 1px var(--hs-borde);
+}
+
+.week__event--dragging{ opacity: .5; }
+
+/* La hora ya la da la fila: solo se repite dentro de la cita cuando la columna
+   da para hora + nombre (>= 900px); antes, todo el sitio para el paciente. */
+.week__hora{
+    display: none;
+    flex: 0 0 auto;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--estado-texto);
+}
+
+@container calendario (min-width: 900px){
+    .week__hora{ display: inline; }
+}
+
+.week__nombre{
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.week__event[data-estado="cancelada"] .week__nombre{
+    text-decoration: line-through;
+    text-decoration-color: var(--hs-peligro-marca);
+}
+
+/* Linea de "ahora" (solo si hoy esta en la semana visible). */
+.week__now{
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    height: 2px;
+    background: var(--hs-peligro);
+    pointer-events: none;
+}
+
+.week__now::before{
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--hs-peligro);
+}
+
+/* Tarjeta estrecha: los 7 dias guardan un ancho minimo y se deslizan en
+   horizontal; la columna de horas se queda fija. */
+@container calendario (max-width: 639px){
+    .week__head,
+    .week__grid{
+        grid-template-columns: 44px repeat(7, minmax(76px, 1fr));
+    }
+
+    .week__corner,
+    .week__hours{
+        position: sticky;
+        left: 0;
+        z-index: 5;
+        background: var(--hs-superficie);
+    }
+
+    .week__hour-label{ padding-right: 6px; }
+    .week__dayhead{ padding: 8px 2px; }
+    .week__daynum{ font-size: .9375rem; }
+}

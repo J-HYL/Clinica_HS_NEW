@@ -35,11 +35,10 @@ calendarDays.forEach(dayEl => {
 attachDayClickHandlers(calendarDays, loadAppointmentsModal);
 
 // Switch de gabinete: filtra las citas mostradas por médico (med1/med2) o todas.
-const gabButtons = document.querySelectorAll(".gab-chip");
+const gabButtons = document.querySelectorAll("[data-medico]");
 gabButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    gabButtons.forEach(b => b.classList.remove("gab-chip--active"));
-    btn.classList.add("gab-chip--active");
+    gabButtons.forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
     setGabinete(btn.dataset.medico);
   });
 });

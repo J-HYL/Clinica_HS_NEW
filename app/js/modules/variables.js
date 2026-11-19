@@ -1,9 +1,3 @@
-export const appointmentStatusIcon = {
-  completada: "ri-checkbox-circle-fill",
-  pendiente: "ri-hourglass-fill",
-  cancelada: "ri-close-circle-fill"
-}
-
 export const validationFormConfig = {
     'required': {
       validate: (value) => value.trim() !== '',

@@ -1,6 +1,4 @@
-import { appointmentStatusIcon } from "../variables.js";
 import { appointmentStateContainer,
-    emptyContainer,
     formHeading, formSubmit,
     inputs,
     modalAppointmentSubmitBtn,
@@ -8,7 +6,8 @@ import { appointmentStateContainer,
     modalMedicoInput,
     modalMedicoSubmitBtn
 } from "../selectores.js";
-import { formatTime, goToControlPage } from "../funciones.js";
+import { goToControlPage } from "../funciones.js";
+import { hora } from "../formato.js";
 import { startDrag } from "../components/Calendar.js";
 import Alert from "../components/Alert.js";
 // Import actualizado para usar la API PHP/MySQL
@@ -60,7 +59,12 @@ class UI{
     }
 
     showRecordInfo(info){
-        inputs.forEach(input => input.value = info[input.name])
+        // Solo los campos que vienen en el registro: en la pagina hay otros inputs
+        // (buscadores de la barra y de la tabla, el adjunto de Soporte...) que no
+        // son del formulario y a los que no hay que tocar.
+        inputs.forEach(input => {
+            if (input.name && input.name in info) input.value = info[input.name] ?? "";
+        })
 
         //Show the appointment state input if the user is in that editing section
         if (appointmentStateContainer) {
@@ -83,144 +87,120 @@ class UI{
         select.appendChild(fragment)
     }
 
-    showRecordsNotFoundDiv(){
-        emptyContainer.classList.add("show")
-    }
 
-    removeTableRow(id){
-        const tableRow = document.querySelector(`#table tr:has(.table__btn[data-id='${id}'])`);
-        const tableExpanded = tableRow.nextElementSibling;
-        if (tableExpanded && tableExpanded.getAttribute("data-dt-row") && tableExpanded.classList.contains("child")) {
-            tableExpanded.remove();
-        }
-        tableRow.remove();
-    }
+    //* Calendar (vista Mes: Calendar.js + calendario.html)
+    // OJO (inconsistencia del proyecto): en appointments `servicio` guarda el
+    // NOMBRE DEL PACIENTE y `cliente` las OBSERVACIONES (o el fin, si es un bloqueo).
+    // El color de cada cita va por su ESTADO: data-estado + .color-estado (calendar.css).
 
-    //* Calendar
-
-    updateCalendarDayContent(container, { id, estado, servicio }){
-        const formattedStatus = estado.toLowerCase();
+    /** Añade una cita a la celda de su día: punto en la tarjeta estrecha, fila con hora y paciente en la ancha. */
+    updateCalendarDayContent(container, { id, estado, servicio, fecha }){
+        const CITAS_POR_DIA = 3; // filas visibles por celda (= nth-child(n+4) en pages/calendario.css)
+        const textoEstado = estado || "Pendiente";
+        const horaCita = hora(fecha);
 
         container.classList.add("calendar__day--content");
         const list = this.createCalendarDayList(container);
 
         const listItem = document.createElement("LI");
-        listItem.draggable = "true";
-        listItem.ondragstart = (e) => startDrag(e);
+        listItem.className = "color-estado";
+        listItem.dataset.estado = textoEstado.toLowerCase();
         listItem.dataset.id = id;
-        listItem.classList.add(`appointment__${formattedStatus}`)
+        listItem.title = `${horaCita} · ${servicio} · ${textoEstado}`;
+        listItem.draggable = true;
+        listItem.ondragstart = (e) => startDrag(e);
 
         const listButton = document.createElement("BUTTON");
-        
-        const icon = document.createElement("I");
-        icon.classList.add(appointmentStatusIcon[formattedStatus])
+        listButton.type = "button";
+        listButton.className = "calendar__cita";
 
-        const textSpan = document.createElement("SPAN");
-        textSpan.textContent = servicio;
-        textSpan.classList.add("appointment-text");
-        
-        listButton.appendChild(icon);
-        listButton.appendChild(textSpan)
-        
-        listItem.appendChild(listButton)
-        list.appendChild(listItem)
+        const horaSpan = document.createElement("SPAN");
+        horaSpan.className = "calendar__cita-hora";
+        horaSpan.textContent = horaCita;
+
+        const nombreSpan = document.createElement("SPAN");
+        nombreSpan.className = "calendar__cita-nombre";
+        nombreSpan.textContent = servicio;
+
+        listButton.append(horaSpan, nombreSpan);
+        listItem.appendChild(listButton);
+        list.appendChild(listItem);
+
+        // Las que no caben se ven en el modal del día; aquí solo "+N más".
+        const ocultas = list.children.length - CITAS_POR_DIA;
+        if (ocultas > 0) list.dataset.mas = ocultas;
     }
 
     createCalendarDayList(container){
-        const dayInfoContainer = container.querySelector(".day__info");
-
-        //Creating the appointments visual indicator button
-        let visualIndicatorBtn = dayInfoContainer.querySelector(".day__notification");
-        if (!visualIndicatorBtn) {
-            visualIndicatorBtn = document.createElement("BUTTON");
-            visualIndicatorBtn.classList.add("day__notification");
-            visualIndicatorBtn.innerHTML = '<i class="ri-information-2-fill"></i>';
-            dayInfoContainer.appendChild(visualIndicatorBtn)
-        }
-
-        //Creaing the list
         let list = container.querySelector(".calendar__appointments");
         if (!list) {
             list = document.createElement("UL");
-            list.classList.add("calendar__appointments");
-            container.appendChild(list)
+            list.className = "calendar__appointments";
+            container.appendChild(list);
         }
-
         return list;
     }
 
-    resetPreviousCalendarDay(container){
-        const appointmentsLength = container.querySelector(".calendar__appointments").children.length;
-        if (!appointmentsLength) this.cleanCalendarDay(container);
-    }
-
+    /** Fila del modal "Citas del día": hora, paciente, observaciones/gabinete y estado. */
     createCalendarModalItem({ servicio, cliente, estado, fecha, medico }){
-        const formattedStatus = estado.toLowerCase();
+        const GABINETES = { med1: "Gabinete 1", med2: "Gabinete 2" };
+        const textoEstado = estado || "Pendiente";
+        const claveEstado = textoEstado.toLowerCase();
 
         const listItem = document.createElement("LI");
-        listItem.classList.add("modal__item");
+        listItem.className = "modal-cita";
 
-        //* Item Description
-        const itemDescription = document.createElement("DIV");
-        itemDescription.classList.add("item__description");
+        const horaTime = document.createElement("TIME");
+        horaTime.className = "modal-cita__hora";
+        horaTime.dateTime = fecha;
+        horaTime.textContent = hora(fecha);
 
-        const itemIcon = document.createElement("DIV");
-        itemIcon.classList.add(`item__icon`, `item__icon--${formattedStatus}`)
-        
-        const icon = document.createElement("I");
-        icon.classList.add(appointmentStatusIcon[formattedStatus])
+        const tarjeta = document.createElement("DIV");
+        tarjeta.className = "modal-cita__tarjeta color-estado";
+        tarjeta.dataset.estado = claveEstado;
 
-        itemIcon.appendChild(icon);
+        const texto = document.createElement("DIV");
+        texto.className = "modal-cita__texto";
 
-        const itemContent = document.createElement("DIV");
-        itemContent.classList.add("item__content");
+        const paciente = document.createElement("SPAN");
+        paciente.className = "modal-cita__paciente";
+        paciente.textContent = (servicio || "").trim() || "Sin nombre";
+        texto.appendChild(paciente);
 
-        const serviceHeading = document.createElement("H6");
-        serviceHeading.classList.add("item__service")
-        serviceHeading.textContent = servicio;
+        // En un bloqueo, `cliente` es la fecha y hora de fin.
+        const observaciones = claveEstado === "bloqueado"
+            ? (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(cliente || "") ? `Hasta las ${hora(cliente)}` : "")
+            : (cliente || "").trim();
 
-        const clientSpan = document.createElement("SPAN");
-        clientSpan.classList.add("item__client");
-        clientSpan.textContent = cliente;
-
-        itemContent.appendChild(serviceHeading);
-        itemContent.appendChild(clientSpan);
-
-        //* Distintivo de gabinete (med1 -> Gabinete 1, med2 -> Gabinete 2)
-        const gabLabels = { med1: "Gabinete 1", med2: "Gabinete 2" };
-        if (gabLabels[medico]) {
-            const gabBadge = document.createElement("SPAN");
-            gabBadge.classList.add("item__gabinete", `gab--${medico}`);
-            gabBadge.textContent = gabLabels[medico];
-            itemContent.appendChild(gabBadge);
+        const detalle = document.createElement("SPAN");
+        detalle.className = "modal-cita__detalle";
+        if (observaciones) {
+            const obs = document.createElement("SPAN");
+            obs.textContent = observaciones;
+            detalle.appendChild(obs);
         }
+        if (GABINETES[medico]) {
+            const gabinete = document.createElement("SPAN");
+            gabinete.className = "gabinete";
+            gabinete.dataset.gabinete = medico;
+            gabinete.textContent = GABINETES[medico];
+            detalle.appendChild(gabinete);
+        }
+        if (detalle.childElementCount) texto.appendChild(detalle);
 
-        itemDescription.appendChild(itemIcon);
-        itemDescription.appendChild(itemContent)
+        const pastilla = document.createElement("SPAN");
+        pastilla.className = "pastilla";
+        pastilla.dataset.estado = claveEstado;
+        pastilla.textContent = textoEstado;
 
-        //* Item Date
-        const itemDate = document.createElement("DIV");
-        itemDate.classList.add("item__date");
-
-        //Obtaining the time (HH:MM)
-        const time = formatTime(new Date(fecha))
-        const hourSpan = document.createElement("SPAN");
-        hourSpan.classList.add("item__hour")
-        hourSpan.innerHTML = `<i class="ri-timer-fill"></i> ${time}`;
-
-        itemDate.appendChild(hourSpan);
-
-        //* Adding to the DOM
-        listItem.appendChild(itemDescription);
-        listItem.appendChild(itemDate);
-
+        tarjeta.append(texto, pastilla);
+        listItem.append(horaTime, tarjeta);
         modalCalendarList.appendChild(listItem);
     }
 
     cleanCalendarDay(calendarDay){
-        calendarDay.classList.remove("calendar__day--content")
-        calendarDay.querySelector(".day__info button.day__notification").remove();
-        calendarDay.querySelector("ul.calendar__appointments").remove();
+        calendarDay.classList.remove("calendar__day--content");
+        calendarDay.querySelector(".calendar__appointments")?.remove();
     }
 
     cleanHTML(container){

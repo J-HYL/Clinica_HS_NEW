@@ -10,7 +10,7 @@
 
     <!-- Scripts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
+
     <!-- Styles -->
     <link rel="stylesheet" href="/css/pages/agregar.css">
     <link rel="stylesheet" href="/css/components/modal.css">
@@ -29,26 +29,26 @@
     <div class="wrapper">
         <h1 class="page-title">Citas</h1>
 
-        <button type="button" class="sheet__trigger" id="open-form" aria-label="Crear una cita">
-            <i class="ri-add-line"></i> Crear Cita
+        <button type="button" class="boton boton--primario sheet__trigger" id="open-form">
+            <i class="ri-add-line" aria-hidden="true"></i> Crear cita
         </button>
 
         <div class="content-layout">
             <main class="container main form-sheet" id="form-sheet">
                 <span class="sheet__grabber" aria-hidden="true"></span>
                 <div class="sheet__head">
-                    <h3 class="container__heading" id="form-title">Crear Cita</h3>
-                    <button type="button" class="sheet__close" id="close-form" aria-label="Cerrar el formulario">
-                        <i class="ri-close-line"></i>
+                    <h2 class="container__heading" id="form-title">Crear Cita</h2>
+                    <button type="button" class="boton boton--icono boton--fantasma sheet__close" id="close-form" aria-label="Cerrar el formulario">
+                        <i class="ri-close-line" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <div class="form-mode" role="tablist" aria-label="Tipo de registro">
-                    <button type="button" class="form-mode__btn is-active" data-mode="cita" role="tab" aria-selected="true">
-                        <i class="ri-calendar-2-line"></i> Nueva cita
+                <div class="segmentado form-mode" role="tablist" aria-label="Tipo de registro">
+                    <button type="button" class="segmentado__opcion form-mode__btn" data-mode="cita" role="tab" aria-selected="true">
+                        <i class="ri-calendar-2-line" aria-hidden="true"></i> Nueva cita
                     </button>
-                    <button type="button" class="form-mode__btn" data-mode="bloqueo" role="tab" aria-selected="false">
-                        <i class="ri-lock-2-line"></i> Bloquear
+                    <button type="button" class="segmentado__opcion form-mode__btn" data-mode="bloqueo" role="tab" aria-selected="false">
+                        <i class="ri-lock-2-line" aria-hidden="true"></i> Bloquear
                     </button>
                 </div>
 
@@ -75,8 +75,6 @@
                         <label for="motivo" class="form__label">Motivo (opcional)</label>
                         <input type="text" id="motivo" class="form__input" placeholder="Comida, día libre, reunión..." />
                     </div>
-                  
-
 
                     <div class="form__group">
                         <label for="fecha" class="form__label">Fecha y Hora</label>
@@ -109,7 +107,7 @@
                             <option value="ambos" hidden>Ambos gabinetes</option>
                         </select>
                     </div>
-                    
+
                     <div class="form__group form__group--hidden">
                         <label for="estado">Estado</label>
                     <select id="estado" name="estado" required>
@@ -120,17 +118,25 @@
                     </div>
 
                     <div class="form__buttons">
-                        <button type="submit" class="form__submit" id="submit-btn" data-action="create">Crear Cita <i class="ri-add-line"></i></button>
-                        <a href="calendario.html" class="form__return">Regresar</a>
+                        <button type="submit" class="boton boton--primario" id="submit-btn" data-action="create">Crear Cita <i class="ri-add-line"></i></button>
+                        <a href="calendario.html" class="boton boton--secundario">Regresar</a>
                     </div>
                 </form>
             </main>
             <!--Calendario-->
-            <section class="cal-panel">
-                <div class="cal-legend" aria-hidden="true">
-                    <span class="cal-legend__item"><span class="dot dot--pend"></span>Pendiente</span>
-                    <span class="cal-legend__item"><span class="dot dot--comp"></span>Completada</span>
-                    <span class="cal-legend__item"><span class="dot dot--canc"></span>Cancelada</span>
+            <section class="tarjeta cal-panel" aria-label="Agenda del día">
+                <div class="cal-panel__cabecera">
+                    <ul class="leyenda" aria-label="Estados de las citas">
+                        <li class="leyenda__item color-estado" data-estado="pendiente">Pendiente</li>
+                        <li class="leyenda__item color-estado" data-estado="completada">Completada</li>
+                        <li class="leyenda__item color-estado" data-estado="cancelada">Cancelada</li>
+                        <li class="leyenda__item color-estado" data-estado="bloqueado">Bloqueo</li>
+                    </ul>
+                    <nav class="segmentado" aria-label="Vista del calendario">
+                        <a href="calendario.html" class="segmentado__opcion">Mes</a>
+                        <a href="semana.html" class="segmentado__opcion">Semana</a>
+                        <a href="vista_diaria.html" class="segmentado__opcion" aria-current="page">Día</a>
+                    </nav>
                 </div>
                 <div id="calendar"></div>
             </section>
@@ -139,15 +145,13 @@
         <div class="sheet__backdrop" id="sheet-backdrop"></div>
     </div>
     <!--Modal de edicion-->
-    <dialog class="modal" id="edit-modal" role="dialog"
-        aria-labelledby="Actualizar Cita"
-        aria-describedby="Modal para una Cita">
+    <dialog class="modal modal--calendario" id="edit-modal" aria-labelledby="edit-modal-titulo">
         <div class="modal__container">
             <section class="modal__card">
                 <header class="modal__header">
-                    <h3 class="modal__heading">Actualizar Cita</h3>
-                    <button type="button" class="modal__close" aria-label="Cerrar Modal">
-                    <i class="ri-close-line"></i>
+                    <h3 class="modal__heading" id="edit-modal-titulo">Actualizar Cita</h3>
+                    <button type="button" class="boton boton--icono boton--fantasma modal__close" aria-label="Cerrar">
+                        <i class="ri-close-line" aria-hidden="true"></i>
                     </button>
                 </header>
 
@@ -205,14 +209,14 @@
                 </form>
 
                 <footer class="modal__footer">
-                    <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
-                    <button type="button" class="modal__button modal__button--primary" id="update-medico">Guardar Cambios</button>
+                    <button type="button" class="boton boton--secundario modal__button--close">Cancelar</button>
+                    <button type="button" class="boton boton--primario" id="update-medico">Guardar cambios</button>
                 </footer>
             </section>
         </div>
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="../../js/pages/citas/vistaDiaria.js"></script>
-    <script type="module" src="/js/modules/components/Soporte.js"></script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/pages/citas/vistaDiaria.js" type="module"></script>
 </body>
 </html>

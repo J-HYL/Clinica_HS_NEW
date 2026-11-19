@@ -1,150 +1,83 @@
-.modal__list__container{
-    max-height: 350px;
+/* appointmentsModal.css — Lista del modal con las citas de un dia (vista Mes,
+   al pulsar un dia con citas). Es como la agenda del Resumen: hora a la
+   izquierda y cada cita con el color de su ESTADO (.color-estado, calendar.css).
+   La tarjeta del <dialog> es .modal--calendario (calendar.css). */
+
+#appointments-modal .modal__list__container{
+    max-height: min(60vh, 440px);
     overflow-y: auto;
-    width: 100%;
 }
 
-.modal__list{ 
+#appointments-modal .modal__list{
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 16px 24px;
-    gap: 16px;
-}
-
-.modal__item{
-    width: 100%;
+    gap: 10px;
+    padding: 16px 20px;
     list-style: none;
-    padding: 8px 10px;
-    border-radius: 8px;
-    background-color: var(--background);
-    display: grid;
-    grid-template-columns: 1fr 80px;
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
 }
 
-.item__description{
+.modal-cita{
     display: flex;
-    align-items: center;
     gap: 12px;
 }
 
-.item__icon{
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    font-size: 1.25em;
+.modal-cita__hora{
+    flex: 0 0 40px;
+    padding-top: 13px;
+    text-align: right;
+    font-size: .6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--hs-texto-tenue);
 }
 
-.item__icon--completada{
-    background-color: var(--calendar-green-status);
+.modal-cita__tarjeta{
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 14px;
+    border-left: 3px solid var(--estado-marca);
+    border-radius: var(--hs-radio);
+    background: var(--estado-fondo);
 }
 
-.item__icon--completada i, .modal__item:has(.item__icon--completada) .item__hour i{
-    color: var(--green);
-}
-
-.item__icon--pendiente{
-    background-color: var(--calendar-orange-status);
-}
-
-.item__icon--pendiente i, .modal__item:has(.item__icon--pendiente) .item__hour i{
-    color: var(--orange);
-}
-
-.item__icon--cancelada{
-    background-color: var(--calendar-red-status);
-}
-
-.item__icon--cancelada i, .modal__item:has(.item__icon--cancelada) .item__hour i{
-    color: var(--red);
-}
-
-.item__content{
+.modal-cita__texto{
     display: flex;
     flex-direction: column;
+    gap: 4px;
+    min-width: 0;
 }
 
-.item__service{
-    font-size: 0.875em;
-    font-weight: 500;
-    color: var(--dark-gray);
-}
-
-.item__client{
-    font-size: 0.625em;
-    color: var(--light-gray);
-}
-
-/* Distintivo de gabinete: pastilla con punto de color (azul = 1, morado = 2) */
-.item__gabinete{
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    width: fit-content;
-    margin-top: 5px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.625em;
+.modal-cita__paciente{
+    overflow: hidden;
+    font-size: .875rem;
     font-weight: 600;
+    color: var(--hs-texto-fuerte);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.item__gabinete::before{
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex: 0 0 auto;
-}
-.item__gabinete.gab--med1{ background: rgba(43, 128, 247, .12); color: #1c5fb8; }
-.item__gabinete.gab--med1::before{ background: #2b80f7; }
-.item__gabinete.gab--med2{ background: rgba(149, 92, 255, .14); color: #6a3fd0; }
-.item__gabinete.gab--med2::before{ background: #955cff; }
 
-.item__hour{
+.modal-cita__tarjeta[data-estado="cancelada"] .modal-cita__paciente{
+    text-decoration: line-through;
+    text-decoration-color: var(--hs-peligro-marca);
+}
+
+.modal-cita__detalle{
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2px;
-    font-size: 0.625em;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
 }
 
-.modal__button--primary{
-    text-decoration: none;
-}
+.modal-cita .pastilla{ background: var(--hs-superficie); }
 
-@container modal (min-width: 400px){
-    .item__icon{
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        font-size: 1.75em;
-    }
-
-    .item__service{
-        font-size: 1em;
-    }
-    
-    .item__client{
-        font-size: 0.75em;
-        color: var(--light-gray);
-    }
-
-    .item__gabinete{
-        font-size: 0.6875em;
-    }
-
-    .item__hour{
-        font-size: 0.75em;
-    }
-}
-
-@container modal (min-width: 500px){
-    .item__hour{
-        font-size: 0.875em;
-    }
+@container modal (max-width: 379px){
+    #appointments-modal .modal__list{ padding: 12px 14px; }
+    #appointments-modal .modal__footer .boton{ flex: 1 1 auto; }
+    .modal-cita{ gap: 8px; }
+    .modal-cita .pastilla{ display: none; }
 }

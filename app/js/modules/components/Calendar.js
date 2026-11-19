@@ -1,5 +1,6 @@
 import { calendarDays, calendarHeading, firstDayGrid, linkAppointmentsControlBtn, modalCalendarList, modalHeading } from "../selectores.js";
-import { formatDateRange, formatDateString, formatFecha, formatTitle, reloadPage } from "../funciones.js";
+import { formatDateString, formatFecha, formatTitle, reloadPage } from "../funciones.js";
+import { fechaISO } from "../formato.js";
 import { openModal } from "./Modal.js";
 import UI from "../classes/UI.js";
 import DB from "../classes/DB_API.js";
@@ -41,8 +42,9 @@ export function renderCalendar() {
         if (todayCell) todayCell.classList.add("calendar__day--today");
     }
 
-    //Get monthly appointments
-    DB.getMonthlyAppointments(formatDateRange([firstMonthDate, lastMonthDate]))
+    //Get monthly appointments. Rango en dia LOCAL (toISOString() lo pasaria a UTC
+    //y se perderia el ultimo dia del mes y entraria el ultimo del anterior).
+    DB.getMonthlyAppointments([`${fechaISO(firstMonthDate)}T00:00`, `${fechaISO(lastMonthDate)}T23:59`])
         .then(appointments => {
             displayAppointmentsInCalendar(appointments);
         })
@@ -50,8 +52,9 @@ export function renderCalendar() {
 }
 
 export function setMonth(step){
-    const currentMonth = currentDate.getMonth();
-    currentDate.setMonth(currentMonth + step);
+    // Dia 1 antes de cambiar de mes: desde un 31, setMonth(+1) saltaria un mes.
+    currentDate.setDate(1);
+    currentDate.setMonth(currentDate.getMonth() + step);
     renderCalendar()
 }
 
@@ -115,6 +118,7 @@ function displayAppointmentsInModal(appointments){
     // La tabla filtra las fechas por su valor mostrado (DD/MM/YYYY), así que el
     // término de búsqueda debe ir en ese mismo formato, no en ISO.
     linkAppointmentsControlBtn.href = `control.html?search=${encodeURIComponent(formatFecha(date.slice(0, 10)))}`;
+    document.getElementById("appointments-modal-dia").href = `vista_diaria.html?date=${date.slice(0, 10)}`;
 
     openModal();
 }
@@ -196,7 +200,7 @@ export async function dropAppointment(e) {
 }
 /**
  * Gestiona el click en cada día del calendario mensual:
- * - Si el <li> tiene citas, abre el modal y añade botón “Ver el día”
+ * - Si el <li> tiene citas, abre el modal (con su enlace "Ver el día")
  * - Si no, redirige a vista_diaria.html?date=YYYY-MM-DD
  */
 export function attachDayClickHandlers(calendarDays, modalLoaderFn) {
@@ -204,41 +208,14 @@ export function attachDayClickHandlers(calendarDays, modalLoaderFn) {
     dayEl.addEventListener("click", e => {
       e.stopPropagation();
 
-      // extraer día, mes y año
-      const day   = dayEl.dataset.day;
-      const title = document.getElementById("calendar-date").textContent.trim();
-      const parts     = title.split(" ");
-      const mesNombre = parts[0];
-      const año       = parts[parts.length - 1];
-      const meses     = [
-        "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-        "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-      ];
-      const mm  = String(meses.indexOf(mesNombre) + 1).padStart(2,"0");
-      const dd  = String(day).padStart(2,"0");
-      const iso = `${año}-${mm}-${dd}`;
-
       if (dayEl.classList.contains("calendar__day--content")) {
-        // abre el modal con tus citas
         modalLoaderFn(e);
-
-        // añade botón “Ver el día” (si no existe aún)
-        const footer = document
-          .getElementById("appointments-modal")
-          .querySelector(".modal__footer");
-        if (!footer.querySelector(".modal__button--view-day")) {
-          const btn = document.createElement("a");
-          btn.textContent = "Ver el día";
-          btn.href      = `/pages/citas/vista_diaria.html?date=${iso}`;
-          btn.className = "modal__button modal__button--view-day";
-          btn.style.textDecoration = "none";
-          btn.style.color = "var(--color-primary)";
-          footer.appendChild(btn);
-        }
-      } else {
-        // no hay citas: directa a vista diaria
-        window.location.href = `/pages/citas/vista_diaria.html?date=${iso}`;
+        return;
       }
+
+      // no hay citas: directa a la vista diaria de ese día
+      const dia = new Date(currentDate.getFullYear(), currentDate.getMonth(), Number(dayEl.dataset.day));
+      window.location.href = `/pages/citas/vista_diaria.html?date=${fechaISO(dia)}`;
     });
   });
 }
