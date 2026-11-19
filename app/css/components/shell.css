@@ -297,7 +297,7 @@ body:has(#pre-env-banner) .sidebar{
 }
 
 /* Buscador de pacientes: formulario GET a la lista de pacientes, que ya filtra
-   con ?search= (Datatables.js). Sin JS. */
+   con ?search= (tablas.js). Sin JS. */
 .topbar__buscador{
     display: none;
     align-items: center;

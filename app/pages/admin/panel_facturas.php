@@ -14,7 +14,6 @@ if (empty($_SESSION['facturas_admin'])) {
     <title>HS Dental - Admin</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="/css/lib/datatables.min.css" />
     <link rel="stylesheet" href="/css/pages/control.css">
 
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
@@ -32,7 +31,6 @@ if (empty($_SESSION['facturas_admin'])) {
         .tabs__salir{ margin-left: auto; color: #c62a22; font-weight: 600; font-size: .9rem; text-decoration: none;
             display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; }
         .tabs__salir:hover{ background: #fdeceb; }
-        .admin-empty{ text-align: center; color: #9ca3af; padding: 40px 16px; }
 
         /* Modal Registrar pago */
         dialog.pago-modal{ margin: auto; width: 460px; max-width: calc(100vw - 24px); border: none; border-radius: 16px;
@@ -71,20 +69,18 @@ if (empty($_SESSION['facturas_admin'])) {
 
             <!-- Tab Facturas -->
             <div class="tab-panel" id="panel-facturas">
-                <div class="admin-empty" id="facturas-empty" hidden>No hay facturas emitidas todavía.</div>
-                <table id="table-facturas"></table>
+                <div id="table-facturas"></div>
             </div>
 
             <!-- Tab Pagos -->
             <div class="tab-panel" id="panel-pagos" hidden>
-                <div class="main__group">
+                <div class="lista__cabecera">
                     <h3 class="container__heading">Pagos registrados</h3>
-                    <div class="main__actions">
-                        <a href="#" class="main__action" id="btn-registrar-pago"><span>Registrar pago</span> <i class="ri-add-line"></i></a>
+                    <div class="lista__acciones">
+                        <a href="#" class="boton boton--primario boton--pequeno" id="btn-registrar-pago"><i class="ri-add-line" aria-hidden="true"></i> Registrar pago</a>
                     </div>
                 </div>
-                <div class="admin-empty" id="pagos-empty" hidden>No hay pagos registrados todavía.</div>
-                <table id="table-pagos"></table>
+                <div id="table-pagos"></div>
             </div>
         </main>
     </div>
@@ -124,7 +120,6 @@ if (empty($_SESSION['facturas_admin'])) {
     </dialog>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/lib/datatables.min.js"></script>
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/admin/panel-admin.js" type="module"></script>
 </body>

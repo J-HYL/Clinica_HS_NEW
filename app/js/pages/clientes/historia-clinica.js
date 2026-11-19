@@ -79,24 +79,12 @@ function resolveDiagnostico() {
   return diagnostico;
 }
 
-// Aplica la vista de la tabla de tratamientos (columnas ocultas, filtro por paciente
-// y cálculo de la deuda total). Se registra ANTES de que DataTable se inicialice.
-function applyTreatmentsTableView(patientId) {
-  $('#table').one('init.dt', function () {
-    const dataTable = $('#table').DataTable();
-    dataTable.columns([0, 1, 7, 8, 9, 10]).visible(false);
-    dataTable.column(1).search('^' + patientId + '$', true, false).draw();
-
-    const deudaPacienteSpan = document.getElementById("deuda-paciente");
-    let totalDeuda = 0;
-    const filteredTreatments = dataTable.rows({ search: 'applied' }).data().toArray();
-    if (filteredTreatments.length > 0) {
-      totalDeuda = filteredTreatments.reduce((sum, treatment) => sum + parseFloat(treatment.deuda || 0), 0);
-    }
-    if (deudaPacienteSpan) {
-      deudaPacienteSpan.textContent = `${totalDeuda.toFixed(2)} €`;
-    }
-  });
+// Carga los tratamientos del paciente en la tabla y pone su deuda total en la ficha.
+async function cargarTratamientos(patientId) {
+  const tabla = await showTreatmentsByClientId(patientId);
+  const totalDeuda = (tabla?.filas || []).reduce((sum, t) => sum + parseFloat(t.deuda || 0), 0);
+  const deudaPacienteSpan = document.getElementById("deuda-paciente");
+  if (deudaPacienteSpan) deudaPacienteSpan.textContent = `${totalDeuda.toFixed(2)} €`;
 }
 
 // ---- Apertura del modal ----
@@ -198,8 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('edad').textContent = ' ' + pacienteData.edad || 'No disponible';
     document.title = `Historia Clínica - ${pacienteData.nombre}`;
 
-    await showTreatmentsByClientId(patientId);
-    applyTreatmentsTableView(patientId);
+    await cargarTratamientos(patientId);
 
     // Sección de visitas del paciente (componente reutilizable)
     mountVisitas({ container: document.getElementById("visitas-section"), clientId: patientId });
@@ -309,8 +296,7 @@ async function guardarNuevoTratamiento() {
     modal.close();
     setCreateMode();
 
-    await showTreatmentsByClientId(patientId);
-    applyTreatmentsTableView(patientId);
+    await cargarTratamientos(patientId);
 
   } catch (err) {
     Swal.fire({
@@ -363,8 +349,7 @@ async function guardarEdicionTratamiento() {
     modal.close();
     setCreateMode();
 
-    await showTreatmentsByClientId(patientId);
-    applyTreatmentsTableView(patientId);
+    await cargarTratamientos(patientId);
 
     Swal.fire({
       icon: "success",
@@ -427,10 +412,6 @@ tabButtons.forEach(tab => {
     if (panelTratamientos) panelTratamientos.hidden = target !== "tratamientos";
     if (panelVisitas) panelVisitas.hidden = target !== "visitas";
     if (panelSolicitudes) panelSolicitudes.hidden = target !== "solicitudes";
-    // Al volver a Tratamientos, recalcular anchos de la DataTable (estuvo oculta).
-    if (target === "tratamientos" && window.$ && $.fn.DataTable && $.fn.DataTable.isDataTable("#table")) {
-      $("#table").DataTable().columns.adjust();
-    }
   });
 });
 

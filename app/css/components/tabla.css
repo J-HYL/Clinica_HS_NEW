@@ -1,0 +1,354 @@
+/* tabla.css — Estilos de la tabla UNICA del panel (Tabla.js).
+   Escritorio: tabla alineada. Movil (<768px): la misma tabla como tarjetas,
+   con el titulo de cada dato sacado de data-titulo. Solo tokens. */
+
+.tabla{
+    display: block;
+    min-width: 0;
+}
+
+/* Tarjeta de pagina que contiene una tabla: cabecera (titulo + acciones) y Tabla. */
+.lista{ margin-top: 24px; }
+
+.lista__acciones{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Cabecera (titulo + acciones) de una tabla dentro de un bloque con su propio
+   relleno (.container), donde no hay .tarjeta__cabecera. */
+.lista__cabecera{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Dentro de un .container el bloque ya tiene relleno: la tabla no suma el suyo. */
+.container .tabla{ --tabla-margen: 0px; }
+
+/* ---------------------------------------------------------------- Barra */
+.tabla__barra{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 16px var(--tabla-margen, 20px);
+}
+
+.tabla__buscador{
+    display: flex;
+    flex: 1 1 260px;
+    align-items: center;
+    gap: 8px;
+    max-width: 360px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--hs-borde-control);
+    border-radius: var(--hs-radio);
+    background: var(--hs-superficie);
+    color: var(--hs-texto-tenue);
+}
+
+.tabla__buscador:focus-within{
+    border-color: var(--hs-acento-claro);
+    box-shadow: var(--hs-foco);
+}
+
+.tabla__buscador input{
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--hs-texto);
+    font-size: .8125rem;
+}
+
+.tabla__buscador input::placeholder{ color: var(--hs-texto-tenue); }
+
+/* ---------------------------------------------------------------- Tabla (escritorio) */
+.tabla__marco{
+    overflow-x: auto;
+    border-top: 1px solid var(--hs-borde-suave);
+}
+
+.tabla__barra + .tabla__marco{ border-top: 0; }
+
+.tabla__tabla{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .8125rem;
+}
+
+.tabla__th{
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--hs-borde);
+    background: var(--hs-superficie-suave);
+    color: var(--hs-texto-suave);
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.tabla__th--fin{ text-align: right; }
+
+/* Primera y ultima columna alineadas con el margen del bloque. */
+.tabla__th:first-child, .tabla__celda:first-child{ padding-left: var(--tabla-margen, 20px); }
+.tabla__th:last-child, .tabla__celda:last-child{ padding-right: var(--tabla-margen, 20px); }
+
+.tabla__orden{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+}
+
+.tabla__orden i{
+    font-size: 12px;
+    opacity: .45;
+}
+
+.tabla__orden:hover{ color: var(--hs-texto); }
+
+th[aria-sort="ascending"] .tabla__orden,
+th[aria-sort="descending"] .tabla__orden{ color: var(--hs-acento); }
+
+th[aria-sort="ascending"] .tabla__orden i,
+th[aria-sort="descending"] .tabla__orden i{ opacity: 1; }
+
+.tabla__celda{
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+    color: var(--hs-texto);
+    vertical-align: middle;
+}
+
+.tabla__fila:last-child .tabla__celda{ border-bottom: 0; }
+
+.tabla__fila:hover .tabla__celda{ background: var(--hs-hover); }
+
+.tabla__celda--principal{
+    font-weight: 500;
+    color: var(--hs-texto-fuerte);
+}
+
+.tabla__celda--fin{
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tabla__celda--fecha{
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tabla__celda--imagen{ width: 56px; }
+
+.tabla__nada{ color: var(--hs-texto-tenue); }
+
+/* Texto secundario dentro de una celda (p. ej. "Categoria · Ubicacion"). */
+.tabla__detalle{
+    display: block;
+    margin-top: 2px;
+    font-size: .75rem;
+    font-weight: 400;
+    color: var(--hs-texto-suave);
+}
+
+.tabla__acciones{
+    display: flex;
+    justify-content: flex-end;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+.tabla__acciones .boton{ color: var(--hs-texto-suave); }
+.tabla__acciones .boton:hover{ color: var(--hs-acento); background: var(--hs-acento-mas-suave); }
+.tabla__acciones .boton[data-tono="peligro"]:hover{ color: var(--hs-peligro); background: var(--hs-peligro-suave); }
+
+/* Fila que pide atencion (p. ej. pago con factura solicitada). */
+.tabla__fila--aviso .tabla__celda{ background: var(--hs-aviso-suave); }
+
+/* Fila a la que se llega desde un aviso (Tabla.resaltar). */
+.tabla__fila--resaltada .tabla__celda{
+    background: var(--hs-acento-suave);
+    transition: background-color .4s ease;
+}
+
+/* ---------------------------------------------------------------- Estados */
+.tabla__estado{ border-top: 1px solid var(--hs-borde-suave); }
+.tabla__barra + .tabla__marco .tabla__estado{ border-top: 0; }
+
+.tabla__girando{ animation: tabla-girar 1s linear infinite; }
+
+@keyframes tabla-girar{ to{ transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce){
+    .tabla__girando{ animation: none; }
+}
+
+/* ---------------------------------------------------------------- Pie */
+.tabla__pie{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 12px var(--tabla-margen, 20px);
+    border-top: 1px solid var(--hs-borde-suave);
+}
+
+.tabla__contador{
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
+}
+
+.tabla__paginacion{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Con una sola pagina sobran las flechas (el selector de filas sigue). */
+.tabla__paginacion--una [data-pagina],
+.tabla__paginacion--una .tabla__pagina{ display: none; }
+
+.tabla__pagina{
+    min-width: 48px;
+    font-size: .75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--hs-texto-suave);
+    text-align: center;
+}
+
+.tabla__por-pagina select{
+    height: 32px;
+    margin-right: 8px;
+    padding: 0 8px;
+    border: 1px solid var(--hs-borde-control);
+    border-radius: var(--hs-radio-sm);
+    background: var(--hs-superficie);
+    color: var(--hs-texto);
+    font-size: .75rem;
+}
+
+/* ---------------------------------------------------------------- Movil: tarjetas */
+@media (max-width: 767px){
+    .tabla__barra{ padding: 12px var(--tabla-margen, 16px); }
+    .tabla__buscador{ max-width: none; }
+
+    .tabla__marco{
+        overflow: visible;
+        padding: 0 var(--tabla-margen, 12px) 4px;
+        border-top: 0;
+    }
+
+    .tabla__tabla,
+    .tabla__tabla tbody{ display: block; }
+
+    /* Las cabeceras siguen para lectores de pantalla, pero no se ven. */
+    .tabla__tabla thead{
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .tabla__fila{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 16px;
+        border: 1px solid var(--hs-borde);
+        border-radius: var(--hs-radio);
+        background: var(--hs-superficie);
+    }
+
+    .tabla__fila + .tabla__fila{ margin-top: 10px; }
+
+    .tabla__fila:hover .tabla__celda{ background: none; }
+    .tabla__fila--aviso{ background: var(--hs-aviso-suave); }
+    .tabla__fila--aviso .tabla__celda,
+    .tabla__fila--resaltada .tabla__celda{ background: none; }
+    .tabla__fila--resaltada{ background: var(--hs-acento-suave); }
+
+    .tabla__celda{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0;
+        border: 0;
+        text-align: right;
+    }
+
+    .tabla__celda:first-child,
+    .tabla__celda:last-child{
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .tabla__celda::before{
+        content: attr(data-titulo);
+        flex: 0 0 auto;
+        color: var(--hs-texto-tenue);
+        font-size: .75rem;
+        text-align: left;
+    }
+
+    .tabla__celda--principal{
+        order: -1;
+        display: block;
+        font-size: .9375rem;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .tabla__celda--principal::before,
+    .tabla__celda--imagen::before,
+    .tabla__celda--acciones::before{ content: none; }
+
+    .tabla__celda--imagen{
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        width: auto;
+    }
+
+    .tabla__fila:has(.tabla__celda--imagen) .tabla__celda--principal{
+        min-height: 44px;
+        padding-right: 60px;
+    }
+
+    .tabla__celda--escritorio{ display: none; }
+
+    .tabla__celda--acciones{
+        order: 99;
+        display: block;
+        margin-top: 4px;
+        padding-top: 10px;
+        border-top: 1px solid var(--hs-borde-suave);
+    }
+
+    .tabla__pie{
+        justify-content: center;
+        padding: 12px var(--tabla-margen, 16px);
+        border-top: 0;
+    }
+}

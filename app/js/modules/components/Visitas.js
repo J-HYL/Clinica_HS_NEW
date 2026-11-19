@@ -1,89 +1,45 @@
 // modules/components/Visitas.js
-// Componente REUTILIZABLE de visitas (tabla de datos completa).
+// Componente REUTILIZABLE de visitas.
 //  - Ficha de paciente:  mountVisitas({ container, clientId })  -> visitas de ese paciente.
 //  - Vista global:        mountVisitas({ container })            -> todas las visitas.
-// Incluye: alta (también global, con selector de paciente), edición, borrado,
-// buscador, filtro por paciente y rango de fechas, orden por columnas, paginación y stats.
-// Inyecta su propio modal y estilos; requiere Swal (SweetAlert2) y RemixIcon en la página.
+// La lista es la tabla comun del panel (Tabla.js): buscador, orden y paginacion.
+// Aqui queda lo propio: alta (tambien global, con selector de paciente), edicion,
+// borrado, filtro por paciente y rango de fechas, y el total cobrado de lo filtrado.
+// Inyecta su propio modal; requiere Swal (SweetAlert2) y RemixIcon en la pagina.
 
 import DB from "../classes/DB_API.js";
 import { escapeHtml } from "../html.js";
+import { euros } from "../formato.js";
+import Tabla from "./Tabla.js";
 
 let stylesInjected = false;
 let modalEl = null;
 const wiredContainers = new WeakSet();
 
-const PAGE_SIZES = [10, 25, 50, 100];
-
 // Estado del montaje actual (una vista de visitas por página).
 const ctx = {
   clientId: null,
   container: null,
+  tabla: null,
   editingId: null,
   visits: [],        // todas las visitas cargadas
-  view: [],          // tras filtros + orden
   patients: null,    // cache de todos los pacientes (para el alta global)
-  sortKey: "fecha",
-  sortDir: "desc",
-  page: 1,
-  pageSize: 10,
-  search: "",
   patientFilter: "",
   dateFrom: "",
   dateTo: ""
 };
 
 // ---------------- Estilos (una sola vez) ----------------
+// Solo los filtros de fechas y el modal: la lista es la tabla comun (tabla.css).
 function injectStyles() {
   if (stylesInjected) return;
   stylesInjected = true;
   const style = document.createElement("style");
   style.id = "visitas-styles";
   style.textContent = `
-  .viz-wrap { margin-top: 8px; }
-  .viz-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
-  .viz-head h3 { margin:0; font-size:1.15rem; color:#1f2937; }
-  .viz-add { display:inline-flex; align-items:center; gap:6px; background:#3b82f6; color:#fff; border:none; border-radius:8px; padding:9px 15px; font-size:.9rem; font-weight:600; cursor:pointer; transition:background .2s; }
-  .viz-add:hover { background:#2563eb; }
-
-  .viz-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px; }
-  .viz-search, .viz-filter { padding:9px 12px; border:1px solid #d0d5dd; border-radius:8px; font-size:.9rem; background:#fff; }
-  .viz-search { min-width:240px; flex:1 1 240px; max-width:360px; }
-  .viz-daterange { display:inline-flex; align-items:center; gap:6px; font-size:.82rem; color:#667085; }
-  .viz-daterange input { padding:7px 10px; border:1px solid #d0d5dd; border-radius:8px; font-size:.85rem; font-family:inherit; }
-
-  .viz-stats { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
-  .viz-chip { background:#eef2ff; color:#3730a3; border-radius:999px; padding:5px 12px; font-size:.82rem; }
-  .viz-chip strong { color:#1e1b4b; }
-
-  .viz-table-wrap { overflow-x:auto; border:1px solid #e6e8ef; border-radius:12px; }
-  table.viz-table { width:100%; border-collapse:collapse; min-width:680px; background:#fff; }
-  table.viz-table th, table.viz-table td { padding:11px 14px; text-align:left; border-bottom:1px solid #eef0f4; font-size:.9rem; vertical-align:top; }
-  table.viz-table thead th { background:#f8f9fb; color:#667085; font-weight:600; font-size:.75rem; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; }
-  table.viz-table th.viz-th-sort { cursor:pointer; user-select:none; }
-  table.viz-table th.viz-th-sort:hover { color:#3b82f6; }
-  table.viz-table th.viz-th-sort.is-active { color:#3b82f6; }
-  table.viz-table tbody tr:last-child td { border-bottom:none; }
-  table.viz-table tbody tr:hover { background:#f9fafb; }
-  .viz-obs { max-width:280px; white-space:pre-wrap; word-break:break-word; color:#475467; }
-  .viz-pago { font-weight:600; color:#059669; white-space:nowrap; }
-  .viz-pago--none { color:#98a2b3; }
-  .viz-link { color:#3b82f6; text-decoration:none; font-weight:600; }
-  .viz-link:hover { text-decoration:underline; }
-  .viz-actions { display:flex; gap:6px; }
-  .viz-btn { width:32px; height:32px; border:none; border-radius:6px; cursor:pointer; display:grid; place-items:center; font-size:1rem; color:#fff; }
-  .viz-btn--edit { background:#3b82f6; }
-  .viz-btn--del { background:#ef4444; }
-  .viz-empty { text-align:center; color:#98a2b3; padding:28px; }
-
-  .viz-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:.85rem; color:#667085; }
-  .viz-foot-left { display:flex; align-items:center; gap:10px; }
-  .viz-pagesize { padding:6px 8px; border:1px solid #d0d5dd; border-radius:8px; font-size:.82rem; background:#fff; }
-  .viz-pager { display:flex; align-items:center; gap:4px; }
-  .viz-pager button { border:1px solid #d0d5dd; background:#fff; color:#344054; border-radius:8px; padding:6px 11px; font-size:.85rem; cursor:pointer; }
-  .viz-pager button:hover:not(:disabled) { background:#f2f4f7; }
-  .viz-pager button:disabled { opacity:.45; cursor:default; }
-  .viz-pageinfo { padding:0 8px; white-space:nowrap; }
+  .viz-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px; }
+  .viz-toolbar .form__input { width:auto; }
+  .viz-daterange { display:inline-flex; align-items:center; gap:6px; font-size:.8125rem; color:var(--hs-texto-suave); }
 
   /* Modal */
   dialog.viz-modal { border:none; background:transparent; padding:0; margin:0; width:100vw; height:100vh; max-width:100vw; max-height:100vh; }
@@ -172,34 +128,65 @@ export async function mountVisitas({ container, clientId = null } = {}) {
   ctx.clientId = clientId ? String(clientId) : null;
   ctx.container = container;
   ctx.editingId = null;
-  ctx.page = 1;
-  ctx.search = ""; ctx.patientFilter = ""; ctx.dateFrom = ""; ctx.dateTo = "";
-  ctx.sortKey = "fecha"; ctx.sortDir = "desc";
+  ctx.patientFilter = ""; ctx.dateFrom = ""; ctx.dateTo = "";
   renderShell();
   await reload();
 }
 
 function renderShell() {
   const isPatient = !!ctx.clientId;
-  const filters = isPatient
-    ? `<input type="text" class="viz-search" id="viz-search" placeholder="Buscar por doctor, tratamiento, nota...">`
-    : `<input type="text" class="viz-search" id="viz-search" placeholder="Buscar por paciente, doctor, tratamiento...">
-       <select class="viz-filter" id="viz-patient-filter"><option value="">Todos los pacientes</option></select>
-       <label class="viz-daterange">Desde <input type="date" id="viz-date-from"></label>
-       <label class="viz-daterange">Hasta <input type="date" id="viz-date-to"></label>`;
+  const filtros = isPatient ? "" : `
+      <div class="viz-toolbar">
+        <select class="form__input form__input--select" id="viz-patient-filter" aria-label="Filtrar por paciente"><option value="">Todos los pacientes</option></select>
+        <label class="viz-daterange">Desde <input type="date" class="form__input" id="viz-date-from"></label>
+        <label class="viz-daterange">Hasta <input type="date" class="form__input" id="viz-date-to"></label>
+      </div>`;
   ctx.container.innerHTML = `
-    <div class="viz-wrap">
-      <div class="viz-head">
-        <h3>${isPatient ? "Visitas del paciente" : "Todas las visitas"}</h3>
-        <button class="viz-add" data-add><i class="ri-add-line"></i> Registrar visita</button>
+    <div class="lista__cabecera">
+      <div>
+        <h3 class="container__heading">${isPatient ? "Visitas del paciente" : "Todas las visitas"}</h3>
+        <p class="tarjeta__subtitulo" data-viz-total></p>
       </div>
-      <div class="viz-toolbar">${filters}</div>
-      <div class="viz-stats" id="viz-stats"></div>
-      <div class="viz-table-wrap"><table class="viz-table" id="viz-table"></table></div>
-      <div class="viz-foot" id="viz-foot"></div>
+      <div class="lista__acciones">
+        <button type="button" class="boton boton--primario boton--pequeno" data-add><i class="ri-add-line" aria-hidden="true"></i> Registrar visita</button>
+      </div>
     </div>
+    ${filtros}
+    <div data-viz-tabla></div>
   `;
+  ctx.tabla = new Tabla(ctx.container.querySelector("[data-viz-tabla]"), {
+    etiqueta: isPatient ? "Visitas del paciente" : "Visitas",
+    registro: ["visita", "visitas"],
+    vacio: "Sin visitas registradas todavía",
+    buscador: { placeholder: isPatient ? "Buscar por doctor, tratamiento, nota…" : "Buscar por paciente, doctor, tratamiento…" },
+    orden: { clave: "fecha", dir: "desc" },
+    columnas: columnas(isPatient),
+    acciones: (v) => `
+      <button type="button" class="boton boton--icono boton--fantasma" data-edit="${escapeHtml(v.id)}" title="Editar" aria-label="Editar visita"><i class="ri-edit-line" aria-hidden="true"></i></button>
+      <button type="button" class="boton boton--icono boton--fantasma" data-tono="peligro" data-del="${escapeHtml(v.id)}" title="Borrar" aria-label="Borrar visita"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>`,
+    // Total cobrado de lo que se ve (con buscador y filtros aplicados).
+    alPintar: (visibles) => {
+      const cobrado = visibles.reduce((s, v) => s + (parseFloat(v.pago_de_visita) || 0), 0);
+      ctx.container.querySelector("[data-viz-total]").textContent = `Total cobrado: ${euros(cobrado)}`;
+    },
+  });
   wireContainerEvents();
+}
+
+function columnas(isPatient) {
+  const comunes = [
+    { clave: "fecha", titulo: "Fecha", tipo: "fecha", rol: isPatient ? "principal" : undefined },
+    { clave: "tratamiento_nombre", titulo: "Tratamiento" },
+    { clave: "doctor", titulo: "Doctor" },
+    { clave: "observaciones", titulo: "Observaciones" },
+    { clave: "pago_de_visita", titulo: "Pago", tipo: "dinero" },
+  ];
+  if (isPatient) return comunes;
+  const nombre = (v) => v.cliente_nombre || ("Paciente #" + v.client_id);
+  return [{
+    clave: "cliente_nombre", titulo: "Paciente", rol: "principal", texto: nombre, valor: nombre,
+    celda: (v) => `<a class="enlace" href="/pages/clientes/historia-clinica.html?id=${encodeURIComponent(v.client_id)}">${escapeHtml(nombre(v))}</a>`,
+  }, ...comunes];
 }
 
 function wireContainerEvents() {
@@ -213,10 +200,6 @@ function wireContainerEvents() {
 function onContainerClick(e) {
   const add = e.target.closest("[data-add]");
   if (add) { openCreate(); return; }
-  const th = e.target.closest("[data-sort]");
-  if (th) { toggleSort(th.dataset.sort); return; }
-  const pg = e.target.closest("[data-page]");
-  if (pg) { gotoPage(pg.dataset.page); return; }
   const ed = e.target.closest("[data-edit]");
   if (ed) { openEdit(ed.dataset.edit); return; }
   const del = e.target.closest("[data-del]");
@@ -224,23 +207,23 @@ function onContainerClick(e) {
 }
 
 function onContainerInput(e) {
-  if (e.target.id === "viz-search") { ctx.search = e.target.value; ctx.page = 1; refresh(); }
-  else if (e.target.id === "viz-date-from") { ctx.dateFrom = e.target.value; ctx.page = 1; refresh(); }
-  else if (e.target.id === "viz-date-to") { ctx.dateTo = e.target.value; ctx.page = 1; refresh(); }
+  if (e.target.id === "viz-date-from") { ctx.dateFrom = e.target.value; aplicarFiltros(); }
+  else if (e.target.id === "viz-date-to") { ctx.dateTo = e.target.value; aplicarFiltros(); }
 }
 
 function onContainerChange(e) {
-  if (e.target.id === "viz-patient-filter") { ctx.patientFilter = e.target.value; ctx.page = 1; refresh(); }
-  else if (e.target.hasAttribute("data-pagesize")) { ctx.pageSize = parseInt(e.target.value); ctx.page = 1; refresh(); }
+  if (e.target.id === "viz-patient-filter") { ctx.patientFilter = e.target.value; aplicarFiltros(); }
 }
 
 async function reload() {
+  ctx.tabla.cargando();
   const visits = ctx.clientId
     ? await DB.getVisitsByClientId(ctx.clientId)
     : await DB.getAllVisits();
   ctx.visits = visits || [];
+  ctx.tabla.datos(ctx.visits);
   populatePatientFilter();
-  refresh();
+  aplicarFiltros();
 }
 
 function populatePatientFilter() {
@@ -259,146 +242,15 @@ function populatePatientFilter() {
     options.map(([id, name]) => `<option value="${id}"${id === ctx.patientFilter ? " selected" : ""}>${escapeHtml(name)}</option>`).join("");
 }
 
-// ---------------- Filtros / orden / render ----------------
-function computeView() {
-  let arr = ctx.visits.slice();
-  if (ctx.patientFilter) arr = arr.filter(v => String(v.client_id) === String(ctx.patientFilter));
-  if (ctx.dateFrom) arr = arr.filter(v => (v.fecha || "").slice(0, 10) >= ctx.dateFrom);
-  if (ctx.dateTo) arr = arr.filter(v => (v.fecha || "").slice(0, 10) <= ctx.dateTo);
-  const q = ctx.search.trim().toLowerCase();
-  if (q) {
-    arr = arr.filter(v =>
-      `${v.cliente_nombre || ""} ${v.doctor || ""} ${v.tratamiento_nombre || ""} ${v.observaciones || ""}`
-        .toLowerCase().includes(q));
-  }
-  arr.sort((a, b) => compareVisits(a, b, ctx.sortKey, ctx.sortDir));
-  ctx.view = arr;
-  const pages = Math.max(1, Math.ceil(arr.length / ctx.pageSize));
-  if (ctx.page > pages) ctx.page = pages;
-  if (ctx.page < 1) ctx.page = 1;
-}
-
-function compareVisits(a, b, key, dir) {
-  let cmp;
-  if (key === "fecha") {
-    const va = a.fecha || "", vb = b.fecha || "";
-    cmp = va < vb ? -1 : va > vb ? 1 : 0;
-  } else if (key === "pago_de_visita") {
-    cmp = (parseFloat(a.pago_de_visita) || 0) - (parseFloat(b.pago_de_visita) || 0);
-  } else {
-    // Texto (paciente, tratamiento, doctor): orden español (tildes/ñ) coherente con el desplegable.
-    cmp = String(a[key] || "").localeCompare(String(b[key] || ""), "es", { sensitivity: "base" });
-  }
-  return dir === "desc" ? -cmp : cmp;
-}
-
-function toggleSort(key) {
-  if (ctx.sortKey === key) ctx.sortDir = ctx.sortDir === "asc" ? "desc" : "asc";
-  else { ctx.sortKey = key; ctx.sortDir = key === "fecha" ? "desc" : "asc"; }
-  ctx.page = 1;
-  refresh();
-}
-
-function gotoPage(dir) {
-  const pages = Math.max(1, Math.ceil(ctx.view.length / ctx.pageSize));
-  if (dir === "first") ctx.page = 1;
-  else if (dir === "prev") ctx.page = Math.max(1, ctx.page - 1);
-  else if (dir === "next") ctx.page = Math.min(pages, ctx.page + 1);
-  else if (dir === "last") ctx.page = pages;
-  refresh();
-}
-
-function refresh() {
-  computeView();
-  renderStats();
-  renderTable();
-  renderFooter();
-}
-
-function columns() {
-  const isPatient = !!ctx.clientId;
-  const cFecha = { label: "Fecha", key: "fecha", sortable: true, render: v => formatFechaVisita(v.fecha) };
-  const cTrat = { label: "Tratamiento", key: "tratamiento_nombre", sortable: true, render: v => escapeHtml(v.tratamiento_nombre || "—") };
-  const cDoctor = { label: "Doctor", key: "doctor", sortable: true, render: v => escapeHtml(v.doctor || "—") };
-  const cObs = { label: "Observaciones", sortable: false, render: v => `<div class="viz-obs">${escapeHtml(v.observaciones || "—")}</div>` };
-  const cPago = { label: "Pago", key: "pago_de_visita", sortable: true, render: v => pagoHtml(v) };
-  const cActions = { label: "", sortable: false, render: v => actionsHtml(v) };
-  if (isPatient) return [cFecha, cTrat, cDoctor, cObs, cPago, cActions];
-  const cPaciente = {
-    label: "Paciente", key: "cliente_nombre", sortable: true, render: v => {
-      const nombre = v.cliente_nombre || ("Paciente #" + v.client_id);
-      return `<a class="viz-link" href="/pages/clientes/historia-clinica.html?id=${v.client_id}">${escapeHtml(nombre)}</a>`;
-    }
-  };
-  return [cPaciente, cFecha, cTrat, cDoctor, cObs, cPago, cActions];
-}
-
-function renderTable() {
-  const cols = columns();
-  const table = ctx.container.querySelector("#viz-table");
-  if (!ctx.view.length) {
-    const msg = ctx.visits.length ? "Ninguna visita coincide con el filtro." : "Sin visitas registradas todavía.";
-    table.innerHTML = `<tbody><tr><td class="viz-empty">${msg}</td></tr></tbody>`;
-    return;
-  }
-  const start = (ctx.page - 1) * ctx.pageSize;
-  const rows = ctx.view.slice(start, start + ctx.pageSize);
-  const head = `<thead><tr>${cols.map(c => {
-    if (!c.sortable) return `<th>${c.label}</th>`;
-    const active = ctx.sortKey === c.key;
-    const arrow = active ? (ctx.sortDir === "asc" ? " ▲" : " ▼") : "";
-    return `<th class="viz-th-sort${active ? " is-active" : ""}" data-sort="${c.key}">${c.label}${arrow}</th>`;
-  }).join("")}</tr></thead>`;
-  const body = `<tbody>${rows.map(v => `<tr>${cols.map(c => `<td>${c.render(v)}</td>`).join("")}</tr>`).join("")}</tbody>`;
-  table.innerHTML = head + body;
-}
-
-function renderStats() {
-  const el = ctx.container.querySelector("#viz-stats");
-  const total = ctx.view.length;
-  const cobrado = ctx.view.reduce((s, v) => s + (parseFloat(v.pago_de_visita) || 0), 0);
-  el.innerHTML =
-    `<span class="viz-chip"><strong>${total}</strong> ${total === 1 ? "visita" : "visitas"}</span>` +
-    `<span class="viz-chip">Total cobrado: <strong>${cobrado.toFixed(2)} €</strong></span>`;
-}
-
-function renderFooter() {
-  const el = ctx.container.querySelector("#viz-foot");
-  const total = ctx.view.length;
-  const pages = Math.max(1, Math.ceil(total / ctx.pageSize));
-  const start = total ? (ctx.page - 1) * ctx.pageSize + 1 : 0;
-  const end = Math.min(ctx.page * ctx.pageSize, total);
-  const first = ctx.page <= 1 ? "disabled" : "";
-  const last = ctx.page >= pages ? "disabled" : "";
-  el.innerHTML = `
-    <div class="viz-foot-left">
-      <span>Mostrando ${start}–${end} de ${total}</span>
-      <select class="viz-pagesize" data-pagesize>
-        ${PAGE_SIZES.map(n => `<option value="${n}"${n === ctx.pageSize ? " selected" : ""}>${n} / pág.</option>`).join("")}
-      </select>
-    </div>
-    <div class="viz-pager">
-      <button type="button" data-page="first" ${first} title="Primera">«</button>
-      <button type="button" data-page="prev" ${first}>‹ Anterior</button>
-      <span class="viz-pageinfo">Página ${ctx.page} de ${pages}</span>
-      <button type="button" data-page="next" ${last}>Siguiente ›</button>
-      <button type="button" data-page="last" ${last} title="Última">»</button>
-    </div>
-  `;
-}
-
-function pagoHtml(v) {
-  const tiene = v.pago_de_visita !== null && v.pago_de_visita !== undefined && v.pago_de_visita !== "";
-  return tiene
-    ? `<span class="viz-pago">${parseFloat(v.pago_de_visita).toFixed(2)} €</span>`
-    : `<span class="viz-pago--none">—</span>`;
-}
-
-function actionsHtml(v) {
-  return `<div class="viz-actions">
-      <button class="viz-btn viz-btn--edit" data-edit="${v.id}" title="Editar"><i class="ri-edit-box-fill"></i></button>
-      <button class="viz-btn viz-btn--del" data-del="${v.id}" title="Borrar"><i class="ri-delete-bin-fill"></i></button>
-    </div>`;
+// Filtro por paciente y rango de fechas (el texto lo busca la propia tabla).
+function aplicarFiltros() {
+  const { patientFilter, dateFrom, dateTo } = ctx;
+  ctx.tabla.filtro(patientFilter || dateFrom || dateTo ? (v) => {
+    const dia = (v.fecha || "").slice(0, 10);
+    return (!patientFilter || String(v.client_id) === String(patientFilter))
+      && (!dateFrom || dia >= dateFrom)
+      && (!dateTo || dia <= dateTo);
+  } : null);
 }
 
 // ---------------- Alta / edición ----------------
@@ -597,13 +449,3 @@ function toLocalInput(dbDate) {
   if (!dbDate) return nowLocal();
   return String(dbDate).replace(" ", "T").slice(0, 16);
 }
-
-function formatFechaVisita(value) {
-  if (!value) return "—";
-  const [datePart, timePart = ""] = String(value).replace("T", " ").split(" ");
-  const [y, m, d] = datePart.split("-");
-  if (!y || !m || !d || y === "0000") return "—";
-  const [hh, mm] = timePart.split(":");
-  return `${d}/${m}/${y}` + (hh && mm ? ` ${hh}:${mm}` : "");
-}
-

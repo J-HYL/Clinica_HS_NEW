@@ -9,7 +9,6 @@
 
     <link rel="stylesheet" href="/css/pages/agregar.css">
     <link rel="stylesheet" href="/css/pages/control.css">
-    <link rel="stylesheet" href="/css/lib/datatables.min.css" />
     <link rel="stylesheet" href="../../css/components/modal.css">
 
 
@@ -73,17 +72,6 @@
 
     .ri-money-dollar-circle-fill {
         font-size: x-large;
-    }
-
-    .main__table-wrapper {
-        overflow-x: auto;
-        padding: 0 1rem; /* espacio lateral */
-    }
-
-    .main__table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 600px; /* evita que se aplaste demasiado en móvil */
     }
 
     .container__heading,
@@ -358,30 +346,13 @@
             </details>
             <details class="card">
                 <summary class="card__summary"><i class="ri-money-dollar-circle-fill"></i>  Historial de pagos</summary>
-                    <div class="main__group">
+                    <div class="lista__cabecera">
                         <h3 class="container__heading" id="deuda-h3"></h3>
-                        <div class="main__actions">
-                            <a href="#" class="main__action" id="crear-pago"><span>Nuevo pago</span> <i class="ri-add-line"></i></a>
+                        <div class="lista__acciones">
+                            <a href="#" class="boton boton--primario boton--pequeno" id="crear-pago"><i class="ri-add-line" aria-hidden="true"></i> Nuevo pago</a>
                         </div>
                     </div>
-                    <div class="main__loading">
-                        <div class="sk-chase">
-                            <div class="sk-chase-dot"></div>
-                            <div class="sk-chase-dot"></div>
-                            <div class="sk-chase-dot"></div>
-                            <div class="sk-chase-dot"></div>
-                            <div class="sk-chase-dot"></div>
-                            <div class="sk-chase-dot"></div>
-                        </div>
-                        <p class="loading__message">Obteniendo los registros...</p>
-                    </div>
-                    <div class="main__empty">
-                        <img src="/assets/svg/empty-illustration.svg" alt="Not Found Records Illustration">
-                        <p class="empty__message">No se encontraron registros para esta sección...</p>
-                    </div>
-                    <div class="main__table-wrapper">
-                        <table class="main__table" id="table"></table>
-                    </div>
+                    <div id="table"></div>
             </details>
 
             <details class="card">
@@ -473,7 +444,6 @@
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/lib/datatables.min.js"></script>
     <!-- Datos de clinica (window.Clinica): lo usa "Generar factura" por pago. -->
     <script src="/js/modules/components/clinica.js"></script>
     <script src="/js/main.js" type="module"></script>

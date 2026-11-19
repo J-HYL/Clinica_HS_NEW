@@ -35,36 +35,17 @@
             </div>
 
             <div class="tac-contenido">
-                <div class="main__group">
-                    <h3 class="container__heading">Estudios TAC (CBCT)</h3>
-                    <div class="main__actions">
-                        <button type="button" id="enlace" class="main__action"><span>Enlace centros</span> <i class="ri-links-line"></i></button>
-                        <button type="button" id="anadir" class="main__action"><span>Añadir TAC</span> <i class="ri-add-line"></i></button>
+                <div class="lista__cabecera">
+                    <div>
+                        <h3 class="container__heading">Estudios TAC (CBCT)</h3>
+                        <p class="tarjeta__subtitulo" id="sin-asignar" hidden></p>
+                    </div>
+                    <div class="lista__acciones">
+                        <button type="button" id="enlace" class="boton boton--secundario boton--pequeno"><i class="ri-links-line" aria-hidden="true"></i> Enlace centros</button>
+                        <button type="button" id="anadir" class="boton boton--primario boton--pequeno"><i class="ri-add-line" aria-hidden="true"></i> Añadir TAC</button>
                     </div>
                 </div>
 
-                <div class="tac-filtros">
-                    <label for="buscador" class="form__label">Buscar</label>
-                    <input type="search" id="buscador" class="form__input" placeholder="Paciente, descripción o equipo..." autocomplete="off">
-                </div>
-
-                <div class="main__loading">
-                    <div class="sk-chase">
-                        <div class="sk-chase-dot"></div>
-                        <div class="sk-chase-dot"></div>
-                        <div class="sk-chase-dot"></div>
-                        <div class="sk-chase-dot"></div>
-                        <div class="sk-chase-dot"></div>
-                        <div class="sk-chase-dot"></div>
-                    </div>
-                    <p class="loading__message">Obteniendo los estudios...</p>
-                </div>
-                <div class="main__empty">
-                    <img src="/assets/svg/empty-illustration.svg" alt="Sin estudios">
-                    <p class="empty__message">No hay estudios TAC todavía. Pulsa «Añadir TAC» para subir el primero.</p>
-                </div>
-
-                <p class="tac-contador" id="contador"></p>
                 <div id="lista"></div>
             </div>
         </main>

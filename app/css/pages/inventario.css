@@ -25,14 +25,6 @@
     flex: 1 1 160px;
 }
 
-/* El botón de escanear convive en .main__actions con el enlace de crear, que es
-   un <a>: hay que quitarle lo que el navegador le pone por ser <button>. */
-button.main__action{
-    border: none;
-    font-family: inherit;
-    cursor: pointer;
-}
-
 /* --- Botón de ayuda --- */
 
 .main__titulo{
@@ -41,7 +33,7 @@ button.main__action{
     gap: 12px;
 }
 
-/* En la ficha el título va suelto (no dentro de .main__group), así que necesita
+/* En la ficha el título va suelto (no dentro de .lista__cabecera), así que necesita
    el mismo margen inferior que tenía el h3 por su cuenta. */
 .main--ancho .main__titulo{
     margin-bottom: 4px;
@@ -516,210 +508,25 @@ button.main__action{
     cursor: pointer;
 }
 
-/* --- Listado de inventario (TablaInventario.js) ---
-   Una sola estructura para las dos vistas: en el móvil cada elemento es una
-   tarjeta (foto + nombre + stock, y debajo el pie con las acciones), y a partir
-   de tablet las mismas piezas se colocan en columnas de tabla. El cambio es
-   solo de CSS (grid-template-areas), no se vuelve a pintar nada. */
-
-.inv-contador{
-    margin: 20px 0 10px;
-    font-size: 0.8125em;
-    color: var(--pale-gray);
-}
-
-.inv-lista__cabecera{
-    display: none;   /* en el móvil no hay cabecera de tabla: sobra */
-}
-
-.inv-lista__items{
+/* --- Listado (tabla comun, Tabla.js) ---
+   Solo lo propio del inventario: la miniatura de la foto. El resto (tarjetas en
+   el movil, tabla en escritorio, situacion con .pastilla) es la tabla comun. */
+.inv-foto{
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    list-style: none;
-}
-
-.inv-fila{
-    padding: 12px;
-    border: 1px solid #DCE0EA;
-    border-radius: 12px;
-    background-color: #fff;
-    display: grid;
-    grid-template-columns: 52px 1fr auto;
-    grid-template-areas:
-        "foto principal stock"
-        "pie  pie       pie"
-        "caducidad caducidad caducidad";
     align-items: center;
-    gap: 10px 12px;
-}
-
-.inv-fila__foto{
-    grid-area: foto;
-    width: 52px;
-    height: 52px;
-    border: 1px solid #DCE0EA;
-    border-radius: 8px;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
     overflow: hidden;
-    background-color: #fff;
+    border-radius: var(--hs-radio-sm);
+    background: var(--hs-neutro-suave);
+    color: var(--hs-texto-tenue);
 }
 
-.inv-fila__foto img{
+.inv-foto img{
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-}
-
-.inv-fila__sinfoto{
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
-    color: var(--pale-gray);
-}
-
-.inv-fila__principal{
-    grid-area: principal;
-    min-width: 0;   /* deja que el texto largo se recorte en vez de ensanchar la fila */
-}
-
-.inv-fila__nombre{
-    font-weight: 600;
-    font-size: 0.9375em;
-    color: var(--dark-gray);
-}
-
-.inv-fila__meta{
-    margin-top: 2px;
-    font-size: 0.8125em;
-    color: var(--light-gray);
-}
-
-.inv-fila__stock{
-    grid-area: stock;
-    text-align: right;
-}
-
-.inv-stock{
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 600;
-    white-space: nowrap;
-    color: var(--dark-gray);
-}
-
-.inv-stock--bajo{
-    color: var(--red);
-}
-
-/* Pie de la tarjeta: en el móvil pone situación y acciones en una línea; en
-   escritorio se deshace (display: contents) y sus hijos pasan a ser columnas de
-   la rejilla de la fila.
-   El contenedor hace falta: sin él ambos caían en la MISMA celda de la rejilla
-   y se pintaban uno encima de otro. */
-.inv-fila__pie{
-    grid-area: pie;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;   /* si no caben seguidos, los botones bajan a su línea */
-    gap: 8px 10px;
-}
-
-/* La caducidad cierra la tarjeta, separada del resto: es un dato de consulta,
-   no una acción, y ahí no compite con los botones. */
-.inv-fila__caducidad{
-    grid-area: caducidad;
-    padding-top: 9px;
-    border-top: 1px solid #EEF1F6;
-    font-size: 0.8125em;
-    color: var(--light-gray);
-    white-space: nowrap;
-}
-
-.inv-fila__etiqueta{
-    color: var(--pale-gray);
-}
-
-.inv-fila__acciones{
-    display: flex;
-    gap: 8px;
-    margin-left: auto;   /* a la derecha, comparta línea o baje a la suya */
-    flex-shrink: 0;      /* los botones nunca se encogen: hay que poder tocarlos */
-}
-
-/* Los .table__btn del resto de la app miden 30px, que con el ratón sobra pero
-   con el dedo se falla. Aquí se agrandan solo en móvil, sin tocar los demás. */
-@media (max-width: 600px){
-    .inv-fila__acciones .table__btn{
-        width: 40px;
-        height: 40px;
-    }
-}
-
-@media (min-width: 860px){
-    .inv-lista__cabecera, .inv-fila{
-        grid-template-columns: 52px minmax(180px, 1fr) 120px 120px 120px 116px;
-        grid-template-areas: "foto principal stock caducidad estado acciones";
-    }
-
-    /* El pie se deshace: sus hijos entran directos en la rejilla de la fila. */
-    .inv-fila__pie{
-        display: contents;
-    }
-
-    /* Aquí la caducidad es una columna más, no la línea de cierre de la tarjeta. */
-    .inv-fila__caducidad{
-        padding-top: 0;
-        border-top: none;
-    }
-
-    .inv-lista__cabecera{
-        display: grid;
-        gap: 12px;
-        padding: 0 12px 8px;
-        font-size: 0.8125em;
-        font-weight: 600;
-        color: var(--pale-gray);
-    }
-
-    .inv-fila__caducidad{ grid-area: caducidad; justify-self: start; }
-    .inv-fila__estado{ grid-area: estado; justify-self: start; }
-    .inv-fila__acciones{ grid-area: acciones; justify-self: end; }
-
-    /* En columna propia la palabra "Caducidad" ya está en la cabecera. */
-    .inv-fila__etiqueta{ display: none; }
-}
-
-/* Etiqueta de situación: mismos colores que .table__status (citas), pero sin
-   ser un botón, porque aquí el estado no abre ningún modal. */
-.table__tag{
-    display: inline-block;
-    width: min-content;
-    padding: 4px 12px;
-    border: 1px solid #000;
-    border-radius: 4px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.table__tag--operativo{
-    border-color: var(--green-status);
-    color: var(--green-status);
-    background-color: var(--light-green-status);
-}
-
-.table__tag--revision{
-    border-color: var(--orange-status);
-    color: var(--orange-status-text-color);
-    background-color: var(--light-orange-status);
-}
-
-.table__tag--baja{
-    border-color: var(--red);
-    color: var(--red);
-    background-color: var(--light-red-status);
 }
 
 /* --- Capturador de foto (FotoCaptura.js) --- */

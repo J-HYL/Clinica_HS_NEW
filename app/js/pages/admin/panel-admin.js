@@ -2,10 +2,11 @@
 //  - Facturas: lista de facturas emitidas (tabla propia).
 //  - Pagos: vista general de todos los pagos, con "Registrar pago" (cliente +
 //    tratamiento) y por cada fila recibo / convertir en factura / descargar.
-// Reutiliza createTableInstance (dos tablas via opts) y setTableEventsListeners
-// (recibo/factura) del panel; el POST de pago es el mismo que en tratamientos.
+// Las dos listas son la tabla comun (Tabla.js, columnas en tablas.js) y reutiliza
+// setTableEventsListeners (recibo/factura) del panel; el POST de pago es el
+// mismo que en tratamientos.
 import DB from "../../modules/classes/DB_API.js";
-import { createTableInstance } from "../../modules/components/Datatables.js";
+import { obtenerTabla } from "../../modules/tablas.js";
 import { setTableEventsListeners } from "../../modules/funciones.js";
 
 const $ = (s) => document.querySelector(s);
@@ -23,45 +24,35 @@ function initTabs() {
       botones.forEach((b) => b.classList.toggle("tab--active", b === btn));
       paneles.facturas.hidden = t !== "facturas";
       paneles.pagos.hidden = t !== "pagos";
-      // Recalcular anchos de la tabla que estaba oculta (jQuery global; aquí $ es querySelector).
-      const tabla = t === "facturas" ? "#table-facturas" : "#table-pagos";
-      const jq = window.jQuery;
-      if (jq && jq.fn.DataTable && jq.fn.DataTable.isDataTable(tabla)) {
-        jq(tabla).DataTable().columns.adjust();
-      }
     });
   });
 }
 
-// -------------------------------------------------------------- facturas
-async function cargarFacturas() {
-  const empty = $("#facturas-empty");
-  const table = $("#table-facturas");
+// Carga una lista en su tabla: "cargando", datos o el error en la propia tabla.
+async function cargarLista(entidad, contenedor, peticion, mensajeError) {
+  const tabla = obtenerTabla(entidad, contenedor);
+  tabla.cargando();
   try {
-    const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error || "Error al cargar facturas");
-    const facturas = data.facturas || [];
-    if (!facturas.length) { empty.hidden = false; table.style.display = "none"; return; }
-    empty.hidden = true; table.style.display = "";
-    createTableInstance(facturas, { tableSelector: "#table-facturas", objectStore: "facturas" });
+    tabla.datos(await peticion());
   } catch (e) {
-    empty.hidden = false; empty.textContent = "No se pudieron cargar las facturas.";
+    tabla.error(mensajeError);
   }
 }
 
+// -------------------------------------------------------------- facturas
+function cargarFacturas() {
+  return cargarLista("facturas", $("#table-facturas"), async () => {
+    const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || "Error al cargar facturas");
+    return data.facturas || [];
+  }, "No se pudieron cargar las facturas.");
+}
+
 // ----------------------------------------------------------------- pagos
-async function cargarPagos() {
-  const empty = $("#pagos-empty");
-  const table = $("#table-pagos");
-  try {
-    const pagos = await DB.getPaymentsGeneral();
-    if (!Array.isArray(pagos) || !pagos.length) { empty.hidden = false; table.style.display = "none"; return; }
-    empty.hidden = true; table.style.display = "";
-    createTableInstance(pagos, { tableSelector: "#table-pagos", objectStore: "payments" });
-  } catch (e) {
-    empty.hidden = false; empty.textContent = "No se pudieron cargar los pagos.";
-  }
+function cargarPagos() {
+  return cargarLista("pagosGenerales", $("#table-pagos"), () => DB.getPaymentsGeneral(),
+    "No se pudieron cargar los pagos.");
 }
 
 // Recibo / factura / descargar / borrar de cada pago (misma lógica que en tratamientos).

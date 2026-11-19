@@ -40,15 +40,26 @@ export function fechaCorta(texto) {
   return aFecha(texto)?.toLocaleDateString(LOCALE, { day: "numeric", month: "short", year: "numeric" }).replace(".", "") ?? "";
 }
 
+/**
+ * Fecha de BD ('AAAA-MM-DD[ T]HH:MM[:SS]' o 'AAAA-MM-DD') como 'DD/MM/AAAA' o
+ * 'DD/MM/AAAA HH:MM'. Trabaja sobre el texto (sin new Date) para no desfasar
+ * por zona horaria. '0000-00-00' (basura en datos reales) -> "".
+ */
+export function formatFecha(value) {
+  if (!value) return "";
+  const [datePart, timePart = ""] = String(value).replace("T", " ").split(" ");
+  const [y, m, d] = datePart.split("-");
+  if (!y || !m || !d) return String(value); // formato no reconocido
+  if (y === "0000") return "";
+  let out = `${d}/${m}/${y}`;
+  const [hh, mm] = timePart.split(":");
+  if (hh && mm) out += ` ${hh}:${mm}`;
+  return out;
+}
+
 /** "09:30" de 'AAAA-MM-DD HH:MM:SS' */
 export function hora(texto) {
   return String(texto || "").slice(11, 16) || "--:--";
-}
-
-/** Nombre del mes anterior al de 'AAAA-MM-DD': "octubre" */
-export function mesAnterior(iso) {
-  const f = aFecha(iso);
-  return new Date(f.getFullYear(), f.getMonth() - 1, 1).toLocaleDateString(LOCALE, { month: "long" });
 }
 
 /** 1.248 (con separador de miles tambien en 4 cifras) */
@@ -65,14 +76,6 @@ export function euros(n, decimales = 2) {
     maximumFractionDigits: decimales,
     useGrouping: "always",
   }).format(Number(n) || 0);
-}
-
-/** Variacion porcentual: { texto: "+12,6 %", sube: true }, o null si no hay base. */
-export function variacion(actual, anterior) {
-  if (!anterior) return null;
-  const pct = ((actual - anterior) / anterior) * 100;
-  const texto = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 1, signDisplay: "always" }).format(pct) + " %";
-  return { texto, sube: pct >= 0 };
 }
 
 /** "María García López" -> "MG" */

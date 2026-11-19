@@ -574,23 +574,6 @@ function renderOdontograma() {
 }
 
 
-// Resalta y hace scroll a la fila del pago indicado (deep-link ?pago= desde la
-// campana de avisos del panel). Best-effort: si el pago no está en la página
-// visible de la tabla, no hace nada.
-function resaltarPagoSolicitado(pagoId) {
-  if (!pagoId) return;
-  setTimeout(() => {
-    const btn = document.querySelector(`#table [data-id="${CSS.escape(String(pagoId))}"]`);
-    const fila = btn && btn.closest("tr");
-    if (!fila) return;
-    fila.scrollIntoView({ behavior: "smooth", block: "center" });
-    fila.style.transition = "background-color .4s";
-    const prev = fila.style.backgroundColor;
-    fila.style.backgroundColor = "#fff4cc";
-    setTimeout(() => { fila.style.backgroundColor = prev; }, 2600);
-  }, 350);
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
 
   const params = new URLSearchParams(window.location.search); 
@@ -630,16 +613,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Esto llamará a document.getElementById y solo actualizará si el elemento existe.
     await actualizarDeudaTratamientoUI(currentTreatmentId);
 
-    // Cargar los pagos relacionados con este tratamiento usando showRecords
-    await showRecordsP("payments", currentTreatmentId);
-    setTimeout(() => {
-      const dataTable = $('#table').DataTable();
-      dataTable.columns([1, 2]).visible(false);
-    }, 200);
+    // Pagos de este tratamiento. Desde la campana de avisos (?pago=) se llega
+    // a ese pago: la tabla va a su pagina y lo resalta.
+    const tablaPagos = await showRecordsP("payments", currentTreatmentId);
     await loadExistingFiles();
-
-    // Deep-link desde la campana de avisos del panel: resaltar el pago (?pago=).
-    resaltarPagoSolicitado(params.get("pago"));
+    if (params.get("pago")) tablaPagos?.resaltar(params.get("pago"));
 
     // NUEVA LÓGICA PARA CARGAR Y PINTAR DIENTES DEL ODONTOGRAMA
     piezasData = await DB.getPiecesByTreatmentId(currentTreatmentId);

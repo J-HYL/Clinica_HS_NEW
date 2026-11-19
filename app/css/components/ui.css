@@ -73,6 +73,55 @@
 }
 .enlace:hover{ text-decoration: underline; text-underline-offset: 3px; }
 
+/* ---------------------------------------------------------------- Campos
+   Los usan formularios, modales y filtros de todas las pantallas. */
+.form__group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form__group--hidden{ display: none; }
+
+.form__label{
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--hs-texto);
+}
+
+.form__input, .form__textarea{
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--hs-borde-control);
+    border-radius: var(--hs-radio-sm);
+    background-color: var(--hs-superficie);
+    color: var(--hs-texto-fuerte);
+    font-size: .875rem;
+    font-weight: 400;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.form__input::placeholder, .form__textarea::placeholder{ color: var(--hs-texto-tenue); }
+
+.form__input--select{
+    appearance: none;
+    padding-right: 40px;
+    background-image: url('../../assets/svg/chevron-down.svg');
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+}
+
+.form__input:focus-visible, .form__textarea:focus-visible{
+    outline: none;
+    border-color: var(--hs-acento-claro);
+    box-shadow: var(--hs-foco);
+}
+
+.form__input.error{ border-color: var(--hs-peligro-marca); }
+.form__input.error + span{ color: var(--hs-peligro); }
+.form__input.error:focus-visible{ box-shadow: 0 0 0 3px var(--hs-peligro-suave); }
+
 /* ---------------------------------------------------------------- Tarjetas */
 .tarjeta{
     background: var(--hs-superficie);
@@ -120,9 +169,22 @@
     font-weight: 600;
     white-space: nowrap;
 }
-.pastilla[data-estado="pendiente"]{ background: var(--hs-aviso-suave); color: var(--hs-aviso); }
-.pastilla[data-estado="completada"]{ background: var(--hs-exito-suave); color: var(--hs-exito); }
-.pastilla[data-estado="cancelada"]{ background: var(--hs-peligro-suave); color: var(--hs-peligro); }
+.pastilla[data-estado="pendiente"],
+.pastilla[data-tono="aviso"]{ background: var(--hs-aviso-suave); color: var(--hs-aviso); }
+.pastilla[data-estado="completada"],
+.pastilla[data-tono="exito"]{ background: var(--hs-exito-suave); color: var(--hs-exito); }
+.pastilla[data-estado="cancelada"],
+.pastilla[data-tono="peligro"]{ background: var(--hs-peligro-suave); color: var(--hs-peligro); }
+.pastilla[data-tono="acento"]{ background: var(--hs-acento-suave); color: var(--hs-acento); }
+
+/* Pastilla que ademas es boton (p. ej. el estado de una cita, que abre su modal). */
+.pastilla--boton{
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+    transition: box-shadow .15s ease;
+}
+.pastilla--boton:hover{ box-shadow: inset 0 0 0 1px currentColor; }
 
 /* Iniciales del paciente en un circulo. */
 .iniciales{

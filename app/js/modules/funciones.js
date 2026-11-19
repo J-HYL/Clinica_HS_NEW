@@ -3,8 +3,7 @@ import { validationFormConfig } from "./variables.js";
 import {clientInput, form, formSubmit, inputs, serviceInput } from "./selectores.js";
 import Alert from "./components/Alert.js";
 import { openModal, openMedicoModal } from "./components/Modal.js";
-import { createTableInstance } from "./components/Datatables.js";
-import { hideSpinnerSection } from "./components/Spinner.js";
+import { obtenerTabla } from "./tablas.js";
 import DB from "./classes/DB_API.js";
 import UI from "./classes/UI.js";
 import { construirFacturaHtml } from "./components/facturaHtml.js";
@@ -152,37 +151,42 @@ export function showSelectRecords(){
         .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
 }
 
-//* Datatables Functions
+//* Tablas (componente unico Tabla.js; columnas de cada entidad en tablas.js)
 
-function displayRecordsInTable(records){
-  if ($.fn.DataTable.isDataTable('#table')) {
-    $('#table').DataTable().clear().destroy();
+/**
+ * Carga registros en la tabla #table de la pagina: "cargando" mientras llegan,
+ * los datos al llegar, o el error dentro de la propia tabla (sin bloquear la
+ * pagina). Devuelve la Tabla (o null si fallo) para quien quiera resaltar una
+ * fila o leer los datos.
+ */
+async function cargarEnTabla(entidad, peticion) {
+  const tabla = obtenerTabla(entidad);
+  tabla.cargando();
+  try {
+    return tabla.datos(await peticion);
+  } catch (error) {
+    tabla.error(escapeHtml(error.message || "No se pudieron cargar los registros."));
+    return null;
   }
-    createTableInstance(records);
-    hideSpinnerSection();
 }
 
-//Function to show the records in the datatable
 export function showRecords(objectStore) {
-    DB.getRecords(objectStore)
-        .then(records => displayRecordsInTable(records))
-        .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
+    return cargarEnTabla(objectStore, DB.getRecords(objectStore));
 }
+
 export function showRecordsP(objectStore, id = null) {
-     DB.getRecordsP(objectStore, id) // Usa getRecordsP y pasa el ID
-        .then(records => displayRecordsInTable(records))
-        .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
+    return cargarEnTabla(objectStore, DB.getRecordsP(objectStore, id));
 }
 
 // Trae solo los tratamientos del paciente (en vez de la tabla completa de la
 // clinica) para la vista de historia clinica.
 export function showTreatmentsByClientId(clientId) {
-    return DB.getTreatmentsByClientId(clientId)
-        .then(records => displayRecordsInTable(records))
-        .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, reloadPage))
+    return cargarEnTabla("treatments", DB.getTreatmentsByClientId(clientId));
 }
 
-export function getAppointments(callback = displayRecordsInTable) {
+const pintarCitas = (rows) => obtenerTabla("appointments").datos(rows);
+
+export function getAppointments(callback = pintarCitas) {
   DB.getRecords("appointments")
     .then(appointments => {
       // Fecha de hoy en formato local 'YYYY-MM-DD' para comparar por día.
@@ -599,20 +603,9 @@ export function formatTitle(title){
     return title.charAt(0).toUpperCase() + title.slice(1).replace(/_/g, ' ');
 }
 
-// Formatea una fecha de BD ('YYYY-MM-DD[ T]HH:MM[:SS]' o 'YYYY-MM-DD') al
-// formato de Windows español: 'DD/MM/YYYY' o 'DD/MM/YYYY HH:MM'.
-// Trabaja sobre el string (sin new Date) para no desfasar por zona horaria.
-export function formatFecha(value){
-    if (!value) return "";
-    const [datePart, timePart = ""] = String(value).replace("T", " ").split(" ");
-    const [y, m, d] = datePart.split("-");
-    if (!y || !m || !d) return String(value); // formato no reconocido
-    if (y === "0000") return "";              // fecha basura ('0000-00-00')
-    let out = `${d}/${m}/${y}`;
-    const [hh, mm] = timePart.split(":");
-    if (hh && mm) out += ` ${hh}:${mm}`;
-    return out;
-}
+// formatFecha vive en formato.js (formateadores comunes); se reexporta aqui
+// para los modulos que ya lo importaban de funciones.js.
+export { formatFecha } from "./formato.js";
 
 //* Calendar Functions
 export function formatDateString(date){

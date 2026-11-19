@@ -1,20 +1,72 @@
-import { emptyContainer } from "../../modules/selectores.js";
-import { hideSpinnerSection } from "../../modules/components/Spinner.js";
 import { escapeHtml } from "../../modules/html.js";
 import Alert from "../../modules/components/Alert.js";
+import Tabla from "../../modules/components/Tabla.js";
 import { listarEstudios, borrarEstudio } from "../../modules/components/tac/ApiTAC.js";
 import { abrirModalSubirTAC } from "../../modules/components/tac/ModalSubirTAC.js";
 import { abrirModalAsignarTAC } from "../../modules/components/tac/ModalAsignarTAC.js";
 import { abrirModalEnlaceTAC } from "../../modules/components/tac/ModalEnlaceTAC.js";
-import { esEscritorio, formatearBytes, formatearFecha, normalizar, textoVoxel } from "../../modules/components/tac/utilidades.js";
+import { esEscritorio, formatearBytes, formatearFecha, textoVoxel } from "../../modules/components/tac/utilidades.js";
 
 //* Selectores Específicos
 const lista = document.querySelector("#lista");
-const contador = document.querySelector("#contador");
-const buscador = document.querySelector("#buscador");
+const sinAsignar = document.querySelector("#sin-asignar");
 
-// Se traen una vez y la búsqueda se hace en memoria (como en el inventario).
+// Se traen una vez; buscar, ordenar y paginar los hace la tabla común en memoria.
 let estudios = [];
+
+// Texto secundario bajo el dato principal de una celda.
+const detalle = (texto) => (texto ? `<span class="tabla__detalle">${escapeHtml(texto)}</span>` : "");
+
+const tabla = new Tabla(lista, {
+    etiqueta: "Estudios TAC",
+    registro: ["estudio", "estudios"],
+    vacio: "No hay estudios TAC todavía. Pulsa «Añadir TAC» para subir el primero.",
+    buscador: { placeholder: "Paciente, descripción, equipo o centro…" },
+    porPagina: 20,
+    // Tambien se busca por lo que sale en pequeño (nombre indicado, centro, notas).
+    textoBusqueda: (e) => [e.paciente_nombre, e.centro, e.equipo, e.notas, e.subido_por].join(" "),
+    claseFila: (e) => (e.client_id ? "" : "tabla__fila--aviso"),
+    columnas: [
+        {
+            clave: "paciente", titulo: "Paciente", rol: "principal",
+            texto: (e) => e.paciente || e.paciente_nombre || "",
+            valor: (e) => e.paciente || e.paciente_nombre || "",
+            celda: celdaPaciente,
+        },
+        {
+            clave: "fecha_estudio", titulo: "Fecha del estudio",
+            texto: (e) => formatearFecha(e.fecha_estudio),
+            celda: (e) => escapeHtml(formatearFecha(e.fecha_estudio)),
+        },
+        {
+            clave: "descripcion", titulo: "Descripción",
+            celda: (e) => `${escapeHtml(e.descripcion || "—")}${detalle(e.equipo)}${detalle(e.notas && `Notas: ${e.notas}`)}`,
+        },
+        {
+            clave: "cortes", titulo: "Volumen", valor: (e) => Number(e.cortes) || 0,
+            texto: (e) => (e.cortes ? `${e.ancho} × ${e.alto} × ${e.cortes}` : ""),
+            celda: (e) => `${escapeHtml(e.cortes ? `${e.ancho} × ${e.alto} × ${e.cortes}` : "—")}${detalle(`Vóxel ${textoVoxel(e.voxel_x, e.voxel_y, e.voxel_z)}`)}`,
+        },
+        {
+            clave: "tamano", titulo: "Tamaño", tipo: "numero",
+            texto: (e) => formatearBytes(e.tamano),
+            celda: (e) => escapeHtml(formatearBytes(e.tamano)),
+        },
+        {
+            clave: "fecha_subida", titulo: "Recibido",
+            texto: (e) => formatearFecha(e.fecha_subida),
+            celda: (e) => `${escapeHtml(formatearFecha(e.fecha_subida))}${detalle(origen(e))}`,
+        },
+    ],
+    acciones: (e) => {
+        const asignar = e.client_id
+            ? `<button type="button" class="boton boton--icono boton--fantasma" data-accion="asignar" data-id="${escapeHtml(e.id)}" title="Cambiar de paciente" aria-label="Cambiar de paciente"><i class="ri-user-shared-line" aria-hidden="true"></i></button>`
+            : `<button type="button" class="boton boton--primario boton--pequeno" data-accion="asignar" data-id="${escapeHtml(e.id)}"><i class="ri-user-received-2-line" aria-hidden="true"></i> Asignar</button>`;
+        return `${asignar}
+            <a href="visor.html?id=${encodeURIComponent(e.id)}" class="boton boton--secundario boton--pequeno"><i class="ri-eye-line" aria-hidden="true"></i> Ver</a>
+            <button type="button" class="boton boton--icono boton--fantasma" data-tono="peligro" data-accion="borrar" data-id="${escapeHtml(e.id)}" title="Borrar el estudio" aria-label="Borrar el estudio"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>`;
+    },
+});
 
 //* Eventos
 document.addEventListener("DOMContentLoaded", async () => {
@@ -23,7 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.querySelector("#anadir").addEventListener("click", anadirEstudio);
     document.querySelector("#enlace").addEventListener("click", abrirModalEnlaceTAC);
-    buscador.addEventListener("input", pintarLista);
     lista.addEventListener("click", manejarClickLista);
     await cargarEstudios();
 
@@ -33,89 +84,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function cargarEstudios() {
+    tabla.cargando("Obteniendo los estudios…");
     try {
         estudios = await listarEstudios();
         pintarLista();
     } catch (error) {
-        Alert.showStatusAlert("error", "¡Error!", error.message);
-    } finally {
-        hideSpinnerSection();
+        tabla.error(escapeHtml(error.message));
     }
 }
 
 function pintarLista() {
-    const texto = normalizar(buscador.value.trim());
-    const visibles = estudios.filter(e => !texto ||
-        [e.paciente, e.paciente_nombre, e.centro, e.descripcion, e.equipo].some(campo => normalizar(campo).includes(texto)));
+    tabla.datos(estudios);
+    const pendientes = estudios.filter(e => !e.client_id).length;
+    sinAsignar.hidden = !pendientes;
+    sinAsignar.textContent = pendientes === 1 ? "1 estudio sin asignar" : `${pendientes} estudios sin asignar`;
+}
 
-    emptyContainer.classList.toggle("show", visibles.length === 0);
-    const sinAsignar = estudios.filter(e => !e.client_id).length;
-    contador.textContent = !estudios.length ? ""
-        : (visibles.length === estudios.length ? `${estudios.length} estudio${estudios.length === 1 ? "" : "s"}`
-            : `${visibles.length} de ${estudios.length} estudios`)
-        + (sinAsignar ? ` · ${sinAsignar} sin asignar` : "");
-
-    lista.innerHTML = visibles.length ? `
-        <table class="tac-tabla">
-            <thead>
-                <tr>
-                    <th>Paciente</th>
-                    <th>Fecha del estudio</th>
-                    <th>Descripción</th>
-                    <th>Volumen</th>
-                    <th>Tamaño</th>
-                    <th>Recibido</th>
-                    <th aria-label="Acciones"></th>
-                </tr>
-            </thead>
-            <tbody>${visibles.map(filaEstudio).join("")}</tbody>
-        </table>` : "";
+function origen(e) {
+    return e.origen === "externo" ? `Enviado por ${e.centro || "un centro externo"}` : e.subido_por;
 }
 
 function celdaPaciente(e) {
-    const nuevo = Number(e.visto) === 0 ? `<span class="tac-etiqueta tac-etiqueta--nuevo">Nuevo</span>` : "";
+    const nuevo = Number(e.visto) === 0 ? ` <span class="pastilla" data-tono="acento">Nuevo</span>` : "";
     if (!e.client_id) {
-        return `
-            <span class="tac-etiqueta tac-etiqueta--pendiente">Sin asignar</span>${nuevo}
-            <span class="tac-tabla__detalle">Indicado: ${escapeHtml(e.paciente_nombre || "—")}</span>`;
+        return `<span class="pastilla" data-tono="aviso">Sin asignar</span>${nuevo}${detalle(`Indicado: ${e.paciente_nombre || "—"}`)}`;
     }
     return `${escapeHtml(e.paciente)}${nuevo}`;
-}
-
-function filaEstudio(e) {
-    const volumen = e.cortes ? `${e.ancho} × ${e.alto} × ${e.cortes}` : "—";
-    const origen = e.origen === "externo" ? `Enviado por ${e.centro || "un centro externo"}` : e.subido_por;
-    const asignar = e.client_id
-        ? `<button type="button" class="table__btn table__btn--edit" data-accion="asignar" data-id="${escapeHtml(e.id)}" title="Cambiar de paciente" aria-label="Cambiar de paciente"><i class="ri-user-shared-line"></i></button>`
-        : `<button type="button" class="tac-boton tac-boton--pequeno tac-boton--aviso" data-accion="asignar" data-id="${escapeHtml(e.id)}"><i class="ri-user-received-2-line"></i> Asignar</button>`;
-    return `
-        <tr class="${e.client_id ? "" : "tac-tabla__fila--pendiente"}">
-            <td class="tac-tabla__paciente">${celdaPaciente(e)}</td>
-            <td>${escapeHtml(formatearFecha(e.fecha_estudio))}</td>
-            <td>
-                ${escapeHtml(e.descripcion || "—")}
-                ${e.equipo ? `<span class="tac-tabla__detalle">${escapeHtml(e.equipo)}</span>` : ""}
-                ${e.notas ? `<span class="tac-tabla__detalle">Notas: ${escapeHtml(e.notas)}</span>` : ""}
-            </td>
-            <td>
-                ${escapeHtml(volumen)}
-                <span class="tac-tabla__detalle">Vóxel ${escapeHtml(textoVoxel(e.voxel_x, e.voxel_y, e.voxel_z))}</span>
-            </td>
-            <td>${escapeHtml(formatearBytes(e.tamano))}</td>
-            <td>
-                ${escapeHtml(formatearFecha(e.fecha_subida))}
-                ${origen ? `<span class="tac-tabla__detalle">${escapeHtml(origen)}</span>` : ""}
-            </td>
-            <td>
-                <div class="tac-tabla__acciones">
-                    ${asignar}
-                    <a href="visor.html?id=${encodeURIComponent(e.id)}" class="tac-boton tac-boton--pequeno"><i class="ri-eye-line"></i> Ver</a>
-                    <button type="button" class="table__btn table__btn--delete" data-accion="borrar" data-id="${escapeHtml(e.id)}" aria-label="Borrar el estudio">
-                        <i class="ri-delete-bin-line"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>`;
 }
 
 function manejarClickLista(e) {

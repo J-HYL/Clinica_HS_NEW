@@ -10,7 +10,6 @@ export const appointmentStateContainer = document.querySelector(".form__group--h
 
 //*   s
 export const table = document.querySelector("#table");
-export const loadingContainer = document.querySelector(".main__loading");
 export const emptyContainer = document.querySelector(".main__empty");
 
 //* Appointment Modal

@@ -11,7 +11,6 @@
     <!-- Styles -->
     <link rel="stylesheet" href="/css/pages/agregar.css">
     <link rel="stylesheet" href="/css/pages/control.css">
-    <link rel="stylesheet" href="/css/lib/datatables.min.css" />
     <link rel="stylesheet" href="../../css/components/modal.css">
 
 
@@ -269,8 +268,8 @@
                         <div><strong>Edad:</strong><span id="edad"></span></div>
                     </div>
                     <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-                        <button type="button" id="dar-cita" class="main__action" style="border:none;cursor:pointer">
-                            <span>Programar cita</span> <i class="ri-calendar-todo-line"></i>
+                        <button type="button" id="dar-cita" class="boton boton--secundario boton--pequeno">
+                            <i class="ri-calendar-todo-line" aria-hidden="true"></i> Programar cita
                         </button>
                     </div>
                 </div>
@@ -285,28 +284,13 @@
             </div>
 
             <div class="tab-panel" id="panel-tratamientos">
-            <div class="main__group">
+            <div class="lista__cabecera">
                 <h3 class="container__heading">Tratamientos del paciente</h3>
-                <div class="main__actions">
-                    <a href="#" class="main__action" id="crear-tratamiento"><span>Crear tratamiento</span> <i class="ri-add-line"></i></a>
+                <div class="lista__acciones">
+                    <a href="#" class="boton boton--primario boton--pequeno" id="crear-tratamiento"><i class="ri-add-line" aria-hidden="true"></i> Crear tratamiento</a>
                 </div>
             </div>
-            <div class="main__loading">
-                <div class="sk-chase">
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                </div>
-                <p class="loading__message">Obteniendo los registros...</p>
-            </div>
-            <div class="main__empty">
-                <img src="/assets/svg/empty-illustration.svg" alt="Not Found Records Illustration">
-                <p class="empty__message">No se encontraron registros para esta sección...</p>
-            </div>
-            <table class="main__table" id="table"></table>
+            <div id="table"></div>
             </div><!-- /panel-tratamientos -->
 
             <!--MODAL PARA ANADIR UN TRATAMIENTO-->
@@ -433,7 +417,6 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/lib/datatables.min.js"></script>
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/clientes/historia-clinica.js" type="module"></script>
     <script src="/js/pages/clientes/dar-cita.js" type="module"></script>

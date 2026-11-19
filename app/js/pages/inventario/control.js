@@ -1,7 +1,5 @@
-import { emptyContainer } from "../../modules/selectores.js";
-import { hideSpinnerSection } from "../../modules/components/Spinner.js";
-import { CATEGORIAS, etiquetaCategoria, rellenarSelect } from "../../modules/components/inventario.js";
-import { pintarInventario } from "../../modules/components/TablaInventario.js";
+import { CATEGORIAS, etiquetaCategoria, etiquetaEstado, rellenarSelect } from "../../modules/components/inventario.js";
+import Tabla from "../../modules/components/Tabla.js";
 import { abrirModalStock } from "../../modules/components/ModalStock.js";
 import { abrirEscaner } from "../../modules/components/Escaner.js";
 import { abrirComoFunciona } from "../../modules/components/ComoFunciona.js";
@@ -12,7 +10,6 @@ import DB from "../../modules/classes/DB_API.js";
 
 //* Selectores Específicos
 const lista = document.querySelector("#lista");
-const contador = document.querySelector("#contador");
 const buscador = document.querySelector("#buscador");
 const filtroCategoria = document.querySelector("#filtro-categoria");
 const filtroBajo = document.querySelector("#filtro-bajo");
@@ -23,16 +20,64 @@ const botonEscanear = document.querySelector("#escanear");
 // inventario de una clínica cabe de sobra y así responde al instante.
 let elementos = [];
 
+// Situación -> tono de la etiqueta (mismos tonos que el resto de la app).
+const TONO_ESTADO = { operativo: "exito", revision: "aviso", baja: "peligro" };
+
+// La tabla común del panel. El buscador y los filtros son los de arriba (buscan
+// también por código y marca, que no se ven en la lista).
+const tabla = new Tabla(lista, {
+    etiqueta: "Elementos del inventario",
+    registro: ["elemento", "elementos"],
+    vacio: "Todavía no hay elementos en el inventario",
+    buscador: false,
+    porPagina: 20,
+    orden: { clave: orden.value, dir: "asc" },
+    columnas: [
+        {
+            clave: "foto", titulo: "Foto", rol: "imagen", ordenable: false, texto: () => "",
+            celda: e => `<span class="inv-foto">${e.foto
+                ? `<img src="/${escapeHtml(e.foto)}" alt="" loading="lazy">`
+                : '<i class="ri-camera-off-line" aria-label="Sin foto"></i>'}</span>`,
+        },
+        {
+            // "Categoría · Ubicación" bajo el nombre: ahorra una columna en el móvil.
+            clave: "nombre", titulo: "Elemento", rol: "principal",
+            celda: e => `${escapeHtml(e.nombre)}<span class="tabla__detalle">${escapeHtml(meta(e))}</span>`,
+        },
+        {
+            clave: "stock", titulo: "Stock", tipo: "numero",
+            celda: e => {
+                const texto = `${escapeHtml(e.stock ?? 0)} ${escapeHtml(e.unidad || "ud")}`;
+                return bajoMinimo(e)
+                    ? `<span class="pastilla" data-tono="aviso" title="Stock bajo mínimo"><i class="ri-alert-line" aria-hidden="true"></i> ${texto}</span>`
+                    : texto;
+            },
+        },
+        { clave: "caducidad", titulo: "Caducidad", tipo: "fecha" },
+        {
+            clave: "estado", titulo: "Situación", texto: e => etiquetaEstado(e.estado),
+            celda: e => `<span class="pastilla" data-tono="${TONO_ESTADO[e.estado] || "neutro"}">${escapeHtml(etiquetaEstado(e.estado))}</span>`,
+        },
+    ],
+    acciones: e => `
+        <button type="button" class="boton boton--icono boton--fantasma" data-accion="stock" data-id="${escapeHtml(e.id)}" aria-label="Ajustar stock de ${escapeHtml(e.nombre)}" title="Ajustar stock"><i class="ri-add-box-line" aria-hidden="true"></i></button>
+        <button type="button" class="boton boton--icono boton--fantasma" data-accion="editar" data-id="${escapeHtml(e.id)}" aria-label="Editar ${escapeHtml(e.nombre)}" title="Editar"><i class="ri-edit-line" aria-hidden="true"></i></button>
+        <button type="button" class="boton boton--icono boton--fantasma" data-tono="peligro" data-accion="borrar" data-id="${escapeHtml(e.id)}" aria-label="Eliminar ${escapeHtml(e.nombre)}" title="Eliminar"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>`,
+});
+
+const meta = e => [etiquetaCategoria(e.categoria), e.ubicacion].filter(Boolean).join(" · ");
+const bajoMinimo = e => Number(e.stock ?? 0) <= Number(e.stock_minimo ?? 0);
+
 //* Eventos
 document.addEventListener("DOMContentLoaded", () => {
     rellenarSelect(filtroCategoria, CATEGORIAS, "Todas las categorías");
     cargarElementos();
 });
 
-buscador.addEventListener("input", pintarLista);
-filtroCategoria.addEventListener("change", pintarLista);
-filtroBajo.addEventListener("change", pintarLista);
-orden.addEventListener("change", pintarLista);
+buscador.addEventListener("input", aplicarFiltros);
+filtroCategoria.addEventListener("change", aplicarFiltros);
+filtroBajo.addEventListener("change", aplicarFiltros);
+orden.addEventListener("change", () => tabla.ordenar(orden.value, "asc"));
 // Dos botones para lo mismo: el de la cabecera (escritorio) y el flotante (móvil).
 // Cada uno se oculta en el otro tamaño, así que nunca se ven los dos a la vez.
 botonEscanear.addEventListener("click", escanearElemento);
@@ -41,55 +86,33 @@ document.querySelector("#como-funciona").addEventListener("click", () => abrirCo
 lista.addEventListener("click", manejarClickLista);
 
 async function cargarElementos() {
+    tabla.cargando();
     try {
         elementos = await DB.getRecords("inventario");
-        pintarLista();
+        tabla.datos(elementos);
+        aplicarFiltros();
     } catch (error) {
-        Alert.showStatusAlert("error", "¡Error!", error.message);
-    } finally {
-        hideSpinnerSection();
+        tabla.error(escapeHtml(error.message));
     }
 }
 
-function pintarLista() {
-    const visibles = ordenar(filtrar());
-
-    emptyContainer.classList.toggle("show", visibles.length === 0);
-    contador.textContent = textoContador(visibles.length);
-    pintarInventario(lista, visibles);
-}
-
-function textoContador(visibles) {
-    if (!elementos.length) return "";
-    if (visibles === elementos.length) return `${elementos.length} elemento${elementos.length === 1 ? "" : "s"}`;
-    return `${visibles} de ${elementos.length} elementos`;
-}
-
-function filtrar() {
+// La tabla ordena (los elementos sin caducidad van al final: no caducan) y
+// pagina; aquí solo se dice qué elementos entran según los filtros de arriba.
+function aplicarFiltros() {
     const texto = buscador.value.trim().toLowerCase();
     const categoria = filtroCategoria.value;
+    const hayFiltro = texto || categoria || filtroBajo.checked;
 
-    return elementos.filter(elemento => {
+    tabla.filtro(hayFiltro ? elemento => {
         if (categoria && elemento.categoria !== categoria) return false;
-        if (filtroBajo.checked && Number(elemento.stock) > Number(elemento.stock_minimo)) return false;
+        if (filtroBajo.checked && !bajoMinimo(elemento)) return false;
         if (!texto) return true;
 
         // Se busca por lo que uno tiene delante en el almacén: el nombre, dónde
         // está, lo que pone en la caja (marca) o el código que acaba de escanear.
         return [elemento.nombre, elemento.ubicacion, elemento.codigo, elemento.marca, etiquetaCategoria(elemento.categoria)]
             .some(campo => (campo || "").toLowerCase().includes(texto));
-    });
-}
-
-function ordenar(visibles) {
-    const criterio = orden.value;
-
-    return [...visibles].sort((a, b) => {
-        if (criterio === "stock") return Number(a.stock) - Number(b.stock);
-        // Sin caducidad = no caduca: al final, que no estorbe a lo que sí caduca.
-        if (criterio === "caducidad") return (a.caducidad || "9999-12-31").localeCompare(b.caducidad || "9999-12-31");
-        return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
-    });
+    } : null);
 }
 
 function manejarClickLista(e) {
@@ -170,7 +193,7 @@ async function ajustarStock(elemento) {
     try {
         await DB.editRecord("inventario", elemento.id, { stock: nuevoStock });
         elemento.stock = nuevoStock;
-        pintarLista();
+        tabla.repintar();
         avisar("Stock actualizado");
     } catch (error) {
         Alert.showStatusAlert("error", "¡Error!", error.message);

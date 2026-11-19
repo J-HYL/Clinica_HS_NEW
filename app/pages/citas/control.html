@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/css/lib/datatables.min.css" />
     <link rel="stylesheet" href="/css/pages/controlCitas.css">
    
     <!-- Favicon -->
@@ -32,31 +31,16 @@
     <div class="wrapper">
         <h1 class="page-title">Citas</h1>
 
-        <main class="container main">
-            <div class="main__group">
-                <h3 class="container__heading">Citas Agendadas</h3>
-                <div class="main__actions">
-                    <a href="calendario.html" class="main__action"><span>Calendario</span> <i class="ri-calendar-schedule-fill"></i></a>
-                    <a href="vista_diaria.html" class="main__action"><span>Crear Cita</span> <i class="ri-add-line"></i></a>
+        <section class="tarjeta lista">
+            <div class="tarjeta__cabecera">
+                <h2 class="tarjeta__titulo">Citas Agendadas</h2>
+                <div class="lista__acciones">
+                    <a href="calendario.html" class="boton boton--secundario boton--pequeno"><i class="ri-calendar-schedule-line" aria-hidden="true"></i> Calendario</a>
+                    <a href="vista_diaria.html" class="boton boton--primario boton--pequeno"><i class="ri-add-line" aria-hidden="true"></i> Crear Cita</a>
                 </div>
             </div>
-            <div class="main__loading">
-                <div class="sk-chase">
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                </div>
-                <p class="loading__message">Obteniendo los registros...</p>
-            </div>
-            <div class="main__empty">
-                <img src="/assets/svg/empty-illustration.svg" alt="Not Found Records Illustration">
-                <p class="empty__message">No se encontraron registros para esta sección...</p>
-            </div>
-            <table id="table"></table>
-        </main>
+            <div id="table"></div>
+        </section>
     </div>
     <!--Modal del estado-->
     <dialog class="modal" id="state-modal" role="dialog" aria-labelledby="Actualizar estado de Cita" aria-describedby="Modal para Actualizar el Estado de una Cita">
@@ -192,7 +176,6 @@
 
     <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/lib/datatables.min.js"></script>
 
     <script src="/js/main.js" type="module"></script>
     <script src="/js/pages/citas/control.js" type="module"></script>
