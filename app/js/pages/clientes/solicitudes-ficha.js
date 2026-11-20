@@ -1,45 +1,25 @@
 // app/js/pages/clientes/solicitudes-ficha.js
 // Historial de solicitudes de cita del paciente, dentro de su ficha. Lista TODAS
 // sus solicitudes y permite aceptar / rechazar / ofrecer otra hora en las abiertas
-// (mismo endpoint /api/solicitudes.php que usa la campana). Autocontenido.
+// (mismo endpoint /api/solicitudes.php que usa la campana). Estilos en
+// css/pages/ficha.css (.solicitudes, .pestanas__contador).
 import { elegirFechaHora } from "../../modules/components/SelectorCita.js";
+import { escapeHtml } from "../../modules/html.js";
 
 const ENDPOINT = "/api/solicitudes.php";
 const id = new URLSearchParams(location.search).get("id");
 const wrap = document.getElementById("solicitudes-ficha-wrap");
 
-if (wrap && id) { injectStyles(); cargar(); }
+if (wrap && id) cargar();
 
-function injectStyles() {
-  if (document.getElementById("hs-solf-styles")) return;
-  const s = document.createElement("style");
-  s.id = "hs-solf-styles";
-  s.textContent = `
-    #solicitudes-ficha-wrap{margin:0;}
-    .solf-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(16,24,40,.06);}
-    .solf-h{font-size:1.05rem;font-weight:700;color:#1e2a5e;margin:0 0 6px;display:flex;align-items:center;gap:8px;}
-    .solf-item{padding:12px 0;border-top:1px solid #f0f1f4;}
-    .solf-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-    .solf-when{font-size:14px;font-weight:600;color:#111827;}
-    .solf-meta{font-size:12.5px;color:#6b7280;margin-top:3px;}
-    .solf-tag{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;}
-    .solf-tag--solicitada{background:#eef1fe;color:#3a56d4;}
-    .solf-tag--contraoferta{background:#fff4e5;color:#b46a00;}
-    .solf-tag--confirmada{background:#e7f8ee;color:#1e8e3e;}
-    .solf-tag--rechazada,.solf-tag--cancelada{background:#fdeceb;color:#c62a22;}
-    .solf-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
-    .solf-btn{border:none;border-radius:9px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;}
-    .solf-btn--ok{background:#34c759;color:#fff;}
-    .solf-btn--alt{background:#5671eb;color:#fff;}
-    .solf-btn--no{background:#fff;color:#c62a22;border:1px solid #f0c9c6;}
-    /* Badge de la pestaña "Solicitudes" cuando hay pendientes */
-    .tab__badge{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 6px;margin-left:7px;border-radius:999px;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;line-height:1;vertical-align:middle;box-shadow:0 0 0 3px rgba(255,59,48,.14);}
-    .tab.tab--alert{color:#c62a22;}
-    .tab.tab--alert.tab--active{color:#3b82f6;}`;
-  document.head.appendChild(s);
-}
-
-const ESTADOS = { solicitada: "Pendiente", contraoferta: "Esperando al paciente", confirmada: "Confirmada", rechazada: "Rechazada", cancelada: "Cancelada" };
+// Texto y tono de la pastilla de cada estado.
+const ESTADOS = {
+  solicitada: { texto: "Pendiente", tono: "aviso" },
+  contraoferta: { texto: "Esperando al paciente", tono: "acento" },
+  confirmada: { texto: "Confirmada", tono: "exito" },
+  rechazada: { texto: "Rechazada", tono: "peligro" },
+  cancelada: { texto: "Cancelada", tono: "peligro" },
+};
 
 async function cargar() {
   try {
@@ -48,59 +28,67 @@ async function cargar() {
     if (!res.ok) throw new Error(data.error || "Error");
     render(data.solicitudes || []);
   } catch (e) {
-    wrap.innerHTML = `<div class="solf-card" style="color:#b91c1c">${esc(e.message)}</div>`;
+    wrap.innerHTML = `<p class="estado-error"><i class="ri-error-warning-line" aria-hidden="true"></i>${escapeHtml(e.message)}</p>`;
   }
 }
 
 function render(items) {
   actualizarTabBadge(items);
-  // Ahora vive en su propia pestaña: si no hay solicitudes, mostramos un vacío claro.
-  if (!items.length) { wrap.innerHTML = `<div class="solf-card" style="text-align:center;color:#9ca3af">Este paciente no tiene solicitudes de cita.</div>`; return; }
-  wrap.innerHTML = `<div class="solf-card">
-      <h3 class="solf-h"><i class="ri-inbox-fill"></i> Solicitudes de cita</h3>
-      ${items.map(item).join("")}
-    </div>`;
+  const lista = items.length
+    ? `<ul class="solicitudes">${items.map(item).join("")}</ul>`
+    : `<p class="estado-vacio"><i class="ri-inbox-line" aria-hidden="true"></i>Este paciente no tiene solicitudes de cita.</p>`;
+  wrap.innerHTML = `
+    <div class="lista__cabecera">
+      <div>
+        <h3 class="container__heading">Solicitudes de cita</h3>
+        <p class="tarjeta__subtitulo">Las que pide el paciente desde su portal.</p>
+      </div>
+    </div>
+    ${lista}`;
   wrap.querySelectorAll("[data-accion]").forEach((b) => (b.onclick = () => accionar(b.dataset.accion, b.dataset.id)));
 }
 
-// Resalta la pestaña "Solicitudes" con un badge del nº de solicitudes abiertas
+// Resalta la pestaña "Solicitudes" con el nº de solicitudes abiertas
 // (solicitada / contraoferta), como el resto de avisos del panel.
 function actualizarTabBadge(items) {
   const abiertas = items.filter((s) => s.estado === "solicitada" || s.estado === "contraoferta").length;
-  const tab = document.querySelector('.tab[data-tab="solicitudes"]');
+  const tab = document.querySelector('.pestanas__opcion[data-tab="solicitudes"]');
   if (!tab) return;
-  let badge = tab.querySelector(".tab__badge");
+  let badge = tab.querySelector(".pestanas__contador");
   if (abiertas > 0) {
-    if (!badge) { badge = document.createElement("span"); badge.className = "tab__badge"; tab.appendChild(badge); }
+    if (!badge) { badge = document.createElement("span"); badge.className = "pestanas__contador"; tab.appendChild(badge); }
     badge.textContent = abiertas > 9 ? "9+" : String(abiertas);
-    tab.classList.add("tab--alert");
+    tab.classList.add("pestanas__opcion--aviso");
   } else {
     if (badge) badge.remove();
-    tab.classList.remove("tab--alert");
+    tab.classList.remove("pestanas__opcion--aviso");
   }
 }
 
 function item(s) {
   const abierta = s.estado === "solicitada" || s.estado === "contraoferta";
-  const prop = s.estado === "contraoferta" && s.fecha_propuesta ? `<div class="solf-meta">Propuesto: ${esc(fmtFecha(s.fecha_propuesta))}</div>` : "";
-  const resp = s.respuesta_clinica ? `<div class="solf-meta">Nota clínica: ${esc(s.respuesta_clinica)}</div>` : "";
-  const acc = abierta ? `<div class="solf-actions">
-        <button class="solf-btn solf-btn--ok" data-accion="aceptar" data-id="${s.id}">Aceptar</button>
-        <button class="solf-btn solf-btn--alt" data-accion="ofrecer" data-id="${s.id}">Ofrecer otra hora</button>
-        <button class="solf-btn solf-btn--no" data-accion="rechazar" data-id="${s.id}">Rechazar</button>
+  const estado = ESTADOS[s.estado] || { texto: s.estado, tono: "" };
+  const detalle = (texto) => `<p class="solicitud__detalle">${texto}</p>`;
+  const prop = s.estado === "contraoferta" && s.fecha_propuesta ? detalle(`Propuesto: ${escapeHtml(fmtFecha(s.fecha_propuesta))}`) : "";
+  const resp = s.respuesta_clinica ? detalle(`Nota clínica: ${escapeHtml(s.respuesta_clinica)}`) : "";
+  const sid = escapeHtml(s.id);
+  const acc = abierta ? `<div class="solicitud__acciones">
+        <button type="button" class="boton boton--primario boton--pequeno" data-accion="aceptar" data-id="${sid}"><i class="ri-check-line" aria-hidden="true"></i> Aceptar</button>
+        <button type="button" class="boton boton--secundario boton--pequeno" data-accion="ofrecer" data-id="${sid}"><i class="ri-calendar-event-line" aria-hidden="true"></i> Ofrecer otra hora</button>
+        <button type="button" class="boton boton--fantasma boton--pequeno" data-tono="peligro" data-accion="rechazar" data-id="${sid}"><i class="ri-close-line" aria-hidden="true"></i> Rechazar</button>
       </div>` : "";
-  return `<div class="solf-item">
-      <div class="solf-top">
+  return `<li class="solicitud">
+      <div class="solicitud__cabecera">
         <div>
-          <div class="solf-when">${esc(fmtFecha(s.fecha_preferida))}</div>
-          ${s.motivo ? `<div class="solf-meta">Motivo: ${esc(s.motivo)}</div>` : ""}
-          ${s.notas ? `<div class="solf-meta">Nota del paciente: ${esc(s.notas)}</div>` : ""}
+          <p class="solicitud__fecha">${escapeHtml(fmtFecha(s.fecha_preferida))}</p>
+          ${s.motivo ? detalle(`Motivo: ${escapeHtml(s.motivo)}`) : ""}
+          ${s.notas ? detalle(`Nota del paciente: ${escapeHtml(s.notas)}`) : ""}
           ${prop}${resp}
         </div>
-        <span class="solf-tag solf-tag--${esc(s.estado)}">${esc(ESTADOS[s.estado] || s.estado)}</span>
+        <span class="pastilla" data-tono="${escapeHtml(estado.tono)}">${escapeHtml(estado.texto)}</span>
       </div>
       ${acc}
-    </div>`;
+    </li>`;
 }
 
 function accionar(accion, sid) {
@@ -152,5 +140,4 @@ async function enviar(accion, payload) {
   }
 }
 
-function esc(v) { return v == null ? "" : String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 function fmtFecha(dt) { if (!dt) return ""; const d = new Date(String(dt).replace(" ", "T")); if (isNaN(d.getTime())) return dt; return d.toLocaleString("es-ES", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }); }

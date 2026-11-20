@@ -1,9 +1,11 @@
 // /js/pages/clientes/tratamientos.js
+// Ficha de un tratamiento: datos e importes, odontograma (cada pieza alterna
+// pendiente <-> completada), historial de pagos, presupuesto PDF e imagenes.
 
 import DB from "../../modules/classes/DB_API.js";
 import { showRecordsP, setTableEventsListeners } from "../../modules/funciones.js";
 import { table } from "../../modules/selectores.js";
-import { escapeHtml } from "../../modules/html.js";
+import { euros, formatFecha } from "../../modules/formato.js";
 
 const crearPagoBtn = document.getElementById("crear-pago");
 const modal = document.getElementById("edit-modal");
@@ -17,37 +19,31 @@ const inputMontoPago = document.getElementById("monto");
 const selectMetodoPago = document.getElementById("metodo_pago");
 const inputNotasPago = document.getElementById("notas");
 
+// Tono de la pastilla segun el estado de pago del tratamiento.
+const TONO_ESTADO = { pagado: "exito", parcial: "aviso", pendiente: "peligro" };
 
-if (crearPagoBtn) {
-    crearPagoBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("Botón crear pago clickeado"); // Para depuración
-      limpiarFormularioPago();
-      modal.show();
-    });
-  } else {
-    console.error("No se encontró el botón crear-pago");
-  }
+crearPagoBtn.addEventListener("click", () => {
+  limpiarFormularioPago();
+  modal.show();
+});
 
-document.querySelector(".modal__close").addEventListener("click", () => {
+modal.querySelector(".modal__close").addEventListener("click", () => {
   modal.close();
   limpiarFormularioPago();
 });
 
 // Cerrar con botón Cancelar
-document.querySelector(".modal__button--close").addEventListener("click", () => {
+modal.querySelector(".modal__button--close").addEventListener("click", () => {
   modal.close();
   limpiarFormularioPago();
 });
 
-// Función para limpiar el formulario (renombrada para evitar conflictos con original si existe)
 function limpiarFormularioPago() {
-  if (inputMontoPago) inputMontoPago.value = "";
-  if (selectMetodoPago) selectMetodoPago.value = "efectivo";
-  if (inputNotasPago) inputNotasPago.value = "";
+  inputMontoPago.value = "";
+  selectMetodoPago.value = "efectivo";
+  inputNotasPago.value = "";
 }
 
-// Función para validar el formulario (renombrada)
 function validarFormularioPago() {
   const monto = inputMontoPago.value;
   const metodo_pago = selectMetodoPago.value;
@@ -73,7 +69,6 @@ function validarFormularioPago() {
   return true;
 }
 
-// Función para guardar el pago
 async function guardarPago() {
   if (!validarFormularioPago()) return;
 
@@ -86,16 +81,12 @@ async function guardarPago() {
     return;
   }
 
-  const monto = parseFloat(inputMontoPago.value);
-  const metodo_pago = selectMetodoPago.value;
-  const notas = inputNotasPago.value || "";
-
   const pagoData = {
     treatment_id: currentTreatmentId,
     client_id: currentClientId,
-    monto_pagado: monto, // Asegúrate de que el nombre de la columna en tu BD sea 'monto_pagado' o 'monto'
-    metodo_pago: metodo_pago,
-    notas: notas
+    monto_pagado: parseFloat(inputMontoPago.value),
+    metodo_pago: selectMetodoPago.value,
+    notas: inputNotasPago.value || ""
   };
 
   try {
@@ -112,12 +103,8 @@ async function guardarPago() {
     modal.close();
     limpiarFormularioPago();
 
-    // Aquí, usa showRecords con el currentTreatmentId para cargar solo los pagos de ese tratamiento
+    // Solo los pagos de este tratamiento, y los importes de la ficha al dia.
     await showRecordsP("payments", currentTreatmentId);
-
-
-    // Actualizar la información del tratamiento (deuda)
-    // Esta función actualizará los spans si existen, sin causar error si no.
     await actualizarDeudaTratamientoUI(currentTreatmentId);
 
     Swal.fire({
@@ -136,97 +123,64 @@ async function guardarPago() {
   }
 }
 
-// Función para actualizar la deuda del tratamiento en la UI
-// Mantiene los 'if (element)' para evitar errores si los spans no existen en tu HTML
+// Pinta los datos del tratamiento (importes, estado, paciente...) en la ficha.
 async function actualizarDeudaTratamientoUI(treatmentId) {
   try {
     const treatmentData = await DB.getRecord("treatments", treatmentId);
+    if (!treatmentData) return;
 
-    if (treatmentData) {
-      const deudaSpan = document.getElementById("deuda-tratamiento");
-      const costoSpan = document.getElementById("costo-tratamiento"); // Asume que tienes un span con este ID para el monto total
-      const pagadoSpan = document.getElementById("pagado-tratamiento"); // Asume que tienes un span con este ID para el monto pagado
-      const deudah3 = document.getElementById("deuda-h3"); // Asume que tienes un h3 con este ID para la deuda
+    const deuda = parseFloat(treatmentData.deuda || 0);
+    document.getElementById("costo-tratamiento").textContent = euros(treatmentData.monto_total);
+    document.getElementById("pagado-tratamiento").textContent = euros(treatmentData.monto_pagado);
+    const deudaSpan = document.getElementById("deuda-tratamiento");
+    deudaSpan.textContent = euros(deuda);
+    deudaSpan.dataset.tono = deuda > 0 ? "peligro" : "";
+    document.getElementById("deuda-pagos").textContent = `Deuda pendiente: ${euros(deuda)}`;
 
-      const montoTotal = parseFloat(treatmentData.monto_total || 0).toFixed(2);
-      const nuevoMontoPagado = parseFloat(treatmentData.monto_pagado || 0).toFixed(2);
-      const nuevaDeuda = parseFloat(treatmentData.deuda || 0).toFixed(2); // Asume que la deuda ya la calcula el backend
-
-      if (costoSpan) costoSpan.textContent = `${montoTotal}€`;
-      if (pagadoSpan) pagadoSpan.textContent = `${nuevoMontoPagado}€`;
-      if (deudaSpan) deudaSpan.textContent = `${nuevaDeuda}€`;
-      if (deudah3) deudah3.textContent = `Deuda: ${nuevaDeuda}€`;
-
-      // También actualiza los otros spans de información del tratamiento si existen
-      const nombrePacienteSpan = document.getElementById("nombre-paciente");
-      if (nombrePacienteSpan && treatmentData.client_id) {
-         const clientData = await DB.getRecord("clients", treatmentData.client_id);
-         if (clientData) nombrePacienteSpan.textContent = `${clientData.nombre}`;
-      }
-
-      const nombreTratamientoSpan = document.getElementById("nombre-tratamiento");
-      if (nombreTratamientoSpan) nombreTratamientoSpan.textContent = treatmentData.diagnostico || 'N/A';
-
-      const fechaTratamientoSpan = document.getElementById("fecha-inicio-tratamiento");
-      if (fechaTratamientoSpan) fechaTratamientoSpan.textContent = treatmentData.fecha_creacion;
-
-      const estadoTratamientoSpan = document.getElementById("estado-tratamiento");
-      if (estadoTratamientoSpan) estadoTratamientoSpan.textContent = treatmentData.estado || 'N/A';
-
-      const observacionesTratamientoSpan = document.getElementById("observaciones-tratamiento");
-      if (observacionesTratamientoSpan) observacionesTratamientoSpan.textContent = treatmentData.observaciones || 'Sin observaciones';
-
+    // Enlace "volver" a la ficha del paciente, con su nombre.
+    if (treatmentData.client_id) {
+      document.getElementById("volver-paciente").href =
+        `historia-clinica.html?id=${encodeURIComponent(treatmentData.client_id)}`;
+      const clientData = await DB.getRecord("clients", treatmentData.client_id);
+      if (clientData?.nombre) document.getElementById("nombre-paciente").textContent = clientData.nombre;
     }
+
+    const diagnostico = treatmentData.diagnostico || "N/A";
+    document.getElementById("nombre-tratamiento").textContent = diagnostico;
+    document.title = `${diagnostico} · HS Dental`;
+
+    document.getElementById("fecha-inicio-tratamiento").textContent = formatFecha(treatmentData.fecha_creacion);
+
+    const estado = treatmentData.estado || "N/A";
+    const estadoSpan = document.getElementById("estado-tratamiento");
+    estadoSpan.textContent = estado.charAt(0).toUpperCase() + estado.slice(1);
+    estadoSpan.dataset.tono = TONO_ESTADO[treatmentData.estado] || "";
+
+    document.getElementById("observaciones-tratamiento").textContent = treatmentData.observaciones || "Sin observaciones";
   } catch (error) {
     console.error("Error al actualizar la deuda o info del tratamiento en UI:", error);
-    // No mostrar Swal aquí para no interrumpir si solo faltan los spans de UI
+    // No mostrar Swal aquí para no interrumpir la carga del resto de la ficha
   }
 }
 
-// Función para eliminar un pago (se mantiene)
-async function handleDeletePayment(paymentId) {
-    if (confirm("¿Estás seguro de que quieres eliminar este pago?")) {
-        try {
-            await DB.deleteRecord("payments", paymentId);
-            Swal.fire("Eliminado", "El pago ha sido eliminado.", "success");
-            // Recargar los pagos y actualizar la deuda después de eliminar
-            await showRecordsP("payments", currentTreatmentId);
-            await actualizarDeudaTratamientoUI(currentTreatmentId);
-        } catch (error) {
-            console.error("Error al eliminar pago:", error);
-            Swal.fire("Error", `No se pudo eliminar el pago: ${error.message || error}.`, "error");
-        }
-    }
-}
-
-
-// Event listener para el botón guardar
 guardarPagoBtn.addEventListener("click", guardarPago);
 
-// Delegación de eventos para editar/eliminar (se mantiene)
-table.addEventListener("click", e => {
-  // Si tienes botones de eliminar con data-type="delete-payment"
-  if (e.target.dataset.type === "delete-payment") {
-     const paymentId = e.target.dataset.id;
-     handleDeletePayment(paymentId);
-  } else {
-     // Usa setTableEventsListeners para otras acciones si corresponde
-     setTableEventsListeners(e, "payments");
-  }
-});
-  const uploadBtn = document.getElementById("uploadBtn");
-  const pdfUpload = document.getElementById("pdfUpload");
-  const fileInfo = document.getElementById("fileInfo");
-  const fileName = document.getElementById("fileName");
+// Acciones de la tabla de pagos (recibo, factura, borrar).
+table.addEventListener("click", e => setTableEventsListeners(e, "payments"));
 
-  const uploadImageBtn = document.getElementById("uploadImageBtn");
-  const imageInput = document.getElementById("imageInput");
-  const imagePreviewContainer = document.getElementById("imagePreviewContainer");
-  const modalI = document.getElementById("imageModal");
-  const modalImage = document.getElementById("modalImage");
-  const closeModal = document.querySelector(".modal .close");
+const uploadBtn = document.getElementById("uploadBtn");
+const pdfUpload = document.getElementById("pdfUpload");
+const fileInfo = document.getElementById("fileInfo");
+const presupuestoVacio = document.getElementById("presupuesto-vacio");
 
-  // Función para subir archivos (imágenes o PDFs)
+const uploadImageBtn = document.getElementById("uploadImageBtn");
+const imageInput = document.getElementById("imageInput");
+const imagePreviewContainer = document.getElementById("imagePreviewContainer");
+const galeriaVacia = document.getElementById("galeria-vacia");
+const visorImagen = document.getElementById("imageModal");
+const modalImage = document.getElementById("modalImage");
+
+// Función para subir archivos (imágenes o PDFs)
 async function uploadFile(file, type) {
   if (!currentTreatmentId || !currentClientId) {
     throw new Error("No se ha seleccionado un tratamiento o cliente válido");
@@ -238,13 +192,7 @@ async function uploadFile(file, type) {
   formData.append("tratamiento_id", currentTreatmentId);
   formData.append("descripcion", type === "pdf" ? "Presupuesto del tratamiento" : "Imagen del tratamiento");
 
-  try {
-    const response = await DB.uploadFile("images", formData);
-    return response;
-  } catch (error) {
-    console.error("Error al subir archivo:", error);
-    throw error;
-  }
+  return DB.uploadFile("images", formData);
 }
 
 // Manejo de PDFs
@@ -260,12 +208,12 @@ pdfUpload.addEventListener("change", async () => {
         title: 'Subiendo PDF...',
         didOpen: () => Swal.showLoading()
       });
-      
+
       await uploadFile(file, "pdf");
-      
+
       // Actualizar la visualización
       await loadExistingFiles();
-      
+
       Swal.fire({
         icon: "success",
         title: "¡PDF subido!",
@@ -305,28 +253,16 @@ imageInput.addEventListener("change", async () => {
         }
       });
 
-      const response = await uploadFile(file, "imagen");
-      
+      await uploadFile(file, "imagen");
+
+      // Miniatura con la imagen local (sin esperar a recargar la galeria).
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const imageCard = document.createElement("div");
-        imageCard.classList.add("image-card");
-
-        const img = document.createElement("img");
-        img.src = e.target.result;
-        img.alt = file.name;
-
-        // Evento para abrir la imagen en grande
-        img.addEventListener("click", () => {
-          modalImage.src = e.target.result;
-          modalI.style.display = "flex";
-        });
-
-        imageCard.appendChild(img);
-        imagePreviewContainer.appendChild(imageCard);
+      reader.onload = (e) => {
+        imagePreviewContainer.appendChild(crearMiniatura(e.target.result, file.name));
+        galeriaVacia.hidden = true;
       };
       reader.readAsDataURL(file);
-      
+
       Swal.fire({
         icon: "success",
         title: "¡Éxito!",
@@ -349,121 +285,115 @@ imageInput.addEventListener("change", async () => {
   }
 });
 
-// Cerrar modal
-closeModal.addEventListener("click", () => {
-  modalI.style.display = "none";
+// Miniatura de la galeria: al pulsarla abre la imagen en grande. Si el archivo
+// no carga (ausente), queda un aviso limpio en vez del icono roto.
+function crearMiniatura(src, alt) {
+  const miniatura = document.createElement("button");
+  miniatura.type = "button";
+  miniatura.className = "galeria__item";
+  miniatura.setAttribute("aria-label", "Ver imagen en grande");
+
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = alt;
+  img.addEventListener("error", () => {
+    miniatura.classList.add("galeria__item--rota");
+    miniatura.disabled = true;
+    miniatura.removeAttribute("aria-label");
+    miniatura.innerHTML = '<i class="ri-image-2-line" aria-hidden="true"></i><span>Imagen no disponible</span>';
+  });
+  miniatura.appendChild(img);
+
+  miniatura.addEventListener("click", () => {
+    modalImage.src = src;
+    visorImagen.showModal();
+  });
+  return miniatura;
+}
+
+// Visor: se cierra con su boton, con Escape o pulsando fuera de la imagen.
+visorImagen.querySelector(".visor-imagen__cerrar").addEventListener("click", () => visorImagen.close());
+visorImagen.addEventListener("click", (e) => {
+  if (e.target === visorImagen) visorImagen.close();
 });
 
-// Función para cargar imágenes existentes al cargar la página
-async function loadExistingFiles() {  // Cambiamos el nombre a algo más genérico
+// Presupuesto PDF adjunto: nombre, descargar y eliminar.
+function pintarPresupuesto(file) {
+  fileInfo.innerHTML = '<i class="ri-file-pdf-2-line adjunto__icono" aria-hidden="true"></i>';
+
+  const nombre = document.createElement("span");
+  nombre.className = "adjunto__nombre";
+  nombre.textContent = file.nombre_original;
+
+  const pdfLink = document.createElement("a");
+  pdfLink.className = "boton boton--icono boton--fantasma";
+  pdfLink.href = `/${file.ruta}`;
+  pdfLink.target = "_blank";
+  pdfLink.download = file.nombre_original;
+  pdfLink.title = "Descargar";
+  pdfLink.setAttribute("aria-label", "Descargar PDF");
+  pdfLink.innerHTML = '<i class="ri-download-2-line" aria-hidden="true"></i>';
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.className = "boton boton--icono boton--fantasma";
+  deleteBtn.dataset.tono = "peligro";
+  deleteBtn.title = "Eliminar";
+  deleteBtn.setAttribute("aria-label", "Eliminar PDF");
+  deleteBtn.innerHTML = '<i class="ri-delete-bin-line" aria-hidden="true"></i>';
+  deleteBtn.onclick = async () => {
+    const confirm = await Swal.fire({
+      title: '¿Eliminar PDF?',
+      text: "Esta acción no se puede deshacer",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await DB.deleteRecord("images", file.id);
+        await loadExistingFiles(); // Recargar la lista
+        Swal.fire('¡Eliminado!', 'El PDF ha sido eliminado.', 'success');
+      } catch (error) {
+        console.error("Error al eliminar PDF:", error);
+        Swal.fire('Error', 'No se pudo eliminar el PDF', 'error');
+      }
+    }
+  };
+
+  fileInfo.append(nombre, pdfLink, deleteBtn);
+  fileInfo.hidden = false;
+}
+
+// Carga los adjuntos del tratamiento: imagenes a la galeria y el PDF del presupuesto.
+async function loadExistingFiles() {
   try {
-    // Cargar tanto imágenes como PDFs
     const files = await DB.getRecordsP("images", currentTreatmentId);
-    
-    // Limpiar contenedores
+
     imagePreviewContainer.innerHTML = '';
-    fileInfo.style.display = 'none';
-    
+    fileInfo.hidden = true;
+
     files.forEach(file => {
       if (file.tipo === "imagen") {
-        // Código existente para imágenes...
-        const imageCard = document.createElement("div");
-        imageCard.classList.add("image-card");
-
-        const img = document.createElement("img");
-        // Construye la ruta COMPLETA y CORRECTA
         const imageUrl = `/${file.ruta}`.replace(/([^:])(\/\/+)/g, '$1/');
-        img.src = imageUrl;
-        img.alt = "Imagen de tratamiento";
-        img.style.cursor = "pointer";
-
-        // Si la imagen no carga (archivo ausente), mostrar un placeholder limpio en vez del icono roto.
-        img.addEventListener('error', () => {
-          imageCard.classList.add('image-card--broken');
-          imageCard.innerHTML = '<i class="ri-image-2-line"></i><span>Imagen no disponible</span>';
-        });
-
-        // Asigna el evento click CORRECTAMENTE
-        img.addEventListener('click', () => {
-          const modalImg = document.getElementById("modalImage");
-          if (modalImg) {
-            // Usa la MISMA ruta ya verificada
-            modalImg.src = imageUrl;
-            document.getElementById("imageModal").style.display = "flex";
-            
-            // Depuración
-            console.log("Modal abierto con imagen:", imageUrl);
-          } else {
-            console.error("No se encontró el elemento modalImage");
-          }
-        });
-
-        imageCard.appendChild(img);
-        imagePreviewContainer.appendChild(imageCard);
-      } 
-      else if (file.tipo === "pdf") {
-    // Mostrar PDF en el área de presupuesto
-    fileInfo.style.display = "flex";
-    fileInfo.style.alignItems = "center"; // Añadido para alinear verticalmente
-    fileInfo.style.gap = "5px"; // Añadido para espacio consistente
-    
-    // Limpiar y añadir nuevo contenido
-    fileInfo.innerHTML = `
-        <span style="font-size: 1.2rem;">📄</span>
-        <span id="fileName" style="word-break: break-word; flex-grow: 1;">${escapeHtml(file.nombre_original)}</span>
-    `;
-    
-    // Botón de descarga (manteniendo tu estilo original)
-    const pdfLink = document.createElement("a");
-    pdfLink.href = `/${file.ruta}`;
-    pdfLink.target = "_blank";
-    pdfLink.download = file.nombre_original;
-    pdfLink.innerHTML = '<i class="ri-file-download-fill" style="font-size: x-large; text-decoration: none;"></i>';
-    pdfLink.style.marginLeft = "10px";
-    fileInfo.appendChild(pdfLink);
-    
-    // Botón de eliminar (estilo similar al de descarga)
-    const deleteBtn = document.createElement("button");
-    deleteBtn.innerHTML = '<i class="ri-delete-bin-fill" style="font-size: x-large; color: #ff3d3d;"></i>';
-    deleteBtn.style.background = "none";
-    deleteBtn.style.border = "none";
-    deleteBtn.style.cursor = "pointer";
-    deleteBtn.style.padding = "0";
-    deleteBtn.style.marginLeft = "5px";
-    fileInfo.appendChild(deleteBtn);
-    
-    // Evento para eliminar
-    deleteBtn.onclick = async () => {
-        const confirm = await Swal.fire({
-            title: '¿Eliminar PDF?',
-            text: "Esta acción no se puede deshacer",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        });
-
-        if (confirm.isConfirmed) {
-            try {
-                await DB.deleteRecord("images", file.id);
-                await loadExistingFiles(); // Recargar la lista
-                Swal.fire('¡Eliminado!', 'El PDF ha sido eliminado.', 'success');
-            } catch (error) {
-                console.error("Error al eliminar PDF:", error);
-                Swal.fire('Error', 'No se pudo eliminar el PDF', 'error');
-            }
-        }
-    };
-}
+        imagePreviewContainer.appendChild(crearMiniatura(imageUrl, "Imagen de tratamiento"));
+      } else if (file.tipo === "pdf") {
+        pintarPresupuesto(file);
+      }
     });
   } catch (error) {
     console.error("Error al cargar archivos:", error);
   }
+  galeriaVacia.hidden = imagePreviewContainer.children.length > 0;
+  presupuestoVacio.hidden = !fileInfo.hidden;
 }
 
-// Variables para almacenar los dientes afectados y completados
+// ---- Odontograma ----
+
 let dientesAfectados = []; // Dientes pendientes (piece_status = 1) -> rojo
 let dientesCompletados = []; // Dientes completados (piece_status = 0) -> verde
 let piezasData = []; // Piezas del tratamiento (con id y estado) para poder togglearlas
@@ -475,33 +405,30 @@ const dientesInferior = [
   48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38
 ];
 
-function crearDiente(numero) { // Eliminamos el parámetro esInferior ya que no afecta la lógica de marcado
-  const diente = document.createElement("div");
-  diente.classList.add("diente");
+// Estado de un diente en este tratamiento: completada, pendiente o null (no entra).
+function estadoDiente(numero) {
+  if (dientesCompletados.includes(numero)) return "completada";
+  if (dientesAfectados.includes(numero)) return "pendiente";
+  return null;
+}
 
-  // Añadir la clase 'marcado-verde' si está completado
-  if (dientesCompletados.includes(numero)) {
-    diente.classList.add("marcado-verde");
-  }
-  // Añadir la clase 'marcado-rojo' si está afectado y no completado
-  else if (dientesAfectados.includes(numero)) {
-    diente.classList.add("marcado-rojo");
-  }
+// Las piezas del tratamiento son botones que alternan su estado; el resto, solo dibujo.
+function crearDiente(numero) {
+  const estado = estadoDiente(numero);
+  const diente = document.createElement(estado ? "button" : "span");
+  diente.className = "diente";
+  diente.dataset.numero = numero;
 
-  // Si la pieza forma parte del tratamiento, permitir alternar pendiente/completada al hacer clic.
-  const perteneceAlTratamiento =
-    dientesCompletados.includes(numero) || dientesAfectados.includes(numero);
-  if (perteneceAlTratamiento) {
-    diente.style.cursor = "pointer";
-    diente.title = "Clic para marcar como completada (verde) o pendiente (rojo)";
+  if (estado) {
+    const otro = estado === "pendiente" ? "completada" : "pendiente";
+    diente.type = "button";
+    diente.dataset.estado = estado;
+    diente.title = `Pieza ${numero}: ${estado}. Pulsa para marcarla como ${otro}.`;
+    diente.setAttribute("aria-label", diente.title);
     diente.addEventListener("click", () => togglePieza(numero));
   }
 
-  const num = document.createElement("div");
-  num.classList.add("numero");
-  num.textContent = numero;
-
-  diente.appendChild(num);
+  diente.innerHTML = `<span class="diente__forma" aria-hidden="true"></span><span class="diente__numero">${numero}</span>`;
   return diente;
 }
 
@@ -543,6 +470,8 @@ async function togglePieza(numero) {
     piece.piece_status = nuevoEstado;
     recomputeDienteArrays();
     renderOdontograma();
+    // Al repintar se recrean los botones: el foco vuelve a la misma pieza.
+    document.querySelector(`.diente[data-numero="${numero}"]`)?.focus();
   } catch (error) {
     console.error("Error al actualizar la pieza:", error);
     Swal.fire({
@@ -556,27 +485,19 @@ async function togglePieza(numero) {
 const filaSuperior = document.getElementById("fila-superior");
 const filaInferior = document.getElementById("fila-inferior");
 
-// Limpiar los dientes existentes antes de volver a renderizar
-if (filaSuperior) filaSuperior.innerHTML = '';
-if (filaInferior) filaInferior.innerHTML = '';
-
-// Mover la lógica de renderizado a una función para ser llamada después de que se obtengan los datos.
 // Limpia primero para poder repintar tras cambiar el estado de una pieza sin duplicar dientes.
 function renderOdontograma() {
-  if (filaSuperior) {
-    filaSuperior.innerHTML = '';
-    dientesSuperior.forEach(n => filaSuperior.appendChild(crearDiente(n)));
-  }
-  if (filaInferior) {
-    filaInferior.innerHTML = '';
-    dientesInferior.forEach(n => filaInferior.appendChild(crearDiente(n)));
-  }
+  filaSuperior.replaceChildren(...dientesSuperior.map(crearDiente));
+  filaInferior.replaceChildren(...dientesInferior.map(crearDiente));
 }
+
+// La boca se dibuja ya (sin piezas marcadas) mientras llegan los datos.
+renderOdontograma();
 
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const params = new URLSearchParams(window.location.search); 
+  const params = new URLSearchParams(window.location.search);
   const treatmentId = params.get("id");
 
   if (!treatmentId) {
@@ -609,8 +530,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Guardar el ID del cliente en la variable global
     currentClientId = treatmentData.client_id;
 
-    // Actualizar la información del tratamiento y paciente en la UI
-    // Esto llamará a document.getElementById y solo actualizará si el elemento existe.
+    // Datos del tratamiento y del paciente en la ficha.
     await actualizarDeudaTratamientoUI(currentTreatmentId);
 
     // Pagos de este tratamiento. Desde la campana de avisos (?pago=) se llega
@@ -619,13 +539,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadExistingFiles();
     if (params.get("pago")) tablaPagos?.resaltar(params.get("pago"));
 
-    // NUEVA LÓGICA PARA CARGAR Y PINTAR DIENTES DEL ODONTOGRAMA
+    // Piezas del tratamiento -> odontograma.
     piezasData = await DB.getPiecesByTreatmentId(currentTreatmentId);
-    console.log("Datos de piezas recibidos:", piezasData);
-
     recomputeDienteArrays();
-
-    // Renderizar el odontograma con los datos cargados
     renderOdontograma();
 
   } catch (error) {

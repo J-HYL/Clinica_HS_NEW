@@ -3,445 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HS Dental - Tratamientos</title>
+    <title>Tratamiento · HS Dental</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <link rel="stylesheet" href="/css/pages/agregar.css">
-    <link rel="stylesheet" href="/css/pages/control.css">
-    <link rel="stylesheet" href="../../css/components/modal.css">
-
+    <link rel="stylesheet" href="/css/pages/ficha.css">
 
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
     <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-    <style>  
-    .modal__card {
-        padding-right: 1rem;
-        padding-left: 1rem;
-    }
-
-    .card {
-        border: 1px solid #ccc;
-        border-radius: 12px;
-        padding: 0;
-        background-color: #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        transition: box-shadow 0.3s ease;
-        margin: 1rem 0;
-        overflow: hidden;
-    }
-
-    .card[open] {
-        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-    }
-
-    .card__summary {
-        padding: 1rem 1.2rem;
-        font-size: 1.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        list-style: none;
-        position: relative;
-        background-color: #f8f9fa;
-        user-select: none;
-    }
-
-    .card__summary::marker {
-        display: none;
-    }
-
-    .card__summary::after {
-        content: "▼";
-        position: absolute;
-        right: 1rem;
-        transition: transform 0.3s ease;
-    }
-
-    .card[open] .card__summary::after {
-        transform: rotate(-180deg);
-    }
-
-    .card__content {
-        padding: 1rem 1.2rem;
-        border-top: 1px solid #eee;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .ri-money-dollar-circle-fill {
-        font-size: x-large;
-    }
-
-    .container__heading,
-    .crear-pago {
-        margin: 0 1rem;
-    }
-
-    .gallery {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 1rem;
-    }
-
-    .image-card {
-        width: 160px;
-        height: 160px;
-        border: 1px solid #e6e8ef;
-        border-radius: 10px;
-        overflow: hidden;
-        cursor: pointer;
-        background: #f8f9fb;
-        transition: box-shadow .2s ease, transform .2s ease;
-    }
-
-    .image-card:hover {
-        box-shadow: 0 4px 12px rgba(16, 24, 64, .12);
-        transform: translateY(-2px);
-    }
-
-    .image-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    /* Placeholder cuando la imagen no carga (archivo ausente) */
-    .image-card--broken {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        color: #98a2b3;
-        font-size: 0.8rem;
-        text-align: center;
-        cursor: default;
-        padding: 8px;
-    }
-
-    .image-card--broken:hover {
-        box-shadow: none;
-        transform: none;
-    }
-
-    .image-card--broken i {
-        font-size: 2rem;
-    }
-
-    /* Modal estilo básico */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 100;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        justify-content: center;
-        align-items: center;
-    }
-
-    .modal-content {
-        max-width: 90%;
-        max-height: 90%;
-    }
-
-    .modal .close {
-        position: absolute;
-        top: 1rem;
-        right: 2rem;
-        color: white;
-        font-size: 2rem;
-        cursor: pointer;
-    }
-
-    #fileInfo {
-        transition: all 0.3s ease;
-        margin-top: 15px;
-        align-items: center;
-        gap: 10px;
-        background-color: #f3f4f6;
-        padding: 10px;
-        border-radius: 6px;
-        display: none; /* Inicialmente oculto */
-    }
-
-    #fileInfo a {
-        color: #3b82f6;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    #fileInfo a:hover {
-        text-decoration: underline;
-    }
-
-    /* estilos del odontograma */
-    .odontograma {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 40px;
-    }
-
-    .fila {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        transform: rotate(0deg);
-    }
-
-    .fila.superior {
-        transform: rotate(0deg) translateY(10px);
-    }
-
-    .fila.inferior {
-        transform: rotate(180deg) translateY(10px);
-    }
-
-    .diente {
-        width: 40px;
-        height: 60px;
-        background: white; /* Fondo blanco por defecto para dientes no marcados */
-        border: 2px solid #444; /* Borde oscuro por defecto */
-        border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        position: relative;
-        /* Transiciones para suavizar los cambios de color de fondo, borde y texto */
-        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-    }
-
-    /* Estilos para dientes marcados (ROJO): con fondo rojo y número blanco */
-    .diente.marcado-rojo {
-        background-color: #ff4d4d; /* Fondo ROJO */
-        border-color: #cc0000; /* Borde rojo más oscuro para contraste */
-        color: white; /* Color del TEXTO del diente (y su número por herencia) */
-    }
-
-    /* Estilos para dientes marcados (VERDE): con fondo verde y número blanco */
-    .diente.marcado-verde {
-        background-color: #4CAF50; /* Fondo VERDE */
-        border-color: #388e3c; /* Borde verde más oscuro para contraste */
-        color: white; /* Color del TEXTO del diente (y su número por herencia) */
-    }
-
-    .numero {
-        position: absolute;
-        bottom: -18px;
-        font-size: 11px;
-        transform: rotate(0deg);
-        color: #444; /* Color oscuro por defecto para los números de dientes NO marcados */
-        transition: color 0.3s; /* Transición para el color del número */
-    }
-
-    .inferior .diente .numero {
-        transform: rotate(180deg);
-    }
-
-    .linea-div {
-        width: 90%;
-        height: 2px;
-        background-color: #aaa;
-        margin: 5px auto;
-    }
-
-    .etiquetas {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-        font-weight: bold;
-        color: #333;
-    }
-
-    /* Nuevos estilos para hacer el modal scrollable */
-    .modal__card {
-        max-height: 90vh; /* Ajusta la altura máxima del modal al 90% de la altura de la ventana */
-        display: flex;
-        flex-direction: column;
-    }
-
-    .modal__body {
-        overflow-y: auto; /* Permite el desplazamiento vertical solo en el cuerpo del modal */
-        padding-right: 1rem; /* Añade un espacio para el scrollbar */
-    }
-    </style>
 </head>
 <body>
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
-        <h1 class="page-title">Tratamiento</h1>
-        <section class="container">
-            <div class="card__content">
-                <div class="paciente-info">
-                    <h2>
-                        Paciente: <span id="nombre-paciente"></span><br>
-                        Tratamiento: <span id="nombre-tratamiento"></span><br>
-                    </h2>
-                    <div class="datos-grid">
-                        <div><strong>Precio de este Tratamiento:</strong> <span id="costo-tratamiento"></span></div>
-                        <div><strong>Observaciones:</strong> <span id="observaciones-tratamiento"></span></div>
-                        <div><strong>Abonado:</strong> <span id="pagado-tratamiento"></span></div>
-                        <div><strong>Estado:</strong> <span id="estado-tratamiento"></span></div>
-                        <div><strong>Deuda:</strong> <span id="deuda-tratamiento"></span></div>
-                        <div><strong>Fecha de inicio:</strong> <span id="fecha-inicio-tratamiento"></span></div>
+        <main class="ficha">
+            <!-- Vuelve a la ficha del paciente (el JS pone su enlace y su nombre). -->
+            <a href="control.html" class="ficha__volver" id="volver-paciente"><i class="ri-arrow-left-line" aria-hidden="true"></i> <span id="nombre-paciente">Pacientes</span></a>
+
+            <div class="ficha__cabecera">
+                <div>
+                    <div class="ficha__titulo">
+                        <h1 class="page-title" id="nombre-tratamiento"></h1>
+                        <span class="pastilla" id="estado-tratamiento"></span>
                     </div>
+                    <p class="ficha__intro">Tratamiento</p>
                 </div>
             </div>
-        </section>
 
-
-        <div class="container">
-            <div class="odontograma">
-                <div class="fila superior" id="fila-superior"></div>
-                <div class="etiquetas">
-                <div>Superior derecha</div>
-                <div>Maxilar</div>
-                <div>Superior izquierda</div>
+            <section class="tarjeta ficha__bloque" aria-labelledby="datos-titulo">
+                <div class="tarjeta__cabecera">
+                    <h2 class="tarjeta__titulo" id="datos-titulo">Datos del tratamiento</h2>
                 </div>
+                <dl class="tarjeta__cuerpo datos datos--cuatro">
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Precio</dt>
+                        <dd class="dato__valor dato__valor--importe" id="costo-tratamiento"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Abonado</dt>
+                        <dd class="dato__valor dato__valor--importe" id="pagado-tratamiento"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Deuda</dt>
+                        <dd class="dato__valor dato__valor--importe" id="deuda-tratamiento"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Fecha de inicio</dt>
+                        <dd class="dato__valor" id="fecha-inicio-tratamiento"></dd>
+                    </div>
+                    <div class="dato dato--ancho">
+                        <dt class="dato__etiqueta">Observaciones</dt>
+                        <dd class="dato__valor" id="observaciones-tratamiento"></dd>
+                    </div>
+                </dl>
+            </section>
 
-                <div class="linea-div"></div>
-
-                <div class="etiquetas">
-                <div>Inferior derecha</div>
-                <div>Mandíbula</div>
-                <div>Inferior izquierda</div>
+            <section class="tarjeta ficha__bloque" aria-labelledby="odontograma-titulo">
+                <div class="tarjeta__cabecera">
+                    <div>
+                        <h2 class="tarjeta__titulo" id="odontograma-titulo">Odontograma</h2>
+                        <p class="tarjeta__subtitulo">Pulsa una pieza del tratamiento para marcarla como completada o pendiente.</p>
+                    </div>
+                    <ul class="leyenda-piezas" aria-label="Leyenda">
+                        <li data-estado="pendiente">Pendiente</li>
+                        <li data-estado="completada">Completada</li>
+                    </ul>
                 </div>
-                <div class="fila inferior" id="fila-inferior"></div>
-            </div>
-            <p style="text-align:center; color:#666; font-size:0.9rem; margin-top:16px;">
-                Haz clic en un diente para cambiar su estado:
-                <span style="color:#cc0000; font-weight:600;">rojo = pendiente</span>,
-                <span style="color:#388e3c; font-weight:600;">verde = completado</span>.
-            </p>
-        </div>
-
-        <main class="container">
-            <details class="card">
-                <summary class="card__summary"><i class="ri-file-text-fill"></i>  Presupuesto del tratamiento</summary>
-                <div style="max-width: 300px; margin: 20px; font-family: sans-serif;">
-                    <label for="pdfUpload" style="display: block; margin-bottom: 10px; font-weight: bold;">Subir presupuesto PDF</label>
-                    
-                    <input type="file" id="pdfUpload" accept="application/pdf" style="display: none;" />
-                    
-                    <button id="uploadBtn" style="padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                        Elegir PDF
-                    </button>
-                    
-                   <div id="fileInfo">
-                        <span style="font-size: 1.2rem;">📄</span>
-                        <span id="fileName" style="word-break: break-word;"></span>
+                <div class="tarjeta__cuerpo odontograma">
+                    <div class="odontograma__lienzo">
+                        <div class="odontograma__rotulos" aria-hidden="true">
+                            <span>Superior derecha</span><span>Maxilar</span><span>Superior izquierda</span>
                         </div>
-                </div>
-            </details>
-            <details class="card">
-                <summary class="card__summary"><i class="ri-money-dollar-circle-fill"></i>  Historial de pagos</summary>
-                    <div class="lista__cabecera">
-                        <h3 class="container__heading" id="deuda-h3"></h3>
-                        <div class="lista__acciones">
-                            <a href="#" class="boton boton--primario boton--pequeno" id="crear-pago"><i class="ri-add-line" aria-hidden="true"></i> Nuevo pago</a>
+                        <div class="odontograma__fila odontograma__fila--superior" id="fila-superior"></div>
+                        <div class="odontograma__division" aria-hidden="true"></div>
+                        <div class="odontograma__fila odontograma__fila--inferior" id="fila-inferior"></div>
+                        <div class="odontograma__rotulos" aria-hidden="true">
+                            <span>Inferior derecha</span><span>Mandíbula</span><span>Inferior izquierda</span>
                         </div>
                     </div>
-                    <div id="table"></div>
-            </details>
-
-            <details class="card">
-                <summary class="card__summary"><i class="ri-image-2-fill"></i></i>  Imagenes</summary>
-                <div style="max-width: 300px; margin: 20px; font-family: sans-serif;">
-                <label for="imageInput" style="display: block; margin-bottom: 10px; font-weight: bold;">
-                    Subir imagen
-                </label>
-
-                <input type="file" id="imageInput" accept="image/*" style="display: none;" />
-
-                <button id="uploadImageBtn" style="padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                    Elegir imagen
-                </button>
                 </div>
+            </section>
 
-                <div id="imagePreviewContainer" class="gallery"></div>
-
-                <div id="imageModal" class="modal">
-                    <span class="close">&times;</span>
-                    <img class="modal-content" id="modalImage">
+            <section class="tarjeta ficha__bloque" aria-labelledby="pagos-titulo">
+                <div class="tarjeta__cabecera">
+                    <div>
+                        <h2 class="tarjeta__titulo" id="pagos-titulo">Historial de pagos</h2>
+                        <p class="tarjeta__subtitulo" id="deuda-pagos"></p>
+                    </div>
+                    <div class="lista__acciones">
+                        <button type="button" class="boton boton--primario boton--pequeno" id="crear-pago"><i class="ri-add-line" aria-hidden="true"></i> Nuevo pago</button>
+                    </div>
                 </div>
-            </details>
-        </main> 
+                <div id="table"></div>
+            </section>
+
+            <div class="ficha__pareja">
+                <section class="tarjeta ficha__bloque" aria-labelledby="presupuesto-titulo">
+                    <div class="tarjeta__cabecera">
+                        <h2 class="tarjeta__titulo" id="presupuesto-titulo">Presupuesto</h2>
+                        <button type="button" class="boton boton--secundario boton--pequeno" id="uploadBtn"><i class="ri-upload-2-line" aria-hidden="true"></i> Subir PDF</button>
+                    </div>
+                    <div class="tarjeta__cuerpo">
+                        <input type="file" id="pdfUpload" accept="application/pdf" hidden />
+                        <div class="adjunto" id="fileInfo" hidden></div>
+                        <p class="estado-vacio" id="presupuesto-vacio"><i class="ri-file-pdf-2-line" aria-hidden="true"></i>Sin presupuesto adjunto.</p>
+                    </div>
+                </section>
+
+                <section class="tarjeta ficha__bloque" aria-labelledby="imagenes-titulo">
+                    <div class="tarjeta__cabecera">
+                        <h2 class="tarjeta__titulo" id="imagenes-titulo">Imágenes</h2>
+                        <button type="button" class="boton boton--secundario boton--pequeno" id="uploadImageBtn"><i class="ri-image-add-line" aria-hidden="true"></i> Subir imagen</button>
+                    </div>
+                    <div class="tarjeta__cuerpo">
+                        <input type="file" id="imageInput" accept="image/*" hidden />
+                        <div class="galeria" id="imagePreviewContainer"></div>
+                        <p class="estado-vacio" id="galeria-vacia"><i class="ri-image-2-line" aria-hidden="true"></i>Todavía no hay imágenes.</p>
+                    </div>
+                </section>
+            </div>
+        </main>
     </div>
-    <dialog class="modal" id="edit-modal" role="dialog"
-        aria-labelledby="Crear  pago"
-        aria-describedby="Modal para una Pagos">
+
+    <!-- Modal para añadir un pago -->
+    <dialog class="modal" id="edit-modal" aria-labelledby="pago-modal-titulo">
         <div class="modal__container">
             <section class="modal__card">
                 <header class="modal__header">
-                    <h3 class="modal__heading">Añadir pago</h3>
-                    <button type="button" class="modal__close" aria-label="Cerrar Modal">
-                    <i class="ri-close-line"></i>
-                    </button>
+                    <h2 class="modal__heading" id="pago-modal-titulo">Añadir pago</h2>
+                    <button type="button" class="modal__close" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
                 </header>
-                <div class="modal__body">
-                    <form action="#" class="form">
-                        <div class="form__group">
-                            <label for="monto" class="form__label">Monto</label>
-                            <input
-                                type="number"
-                                name="monto"
-                                id="monto"
-                                class="form__input"
-                                placeholder="Monto del pago"
-                                required
-                            />
-                        </div>
-                        <div class="form__group">
-                            <label for="metodo_pago" class="form__label">Metodo pago</label>
-                            <select name="metodo_pago" id="metodo_pago"
-                                    class="form__input form__input--select form__input--modal--pagos">
-                                <option value="efectivo">Efectivo</option>
-                                <option value="tarjeta">Tarjeta</option>
-                            </select>
-                        </div>
-                        <div class="form__group">
-                            <label for="notas" class="form__label">Nota</label>
-                            <input type="text" id="notas" name="notas" class="form__input" data-required="true" />
-                        </div>
-                    </form>
-                </div>
+                <form action="#" class="modal__body">
+                    <div class="form__group">
+                        <label for="monto" class="form__label">Monto</label>
+                        <input type="number" name="monto" id="monto" class="form__input" placeholder="Monto del pago" min="0" step="0.01" inputmode="decimal" required />
+                    </div>
+                    <div class="form__group">
+                        <label for="metodo_pago" class="form__label">Método de pago</label>
+                        <select name="metodo_pago" id="metodo_pago" class="form__input form__input--select">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+                    <div class="form__group">
+                        <label for="notas" class="form__label">Nota</label>
+                        <input type="text" id="notas" name="notas" class="form__input" />
+                    </div>
+                </form>
                 <footer class="modal__footer">
-                    <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
-                    <button type="button" class="modal__button modal__button--primary" id="guardar-pago">Guardar Cambios</button>
+                    <button type="button" class="boton boton--secundario modal__button--close">Cancelar</button>
+                    <button type="button" class="boton boton--primario" id="guardar-pago">Guardar pago</button>
                 </footer>
             </section>
         </div>
     </dialog>
 
-    <style>
-        .paciente-info h2 {
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .datos-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            font-size: 1rem;
-        }
-
-        @media (max-width: 600px) {
-            .datos-grid {
-            grid-template-columns: 1fr;
-        }}
-    </style>
+    <!-- Visor de una imagen a pantalla completa -->
+    <dialog class="modal visor-imagen" id="imageModal" aria-label="Imagen del tratamiento">
+        <button type="button" class="boton boton--icono boton--secundario visor-imagen__cerrar" aria-label="Cerrar imagen"><i class="ri-close-line" aria-hidden="true"></i></button>
+        <img class="visor-imagen__img" id="modalImage" alt="Imagen del tratamiento">
+    </dialog>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Datos de clinica (window.Clinica): lo usa "Generar factura" por pago. -->

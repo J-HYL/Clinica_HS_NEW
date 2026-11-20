@@ -1,0 +1,577 @@
+@import url("../base/base.css");
+@import url("../components/shell.css");
+@import url("../components/tabla.css");
+@import url("../components/modal.css");
+
+/* ficha.css — Ficha del paciente (clientes/historia-clinica.html) y ficha del
+   tratamiento (clientes/tratamientos.html). Solo tokens.
+
+   <main class="ficha">
+     <a class="ficha__volver">                  <- vuelve a la pantalla de arriba
+     <div class="ficha__cabecera">              <- h1.page-title + .ficha__acciones
+     <section class="tarjeta ficha__bloque">    <- datos (.datos) y demas bloques
+     <section class="container ficha__bloque">  <- pestañas + listas (Tabla.js)
+
+   El marco (.ficha, .ficha__volver, .ficha__cabecera, .ficha__intro) es
+   pieza comun de ui.css. */
+
+/* ---------------------------------------------------------------- Marco */
+.ficha{ padding-bottom: 72px; } /* hueco para la burbuja de soporte (Soporte.js) */
+
+.wrapper:has(> .ficha){ padding-bottom: 0; }
+
+/* Titulo que rellena el JS: mientras llega el dato no se queda en blanco. */
+.ficha .page-title :empty::before,
+.ficha .page-title:empty::before{
+    content: "Cargando…";
+    color: var(--hs-texto-tenue);
+}
+
+/* Titulo con su estado al lado (tratamiento). La pastilla no se ve hasta que llega. */
+.ficha__titulo{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+}
+
+.ficha__titulo .pastilla:empty{ display: none; }
+
+/* Paciente: iniciales + nombre. */
+.ficha__identidad{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.ficha__identidad .iniciales{
+    width: 48px;
+    height: 48px;
+    font-size: .875rem;
+}
+
+.ficha__acciones{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Movil: las acciones de la cabecera se reparten el ancho. */
+@media (max-width: 639px){
+    .ficha__acciones{ width: 100%; }
+    .ficha__acciones .boton{ flex: 1 1 auto; }
+}
+
+.ficha__bloque{ margin-top: 20px; }
+
+/* Dos bloques lado a lado en pantallas anchas (presupuesto | imagenes). */
+.ficha__pareja{
+    display: grid;
+    gap: 20px;
+    margin-top: 20px;
+}
+.ficha__pareja > .ficha__bloque{ margin-top: 0; }
+
+@container ficha (min-width: 860px){
+    .ficha__pareja{ grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+}
+
+/* ---------------------------------------------------------------- Datos
+   Rejilla de "etiqueta pequeña encima, valor debajo". */
+.datos{
+    display: grid;
+    gap: 20px 24px;
+}
+
+/* Datos cortos (importes, fechas): ya en dos columnas en el movil. */
+.datos--cuatro{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Movil, resto de datos: uno por fila con la etiqueta a la izquierda. */
+@container ficha (max-width: 479px){
+    .datos:not(.datos--cuatro){ gap: 12px; }
+
+    .datos:not(.datos--cuatro) .dato{
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        align-items: baseline;
+        gap: 12px;
+    }
+
+    .datos:not(.datos--cuatro) .dato__valor{
+        margin-top: 0;
+        font-size: .875rem;
+    }
+}
+
+@container ficha (min-width: 480px){
+    .datos{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container ficha (min-width: 720px){
+    .datos{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@container ficha (min-width: 860px){
+    .datos--cuatro{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.dato{ min-width: 0; }
+
+.dato--ancho{ grid-column: 1 / -1; }
+
+.dato__etiqueta{
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--hs-texto-suave);
+}
+
+.dato__valor{
+    margin-top: 4px;
+    font-size: .9375rem;
+    font-weight: 500;
+    color: var(--hs-texto-fuerte);
+    overflow-wrap: anywhere;
+}
+
+/* Mientras llega el dato. */
+.dato__valor:empty::before{
+    content: "—";
+    color: var(--hs-texto-tenue);
+}
+
+.dato__valor--importe{
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    font-variant-numeric: tabular-nums;
+}
+
+.dato__valor[data-tono="peligro"]{ color: var(--hs-peligro); }
+
+/* ---------------------------------------------------------------- Pestañas
+   Las activa el JS con aria-selected="true"; cada panel va con hidden. */
+.pestanas{
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--hs-borde);
+    scrollbar-width: none;
+}
+
+.pestanas__opcion{
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: -1px;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--hs-texto-suave);
+    font-size: .875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+}
+
+.pestanas__opcion:hover{ color: var(--hs-texto-fuerte); }
+
+.pestanas__opcion[aria-selected="true"]{
+    border-bottom-color: var(--hs-acento);
+    color: var(--hs-acento);
+}
+
+/* Pestaña con algo pendiente (p. ej. solicitudes abiertas) + su numero. */
+.pestanas__opcion--aviso:not([aria-selected="true"]){ color: var(--hs-peligro); }
+
+.pestanas__contador{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: var(--hs-radio-pastilla);
+    background: var(--hs-peligro);
+    color: #fff;
+    font-size: .6875rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* ---------------------------------------------------------------- Solicitudes de cita
+   Lista que pinta solicitudes-ficha.js en su pestaña. */
+.solicitudes{
+    margin-top: 12px;
+    list-style: none;
+}
+
+.solicitud{
+    padding: 16px 0;
+    border-top: 1px solid var(--hs-borde-suave);
+}
+
+.solicitud__cabecera{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.solicitud__fecha{
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+}
+.solicitud__fecha::first-letter{ text-transform: uppercase; }
+
+.solicitud__detalle{
+    margin-top: 4px;
+    font-size: .8125rem;
+    color: var(--hs-texto-suave);
+    overflow-wrap: anywhere;
+}
+
+.solicitud__acciones{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.solicitud__acciones .boton[data-tono="peligro"]{ color: var(--hs-peligro); }
+.solicitud__acciones .boton[data-tono="peligro"]:hover{ background: var(--hs-peligro-suave); }
+
+/* ---------------------------------------------------------------- Modal del tratamiento
+   Campos en dos columnas cuando el modal es ancho; el odontograma, a lo ancho. */
+.tratamiento-form{
+    display: grid;
+    align-content: start;
+    gap: 16px 20px;
+}
+
+@container modal (min-width: 560px){
+    .tratamiento-form{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tratamiento-form__ancho{ grid-column: 1 / -1; }
+}
+
+/* Selector de piezas: "General" (toda la boca) y las 32 piezas por cuadrante
+   (numeracion FDI, vistas de frente: la derecha del paciente a la izquierda). */
+.piezas{
+    min-width: 0;
+    border: 0;
+}
+
+.piezas__mapa{
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--hs-borde-suave);
+    border-radius: var(--hs-radio);
+    background: var(--hs-superficie-suave);
+}
+
+.piezas__rotulo{
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--hs-texto-suave);
+}
+
+.piezas__arcada{
+    display: grid;
+    gap: 6px 14px;
+}
+
+@container modal (min-width: 560px){
+    .piezas__arcada{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.piezas__cuadrante{
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.pieza{
+    position: relative;
+    display: block;
+}
+
+/* La casilla real queda oculta; se ve (y se pulsa) su etiqueta. */
+.pieza input{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.pieza span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    border: 1px solid var(--hs-borde-control);
+    border-radius: var(--hs-radio-sm);
+    background: var(--hs-superficie);
+    color: var(--hs-texto-suave);
+    font-size: .75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.pieza input:not(:disabled) + span:hover{ border-color: var(--hs-acento-claro); }
+
+.pieza input:checked + span{
+    border-color: var(--hs-acento);
+    background: var(--hs-acento);
+    color: #fff;
+}
+
+.pieza input:focus-visible + span{ box-shadow: var(--hs-foco); }
+
+/* Con "General" marcado entran todas: se ven incluidas y no se pueden tocar. */
+.pieza input:disabled + span{
+    border-color: var(--hs-acento-contador);
+    background: var(--hs-acento-suave);
+    color: var(--hs-acento);
+    cursor: default;
+}
+
+.pieza--general{ align-self: flex-start; }
+
+.pieza--general span{
+    aspect-ratio: auto;
+    min-height: 34px;
+    padding: 0 16px;
+    border-radius: var(--hs-radio-pastilla);
+}
+
+/* ---------------------------------------------------------------- Odontograma del tratamiento
+   Color de cada pieza ligado a su ESTADO (data-estado, lo pone tratamientos.js):
+   pendiente -> peligro, completada -> exito. Solo las piezas del tratamiento
+   son botones (alternan pendiente <-> completada). */
+.leyenda-piezas{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    list-style: none;
+}
+
+.leyenda-piezas li{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--hs-texto-suave);
+}
+
+.leyenda-piezas li::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--marca-borde);
+    border-radius: 50%;
+    background: var(--marca-fondo);
+}
+
+.leyenda-piezas [data-estado="pendiente"],
+.diente[data-estado="pendiente"]{
+    --marca-fondo: var(--hs-peligro-marca);
+    --marca-borde: var(--hs-peligro);
+}
+
+.leyenda-piezas [data-estado="completada"],
+.diente[data-estado="completada"]{
+    --marca-fondo: var(--hs-exito-marca);
+    --marca-borde: var(--hs-exito);
+}
+
+.odontograma{
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.odontograma__lienzo{
+    display: grid;
+    gap: 10px;
+    width: max-content;
+    margin: 0 auto;
+}
+
+.odontograma__rotulos{
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--hs-texto-tenue);
+}
+
+.odontograma__fila{
+    display: flex;
+    gap: 6px;
+}
+
+/* Linea media entre los dos cuadrantes. */
+.odontograma__fila > :nth-child(9){ margin-left: 14px; }
+
+.odontograma__division{ border-top: 1px dashed var(--hs-borde-control); }
+
+.diente{
+    --marca-fondo: var(--hs-superficie);
+    --marca-borde: var(--hs-borde-control);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--hs-radio-sm);
+    background: none;
+    color: var(--hs-texto-tenue);
+    font: inherit;
+}
+
+/* Inferiores: la corona mira hacia arriba y el numero queda junto a la linea media. */
+.odontograma__fila--inferior .diente{ flex-direction: column-reverse; }
+
+.diente__forma{
+    width: 34px;
+    height: 44px;
+    border: 1.5px solid var(--marca-borde);
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+    background: var(--marca-fondo);
+    transition: background-color .2s ease, border-color .2s ease, transform .15s ease;
+}
+
+.odontograma__fila--inferior .diente__forma{ border-radius: 40% 40% 50% 50% / 40% 40% 60% 60%; }
+
+.diente__numero{
+    font-size: .6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.diente[data-estado]{ color: var(--marca-borde); }
+.diente[data-estado] .diente__numero{ font-weight: 700; }
+
+button.diente{ cursor: pointer; }
+button.diente:hover .diente__forma{ transform: translateY(-2px); }
+.odontograma__fila--inferior button.diente:hover .diente__forma{ transform: translateY(2px); }
+
+@media (prefers-reduced-motion: reduce){
+    .diente__forma{ transition: none; }
+    button.diente:hover .diente__forma{ transform: none; }
+}
+
+/* ---------------------------------------------------------------- Presupuesto (PDF adjunto) */
+.adjunto{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px 10px 14px;
+    border: 1px solid var(--hs-borde-suave);
+    border-radius: var(--hs-radio);
+    background: var(--hs-superficie-suave);
+}
+
+.adjunto__icono{
+    flex: 0 0 auto;
+    font-size: 1.5rem;
+    color: var(--hs-peligro-marca);
+}
+
+.adjunto__nombre{
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: .8125rem;
+    font-weight: 500;
+    color: var(--hs-texto-fuerte);
+    overflow-wrap: anywhere;
+}
+
+.adjunto .boton{ color: var(--hs-texto-suave); }
+.adjunto .boton:hover{ color: var(--hs-acento); background: var(--hs-acento-mas-suave); }
+.adjunto .boton[data-tono="peligro"]:hover{ color: var(--hs-peligro); background: var(--hs-peligro-suave); }
+
+/* ---------------------------------------------------------------- Galeria de imagenes */
+.galeria{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(clamp(88px, 22%, 140px), 1fr));
+    gap: 12px;
+}
+
+.galeria:empty{ display: none; }
+
+.galeria__item{
+    aspect-ratio: 1;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio);
+    background: var(--hs-superficie-suave);
+    cursor: zoom-in;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.galeria__item:hover{
+    border-color: var(--hs-acento-claro);
+    box-shadow: var(--hs-sombra-flotante);
+}
+
+.galeria__item img{
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Imagen que no carga (archivo ausente): aviso limpio en vez del icono roto. */
+.galeria__item--rota{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    color: var(--hs-texto-tenue);
+    font-size: .75rem;
+    text-align: center;
+    cursor: default;
+}
+
+.galeria__item--rota:hover{
+    border-color: var(--hs-borde);
+    box-shadow: none;
+}
+
+.galeria__item--rota i{ font-size: 1.5rem; }
+
+/* Visor a pantalla completa (es un .modal abierto con showModal()). */
+.visor-imagen{ background-color: rgba(20, 27, 36, .85); }
+
+.visor-imagen__img{
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: var(--hs-radio);
+    object-fit: contain;
+    box-shadow: var(--hs-sombra-flotante);
+}
+
+.visor-imagen__cerrar{
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}

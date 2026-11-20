@@ -1,18 +1,20 @@
 import {
   setTableEventsListeners,
-  showTreatmentsByClientId,
-  formatFecha
+  showTreatmentsByClientId
 } from "../../modules/funciones.js";
 import { table } from "../../modules/selectores.js";
 import DB from "../../modules/classes/DB_API.js";
-import { openModal } from "../../modules/components/Modal.js";
 import { mountVisitas } from "../../modules/components/Visitas.js";
+import { euros, formatFecha, iniciales } from "../../modules/formato.js";
+
+const patientId = new URLSearchParams(window.location.search).get("id");
 
 const crearTratamientoBtn = document.getElementById("crear-tratamiento");
 const modal = document.getElementById("edit-modal");
+const formTratamiento = document.getElementById("form-tratamiento");
 
-const generalCheckbox = document.querySelector('input[name="piezas[]"][value="general"]');
-const toothCheckboxes = document.querySelectorAll('input[name="piezas[]"]:not([value="general"])');
+const generalCheckbox = modal.querySelector('input[name="piezas[]"][value="general"]');
+const toothCheckboxes = modal.querySelectorAll('input[name="piezas[]"]:not([value="general"])');
 const guardarTratamientoBtn = document.getElementById("guardar-tratamiento");
 
 const modalHeading = modal.querySelector(".modal__heading");
@@ -22,24 +24,39 @@ const customTreatmentInput = document.getElementById("customTreatmentInput");
 const observacionesInput = document.getElementById("observaciones");
 const montoTotalInput = document.getElementById("monto_total");
 const montoPagadoInput = document.getElementById("monto_pagado");
-const montoPagadoLabel = document.querySelector('label[for="monto_pagado"]');
+const montoPagadoLabel = modal.querySelector('label[for="monto_pagado"]');
 
 // Estado del modal: null = creando; un id = editando ese tratamiento.
 let editingTreatmentId = null;
 let editingPieces = [];        // piezas actuales del tratamiento en edición
 let editingMontoPagado = 0;    // abonado actual (no editable: se gestiona desde pagos)
 
+// "Nuevo presupuesto" abre el editor de presupuestos con este paciente ya elegido.
+if (patientId) {
+  document.getElementById("nuevo-presupuesto").href =
+    `/pages/Presupuestos/presupuesto.html?paciente=${encodeURIComponent(patientId)}`;
+}
+
 // ---- Helpers de formulario ----
 
-function resetFormPiezas() {
-  document.querySelector('.form').reset();
-  generalCheckbox.checked = false;
+// El nombre libre del tratamiento solo se pide con "Otro...".
+function mostrarTratamientoPersonalizado(mostrar) {
+  customTreatmentWrapper.classList.toggle("form__group--hidden", !mostrar);
+}
+
+// "General" = toda la boca: los dientes sueltos quedan incluidos y bloqueados.
+function bloquearDientes(bloquear) {
   toothCheckboxes.forEach(checkbox => {
-    checkbox.checked = false;
-    checkbox.disabled = false;
-    checkbox.style.background = "#f0f0f0";
+    checkbox.disabled = bloquear;
+    if (bloquear) checkbox.checked = false;
   });
-  customTreatmentWrapper.style.display = "none";
+}
+
+function resetFormPiezas() {
+  formTratamiento.reset();
+  generalCheckbox.checked = false;
+  bloquearDientes(false);
+  mostrarTratamientoPersonalizado(false);
 }
 
 // Deja el formulario listo para CREAR un tratamiento nuevo.
@@ -47,7 +64,8 @@ function setCreateMode() {
   editingTreatmentId = null;
   editingPieces = [];
   editingMontoPagado = 0;
-  modalHeading.textContent = "Crear Tratamiento";
+  modalHeading.textContent = "Crear tratamiento";
+  guardarTratamientoBtn.textContent = "Crear tratamiento";
   montoPagadoInput.readOnly = false;
   montoPagadoLabel.textContent = "Abonado";
   resetFormPiezas();
@@ -84,15 +102,15 @@ async function cargarTratamientos(patientId) {
   const tabla = await showTreatmentsByClientId(patientId);
   const totalDeuda = (tabla?.filas || []).reduce((sum, t) => sum + parseFloat(t.deuda || 0), 0);
   const deudaPacienteSpan = document.getElementById("deuda-paciente");
-  if (deudaPacienteSpan) deudaPacienteSpan.textContent = `${totalDeuda.toFixed(2)} €`;
+  deudaPacienteSpan.textContent = euros(totalDeuda);
+  deudaPacienteSpan.dataset.tono = totalDeuda > 0 ? "peligro" : "";
 }
 
 // ---- Apertura del modal ----
 
-crearTratamientoBtn.addEventListener("click", (e) => {
-  e.preventDefault();
+crearTratamientoBtn.addEventListener("click", () => {
   setCreateMode();
-  openModal();
+  modal.show();
 });
 
 // Carga un tratamiento existente en el modal para editarlo.
@@ -108,17 +126,18 @@ async function openEditTreatment(id) {
     editingMontoPagado = parseFloat(treatment.monto_pagado || 0);
 
     resetFormPiezas();
-    modalHeading.textContent = "Editar Tratamiento";
+    modalHeading.textContent = "Editar tratamiento";
+    guardarTratamientoBtn.textContent = "Guardar cambios";
 
     // Tipo: si coincide con una opción del select, se selecciona;
     // si no, es un tratamiento personalizado -> "otro" + input.
     const opciones = Array.from(diagnosticoSelect.options).map(o => o.value);
     if (opciones.includes(treatment.diagnostico)) {
       diagnosticoSelect.value = treatment.diagnostico;
-      customTreatmentWrapper.style.display = "none";
+      mostrarTratamientoPersonalizado(false);
     } else {
       diagnosticoSelect.value = "otro";
-      customTreatmentWrapper.style.display = "block";
+      mostrarTratamientoPersonalizado(true);
       customTreatmentInput.value = treatment.diagnostico || "";
     }
 
@@ -134,17 +153,13 @@ async function openEditTreatment(id) {
     const tieneGeneral = editingPieces.some(p => String(p.tooth_number) === "General");
     if (tieneGeneral) {
       generalCheckbox.checked = true;
-      toothCheckboxes.forEach(cb => {
-        cb.disabled = true;
-        cb.checked = false;
-        cb.style.background = "#70b3fa";
-      });
+      bloquearDientes(true);
     } else {
       const marcados = new Set(editingPieces.map(p => String(p.tooth_number)));
       toothCheckboxes.forEach(cb => { cb.checked = marcados.has(cb.value); });
     }
 
-    openModal();
+    modal.show();
   } catch (error) {
     console.error("Error al cargar el tratamiento para editar:", error);
     Swal.fire({
@@ -155,18 +170,16 @@ async function openEditTreatment(id) {
   }
 }
 
-document.querySelector(".modal__close").addEventListener("click", () => {
+modal.querySelector(".modal__close").addEventListener("click", () => {
   modal.close();
 });
-document.querySelector(".modal__button--close").addEventListener("click", () => {
+modal.querySelector(".modal__button--close").addEventListener("click", () => {
   modal.close();
 });
 
 // ---- Carga inicial ----
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const params = new URLSearchParams(window.location.search);
-  const patientId = params.get("id");
   const deudaPacienteSpan = document.getElementById("deuda-paciente");
 
   if (!patientId) {
@@ -179,12 +192,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!pacienteData) throw new Error("Paciente no encontrado");
 
     document.getElementById('nombre-paciente').textContent = pacienteData.nombre || 'No disponible';
+    document.getElementById('iniciales-paciente').textContent = iniciales(pacienteData.nombre);
     document.getElementById('email-paciente').textContent = pacienteData.email || 'No disponible';
     document.getElementById('telefono-paciente').textContent = pacienteData.telefono || 'No disponible';
     document.getElementById('fecha-alta-paciente').textContent = pacienteData.Alta ? formatFecha(pacienteData.Alta) : 'No disponible';
     document.getElementById('alergias').textContent = pacienteData.alergias || 'No disponible';
-    document.getElementById('edad').textContent = ' ' + pacienteData.edad || 'No disponible';
-    document.title = `Historia Clínica - ${pacienteData.nombre}`;
+    document.getElementById('edad').textContent = String(pacienteData.edad ?? "").trim() || 'No disponible';
+    document.title = `${pacienteData.nombre || "Paciente"} · HS Dental`;
 
     await cargarTratamientos(patientId);
 
@@ -198,31 +212,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       title: "Error",
       text: `No se pudieron cargar los datos: ${error.message}`
     });
-    if (deudaPacienteSpan) {
-      deudaPacienteSpan.textContent = `Error`;
-    }
+    deudaPacienteSpan.textContent = "Error";
   }
 });
 
-// "General" deshabilita/marca todos los dientes concretos.
 generalCheckbox.addEventListener('change', function () {
-  if (this.checked) {
-    toothCheckboxes.forEach(checkbox => {
-      checkbox.disabled = true;
-      checkbox.checked = false;
-      checkbox.style.background = "#70b3fa";
-    });
-  } else {
-    toothCheckboxes.forEach(checkbox => {
-      checkbox.disabled = false;
-      checkbox.style.background = "#f0f0f0";
-    });
-  }
+  bloquearDientes(this.checked);
 });
 
 // Mostrar el input de tratamiento personalizado al elegir "otro".
 diagnosticoSelect.addEventListener('change', () => {
-  customTreatmentWrapper.style.display = diagnosticoSelect.value === 'otro' ? 'block' : 'none';
+  mostrarTratamientoPersonalizado(diagnosticoSelect.value === 'otro');
 });
 
 // ---- Guardar (crear o editar) ----
@@ -237,9 +237,6 @@ guardarTratamientoBtn.addEventListener("click", async (e) => {
 });
 
 async function guardarNuevoTratamiento() {
-  const params = new URLSearchParams(window.location.search);
-  const patientId = params.get("id");
-
   if (!patientId) {
     Swal.fire({ icon: "error", title: "Error", text: "No se encontró el ID del paciente en la URL" });
     return;
@@ -309,9 +306,6 @@ async function guardarNuevoTratamiento() {
 }
 
 async function guardarEdicionTratamiento() {
-  const params = new URLSearchParams(window.location.search);
-  const patientId = params.get("id");
-
   const diagnostico = resolveDiagnostico();
   if (diagnostico === null) return;
 
@@ -400,24 +394,32 @@ table.addEventListener("click", e => {
   setTableEventsListeners(e, "treatments");
 });
 
-// ---- Pestañas Tratamientos / Visitas ----
-const tabButtons = document.querySelectorAll(".tab");
-const panelTratamientos = document.getElementById("panel-tratamientos");
-const panelVisitas = document.getElementById("panel-visitas");
-const panelSolicitudes = document.getElementById("panel-solicitudes");
-tabButtons.forEach(tab => {
-  tab.addEventListener("click", () => {
-    const target = tab.dataset.tab;
-    tabButtons.forEach(t => t.classList.toggle("tab--active", t === tab));
-    if (panelTratamientos) panelTratamientos.hidden = target !== "tratamientos";
-    if (panelVisitas) panelVisitas.hidden = target !== "visitas";
-    if (panelSolicitudes) panelSolicitudes.hidden = target !== "solicitudes";
+// ---- Pestañas Tratamientos / Visitas / Solicitudes ----
+// Patron de pestañas accesible: la activa lleva aria-selected y es la unica
+// alcanzable con Tab; las flechas mueven entre pestañas.
+const pestanas = [...document.querySelectorAll(".pestanas__opcion")];
+
+function activarPestana(pestana) {
+  pestanas.forEach(p => {
+    const activa = p === pestana;
+    p.setAttribute("aria-selected", String(activa));
+    p.tabIndex = activa ? 0 : -1;
+    document.getElementById(p.getAttribute("aria-controls")).hidden = !activa;
+  });
+}
+
+pestanas.forEach((pestana, i) => {
+  pestana.addEventListener("click", () => activarPestana(pestana));
+  pestana.addEventListener("keydown", e => {
+    const paso = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (!paso) return;
+    const siguiente = pestanas[(i + paso + pestanas.length) % pestanas.length];
+    activarPestana(siguiente);
+    siguiente.focus();
   });
 });
 
 // La campana del panel puede pedir abrir una pestaña concreta (?tab=solicitudes).
 const tabPedida = new URLSearchParams(window.location.search).get("tab");
-if (tabPedida) {
-  const btnTab = document.querySelector(`.tab[data-tab="${tabPedida}"]`);
-  if (btnTab) btnTab.click();
-}
+const pestanaPedida = pestanas.find(p => p.dataset.tab === tabPedida);
+if (pestanaPedida) activarPestana(pestanaPedida);

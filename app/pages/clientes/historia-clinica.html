@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HS Dental - Agregar Nuevo Cliente</title>
+    <title>Historia clínica · HS Dental</title>
 
     <!-- Scripts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="/css/pages/agregar.css">
-    <link rel="stylesheet" href="/css/pages/control.css">
-    <link rel="stylesheet" href="../../css/components/modal.css">
-
+    <link rel="stylesheet" href="/css/pages/ficha.css">
+    <link rel="stylesheet" href="/css/components/selectorCita.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
@@ -21,292 +19,102 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="HS Dental" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-    <style>
-    @media (max-width: 768px) {
-        .modal__container {
-        width: 95vw;
-        padding: 1rem;
-        box-sizing: border-box;
-        }
-
-        .form__group {
-        width: 100%;
-        }
-
-        .form__input {
-        width: 100%;
-        }
-
-        .odontograma-row {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-    }
-
-    .modal__container {
-        max-width: 500px; /* ajusta según tu diseño */
-        width: 90vw;
-        margin: 0 auto;
-    }
-
-    /* Ya tienes esto pero por si acaso */
-    .odontograma {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        margin: 20px 0;
-        font-family: sans-serif;
-        width: 100%;
-    }
-
-    /* Contenedor scroll para cada fila */
-    .odontograma-scroll {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Aquí van las filas con flex para los checkboxes */
-    .odontograma-row {
-        display: flex;
-        gap: 4px;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        min-width: max-content; /* importante para que el scroll detecte el ancho real */
-    }
-
-    /* Dientes */
-    .tooth {
-        position: relative;
-        width: 32px;
-        height: 32px;
-        flex-shrink: 0; /* que no se reduzcan */
-    }
-
-    /* El input con los estilos que pusiste */
-    .tooth input[type="checkbox"] {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 100%;
-        height: 100%;
-        border: 2px solid #ccc;
-        border-radius: 6px;
-        background-color: #f0f0f0;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 12px;
-        text-align: center;
-        transition: 0.2s;
-    }
-
-    .tooth input[type="checkbox"]::before {
-        content: attr(data-num);
-        display: block;
-        text-align: center;
-        line-height: 28px;
-        color: #333;
-    }
-
-    .tooth input[type="checkbox"]:checked {
-        background-color: #70b3fa;
-        color: white;
-        border-color: #70b3fa;
-    }
-    .modal__card{
-        padding-right: 1rem;
-        padding-left: 1rem;
-    }
-    .paciente-info h2 {
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-    }
-
-    .datos-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        font-size: 1rem;
-    }
-
-    /* ===== Modal Crear/Editar Tratamiento: encajar en pantalla + acabado profesional ===== */
-    /* Cabecera y pie fijos, cuerpo (formulario) con scroll: los botones nunca se cortan. */
-    #edit-modal .modal__card{
-        padding: 0;
-        max-height: 92vh;
-        overflow: hidden;
-    }
-    #edit-modal .modal__header{
-        flex-shrink: 0;
-        padding: 18px 24px;
-        border-bottom: 1px solid rgba(34, 34, 38, 0.08);
-    }
-    #edit-modal .modal__footer{
-        flex-shrink: 0;
-        padding: 16px 24px;
-        background-color: #fafbfc;
-    }
-    #edit-modal .form{
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-        padding: 22px 24px;
-    }
-    #edit-modal .form__group{
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin: 0;
-        width: 100%;
-    }
-    #edit-modal .form__label{
-        margin: 0;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #344054;
-    }
-    #edit-modal .form__input{
-        width: 100%;
-    }
-    /* El "Abonado" es solo lectura en edición: se ve claramente no editable. */
-    #edit-modal .form__input[readonly]{
-        background-color: #f1f2f6;
-        color: #667085;
-        cursor: not-allowed;
-    }
-    /* Campo de tratamiento personalizado ("Otro...") */
-    #edit-modal #customTreatmentWrapper{
-        margin: 0;
-    }
-    #edit-modal #customTreatmentWrapper label{
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #344054;
-    }
-    /* Selector "General" como pastilla, alineado a la izquierda */
-    #edit-modal .tooth--general{
-        width: auto;
-        height: 36px;
-    }
-    #edit-modal .tooth--general input[type="checkbox"]{
-        width: auto;
-        min-width: 100px;
-        height: 36px;
-        padding: 0 18px;
-        border-radius: 999px;
-    }
-    #edit-modal .tooth--general input[type="checkbox"]::before{
-        line-height: 32px;
-    }
-    /* Bloque del odontograma con marco suave */
-    #edit-modal .odontograma{
-        margin: 2px 0 0;
-        padding: 16px;
-        gap: 10px;
-        background: #f8f9fb;
-        border: 1px solid #e6e8ef;
-        border-radius: 12px;
-        align-items: stretch;
-    }
-    #edit-modal .odontograma-label{
-        font-weight: 600;
-        font-size: 0.78rem;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        color: #667085;
-    }
-
-    /* ===== Pestañas Tratamientos / Visitas ===== */
-    .tabs{
-        display: flex;
-        gap: 4px;
-        border-bottom: 2px solid #e6e8ef;
-        margin-bottom: 1.5rem;
-    }
-    .tab{
-        appearance: none;
-        background: none;
-        border: none;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-        padding: 12px 22px;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #667085;
-        cursor: pointer;
-        transition: color .2s, border-color .2s;
-    }
-    .tab:hover{ color: #3b82f6; }
-    .tab--active{ color: #3b82f6; border-bottom-color: #3b82f6; }
-    .tab-panel[hidden]{ display: none; }
-    /* El botón "Programar cita" del feed no está en el contenedor .main, así que el
-       container-query no lo expande: forzamos que muestre el texto siempre. */
-    #dar-cita{ width: auto; padding: 0 14px; gap: 8px; }
-    #dar-cita span{ width: auto; overflow: visible; }
-    </style>
 </head>
 <body>
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
-        <h1 class="page-title">Pacientes</h1>
-        <section class="container sections">
-            <div class="card__content">
-                <div class="paciente-info">
-                    <h2>Paciente: <span id="nombre-paciente"></span></h2>
-                    <div class="datos-grid">
-                        <div><strong>Email:</strong> <span id="email-paciente"></span></div>
-                        <div><strong>Teléfono:</strong> <span id="telefono-paciente"></span></div>
-                        <div><strong>Deuda:</strong> <span id="deuda-paciente">0.00 €</span></div>
-                        <div><strong>Fecha de alta:</strong> <span id="fecha-alta-paciente"></span></div>
-                        <div><strong>Alergias:</strong><span id="alergias"></span></div>
-                        <div><strong>Edad:</strong><span id="edad"></span></div>
-                    </div>
-                    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-                        <button type="button" id="dar-cita" class="boton boton--secundario boton--pequeno">
-                            <i class="ri-calendar-todo-line" aria-hidden="true"></i> Programar cita
-                        </button>
+        <main class="ficha">
+            <a href="control.html" class="ficha__volver"><i class="ri-arrow-left-line" aria-hidden="true"></i> Pacientes</a>
+
+            <div class="ficha__cabecera">
+                <div class="ficha__identidad">
+                    <span class="iniciales" id="iniciales-paciente" aria-hidden="true"></span>
+                    <div>
+                        <h1 class="page-title"><span id="nombre-paciente"></span></h1>
+                        <p class="ficha__intro">Historia clínica</p>
                     </div>
                 </div>
-            </div>
-        </section>
-            
-        <main class="container">
-            <div class="tabs" role="tablist">
-                <button type="button" class="tab tab--active" data-tab="tratamientos">Tratamientos</button>
-                <button type="button" class="tab" data-tab="visitas">Visitas</button>
-                <button type="button" class="tab" data-tab="solicitudes">Solicitudes</button>
-            </div>
-
-            <div class="tab-panel" id="panel-tratamientos">
-            <div class="lista__cabecera">
-                <h3 class="container__heading">Tratamientos del paciente</h3>
-                <div class="lista__acciones">
-                    <a href="#" class="boton boton--primario boton--pequeno" id="crear-tratamiento"><i class="ri-add-line" aria-hidden="true"></i> Crear tratamiento</a>
-                </div>
-            </div>
-            <div id="table"></div>
-            </div><!-- /panel-tratamientos -->
-
-            <!--MODAL PARA ANADIR UN TRATAMIENTO-->
-            <dialog class="modal" id="edit-modal" role="dialog"
-            aria-labelledby="Crear Tratamiento"
-            aria-describedby="Modal para Crear Tratamiento">
-            <div class="modal__container">
-                <section class="modal__card">
-                <header class="modal__header">
-                    <h3 class="modal__heading">Crear Tratamiento</h3>
-                    <button type="button" class="modal__close" aria-label="Cerrar Modal">
-                    <i class="ri-close-line"></i>
+                <div class="ficha__acciones">
+                    <a href="/pages/Presupuestos/presupuesto.html" class="boton boton--secundario" id="nuevo-presupuesto">
+                        <i class="ri-file-list-3-line" aria-hidden="true"></i> Nuevo presupuesto
+                    </a>
+                    <button type="button" id="dar-cita" class="boton boton--primario">
+                        <i class="ri-calendar-todo-line" aria-hidden="true"></i> Programar cita
                     </button>
+                </div>
+            </div>
+
+            <section class="tarjeta ficha__bloque" aria-labelledby="datos-titulo">
+                <div class="tarjeta__cabecera">
+                    <h2 class="tarjeta__titulo" id="datos-titulo">Datos del paciente</h2>
+                </div>
+                <dl class="tarjeta__cuerpo datos">
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Teléfono</dt>
+                        <dd class="dato__valor" id="telefono-paciente"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Email</dt>
+                        <dd class="dato__valor" id="email-paciente"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Fecha de alta</dt>
+                        <dd class="dato__valor" id="fecha-alta-paciente"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Edad</dt>
+                        <dd class="dato__valor" id="edad"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Alergias</dt>
+                        <dd class="dato__valor" id="alergias"></dd>
+                    </div>
+                    <div class="dato">
+                        <dt class="dato__etiqueta">Deuda pendiente</dt>
+                        <dd class="dato__valor dato__valor--importe" id="deuda-paciente"></dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="container ficha__bloque">
+                <div class="pestanas" role="tablist" aria-label="Historia clínica">
+                    <button type="button" class="pestanas__opcion" role="tab" id="pestana-tratamientos" aria-controls="panel-tratamientos" aria-selected="true" data-tab="tratamientos">Tratamientos</button>
+                    <button type="button" class="pestanas__opcion" role="tab" id="pestana-visitas" aria-controls="panel-visitas" aria-selected="false" tabindex="-1" data-tab="visitas">Visitas</button>
+                    <button type="button" class="pestanas__opcion" role="tab" id="pestana-solicitudes" aria-controls="panel-solicitudes" aria-selected="false" tabindex="-1" data-tab="solicitudes">Solicitudes</button>
+                </div>
+
+                <div role="tabpanel" id="panel-tratamientos" aria-labelledby="pestana-tratamientos">
+                    <div class="lista__cabecera">
+                        <h3 class="container__heading">Tratamientos del paciente</h3>
+                        <div class="lista__acciones">
+                            <button type="button" class="boton boton--primario boton--pequeno" id="crear-tratamiento"><i class="ri-add-line" aria-hidden="true"></i> Crear tratamiento</button>
+                        </div>
+                    </div>
+                    <div id="table"></div>
+                </div>
+
+                <div role="tabpanel" id="panel-visitas" aria-labelledby="pestana-visitas" hidden>
+                    <section id="visitas-section"></section>
+                </div>
+
+                <div role="tabpanel" id="panel-solicitudes" aria-labelledby="pestana-solicitudes" hidden>
+                    <section id="solicitudes-ficha-wrap"></section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para crear / editar un tratamiento -->
+    <dialog class="modal" id="edit-modal" aria-labelledby="tratamiento-modal-titulo">
+        <div class="modal__container modal__container--ancho">
+            <section class="modal__card">
+                <header class="modal__header">
+                    <h2 class="modal__heading" id="tratamiento-modal-titulo">Crear tratamiento</h2>
+                    <button type="button" class="modal__close" aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
                 </header>
 
-                <form action="#" class="form">
+                <form action="#" class="modal__body tratamiento-form" id="form-tratamiento">
                     <div class="form__group">
                         <label for="diagnostico" class="form__label">Tratamiento</label>
                         <select name="diagnostico" id="diagnostico" class="form__input form__input--select" required>
@@ -324,97 +132,88 @@
                             <option value="otro">Otro...</option>
                         </select>
                     </div>
-                    <div id="customTreatmentWrapper" class="form__group" style="display: none;">
+                    <div id="customTreatmentWrapper" class="form__group form__group--hidden">
                         <label for="customTreatmentInput" class="form__label">Nombre del tratamiento</label>
                         <input type="text" id="customTreatmentInput" class="form__input" placeholder="Especifica el tratamiento" />
                     </div>
 
-                    <div class="form__group">
-                    <label for="observaciones" class="form__label">Observaciones</label>
-                    <input type="text" name="observaciones" id="observaciones" class="form__input" placeholder="observaciones" />
+                    <div class="form__group tratamiento-form__ancho">
+                        <label for="observaciones" class="form__label">Observaciones</label>
+                        <input type="text" name="observaciones" id="observaciones" class="form__input" placeholder="Observaciones" />
                     </div>
 
                     <div class="form__group">
-                    <label for="monto_total" class="form__label">Monto total</label>
-                    <input type="number" id="monto_total" name="monto_total" class="form__input" data-required="true" />
+                        <label for="monto_total" class="form__label">Monto total</label>
+                        <input type="number" id="monto_total" name="monto_total" class="form__input" min="0" step="0.01" inputmode="decimal" />
                     </div>
 
                     <div class="form__group">
-                    <label for="monto_pagado" class="form__label">Abonado</label>
-                    <input type="number" id="monto_pagado" name="monto_pagado" class="form__input" data-required="true" />
+                        <label for="monto_pagado" class="form__label">Abonado</label>
+                        <input type="number" id="monto_pagado" name="monto_pagado" class="form__input" min="0" step="0.01" inputmode="decimal" />
                     </div>
 
-                    <div class="form__group">
-                    <label class="form__label">Piezas afectadas</label>
-                    <div class="tooth tooth--general"><input type="checkbox" name="piezas[]" value="general" data-num="General"></div>
-                    <div class="odontograma">
-                        <div class="odontograma-label">Piezas superiores</div>
-                            <div class="odontograma-scroll">
-                                <div class="odontograma-row">
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="18" data-num="18"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="17" data-num="17"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="16" data-num="16"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="15" data-num="15"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="14" data-num="14"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="13" data-num="13"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="12" data-num="12"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="11" data-num="11"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="21" data-num="21"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="22" data-num="22"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="23" data-num="23"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="24" data-num="24"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="25" data-num="25"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="26" data-num="26"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="27" data-num="27"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="28" data-num="28"></div>
+                    <fieldset class="form__group tratamiento-form__ancho piezas">
+                        <legend class="form__label">Piezas afectadas</legend>
+                        <label class="pieza pieza--general"><input type="checkbox" name="piezas[]" value="general"><span>General (toda la boca)</span></label>
+                        <div class="piezas__mapa">
+                            <p class="piezas__rotulo">Piezas superiores</p>
+                            <div class="piezas__arcada">
+                                <div class="piezas__cuadrante" role="group" aria-label="Superior derecha">
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="18"><span>18</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="17"><span>17</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="16"><span>16</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="15"><span>15</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="14"><span>14</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="13"><span>13</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="12"><span>12</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="11"><span>11</span></label>
+                                </div>
+                                <div class="piezas__cuadrante" role="group" aria-label="Superior izquierda">
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="21"><span>21</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="22"><span>22</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="23"><span>23</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="24"><span>24</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="25"><span>25</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="26"><span>26</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="27"><span>27</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="28"><span>28</span></label>
                                 </div>
                             </div>
 
-                            <div class="odontograma-label">Piezas inferiores</div>
-                            <div class="odontograma-scroll">
-                                <div class="odontograma-row">
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="48" data-num="48"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="47" data-num="47"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="46" data-num="46"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="45" data-num="45"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="44" data-num="44"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="43" data-num="43"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="42" data-num="42"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="41" data-num="41"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="31" data-num="31"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="32" data-num="32"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="33" data-num="33"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="34" data-num="34"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="35" data-num="35"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="36" data-num="36"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="37" data-num="37"></div>
-                                <div class="tooth"><input type="checkbox" name="piezas[]" value="38" data-num="38"></div>
+                            <p class="piezas__rotulo">Piezas inferiores</p>
+                            <div class="piezas__arcada">
+                                <div class="piezas__cuadrante" role="group" aria-label="Inferior derecha">
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="48"><span>48</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="47"><span>47</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="46"><span>46</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="45"><span>45</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="44"><span>44</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="43"><span>43</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="42"><span>42</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="41"><span>41</span></label>
+                                </div>
+                                <div class="piezas__cuadrante" role="group" aria-label="Inferior izquierda">
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="31"><span>31</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="32"><span>32</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="33"><span>33</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="34"><span>34</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="35"><span>35</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="36"><span>36</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="37"><span>37</span></label>
+                                    <label class="pieza"><input type="checkbox" name="piezas[]" value="38"><span>38</span></label>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </fieldset>
                 </form>
 
                 <footer class="modal__footer">
-                    <button type="button" class="modal__button modal__button--close" aria-label="Cancelar y Cerrar Modal">Cancelar</button>
-                    <button type="button" class="modal__button modal__button--primary" id="guardar-tratamiento">Guardar Cambios</button>
+                    <button type="button" class="boton boton--secundario modal__button--close">Cancelar</button>
+                    <button type="button" class="boton boton--primario" id="guardar-tratamiento">Guardar cambios</button>
                 </footer>
-                </section>
-            </div>
-            </dialog>
-
-            <div class="tab-panel" id="panel-visitas" hidden>
-                <section id="visitas-section"></section>
-            </div>
-
-            <div class="tab-panel" id="panel-solicitudes" hidden>
-                <section id="solicitudes-ficha-wrap"></section>
-            </div>
-
-        </main>
-
-       
-    </div>
-
+            </section>
+        </div>
+    </dialog>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/main.js" type="module"></script>
