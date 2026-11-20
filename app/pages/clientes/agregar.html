@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HS Dental - Agregar Nuevo Cliente</title>
+    <title>Nuevo paciente · HS Dental</title>
 
     <!-- Scripts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -24,33 +24,47 @@
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
+        <main class="ficha">
+            <a href="control.html" class="ficha__volver"><i class="ri-arrow-left-line" aria-hidden="true"></i> Pacientes</a>
+            <div class="ficha__cabecera">
+                <div>
+                    <h1 class="page-title container__heading">Nuevo paciente</h1>
+                    <p class="ficha__intro">Los campos con * son obligatorios.</p>
+                </div>
+            </div>
 
-        <main class="container main">
-            <h3 class="container__heading">Crear Cliente</h3>
-            <form action="#" class="form">
-                <div class="form__group">
-                    <label for="nombre" class="form__label">Nombre del Cliente</label>
-                    <input type="text" id="nombre" name="nombre" class="form__input" placeholder="Ej: Marcos López" data-required="true">
-                </div>
-                <div class="form__group">
-                    <label for="email" class="form__label">Email</label>
-                    <input type="text" id="email" name="email" class="form__input" placeholder="Ej: marcoslopez14@hsdental.es" data-validate="email">
-                </div>
-                <div class="form__group">
-                    <label for="telefono" class="form__label">Teléfono</label>
-                    <input type="number" name="telefono" id="telefono" class="form__input" placeholder="Ej: 633673456" data-validate="phone" data-required="true">
-                </div>
-                <div class="form__group">
-                    <label for="edad" class="form__label">Edad</label>
-                    <input type="number" name="edad" id="edad" class="form__input" placeholder="Ej: 20">
-                </div>
-                <div class="form__group">
-                    <label for="alergias" class="form__label">Alergias</label>
-                    <input type="text" name="alergias" id="alergias" class="form__input" placeholder="Ej: Penicilina, ...">
-                </div>
-                <div class="form__buttons">
-                    <button type="submit" class="form__submit" data-action="create">Crear Cliente <i class="ri-add-line"></i></button>
-                    <a href="control.html" class="form__return">Regresar</a>
+            <form action="#" class="form ficha__form">
+                <section class="tarjeta" aria-labelledby="datos-titulo">
+                    <div class="tarjeta__cabecera">
+                        <h2 class="tarjeta__titulo" id="datos-titulo">Datos del paciente</h2>
+                    </div>
+                    <div class="tarjeta__cuerpo ficha__campos">
+                        <div class="form__group ficha__campo--doble">
+                            <label for="nombre" class="form__label">Nombre y apellidos</label>
+                            <input type="text" id="nombre" name="nombre" class="form__input" placeholder="Ej. Marcos López" data-required="true">
+                        </div>
+                        <div class="form__group">
+                            <label for="telefono" class="form__label">Teléfono</label>
+                            <input type="number" name="telefono" id="telefono" class="form__input" placeholder="Ej. 633673456" data-validate="phone" data-required="true">
+                        </div>
+                        <div class="form__group">
+                            <label for="edad" class="form__label">Edad</label>
+                            <input type="number" name="edad" id="edad" class="form__input" placeholder="Ej. 20">
+                        </div>
+                        <div class="form__group ficha__campo--doble">
+                            <label for="email" class="form__label">Email</label>
+                            <input type="text" id="email" name="email" class="form__input" placeholder="Ej. marcoslopez@correo.es" data-validate="email">
+                        </div>
+                        <div class="form__group ficha__campo--doble">
+                            <label for="alergias" class="form__label">Alergias</label>
+                            <input type="text" name="alergias" id="alergias" class="form__input" placeholder="Ej. Penicilina, látex…">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="barra-acciones">
+                    <a href="control.html" class="boton boton--fantasma">Cancelar</a>
+                    <button type="submit" class="boton boton--primario form__submit" data-action="create"><i class="ri-add-line" aria-hidden="true"></i> Crear paciente</button>
                 </div>
             </form>
         </main>

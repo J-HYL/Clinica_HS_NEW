@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar Elemento Clínico</title>
+    <title>Nuevo elemento · HS Dental</title>
 
     <!-- Scripts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -24,114 +24,130 @@
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
-        <h1 class="page-title">Inventario</h1>
-
-        <main class="container main main--ancho">
-            <div class="main__titulo">
-                <h3 class="container__heading">Crear Elemento</h3>
-                <button type="button" class="ayuda" id="como-funciona">
-                    <i class="ri-question-line"></i>
-                    <span class="ayuda__texto">¿Cómo funciona?</span>
+        <main class="ficha">
+            <a href="control.html" class="ficha__volver"><i class="ri-arrow-left-line" aria-hidden="true"></i> Inventario</a>
+            <div class="ficha__cabecera">
+                <div>
+                    <h1 class="page-title container__heading">Nuevo elemento</h1>
+                    <p class="ficha__intro">Los campos con * son obligatorios.</p>
+                </div>
+                <button type="button" class="boton boton--secundario boton--pequeno" id="como-funciona">
+                    <i class="ri-question-line" aria-hidden="true"></i> ¿Cómo funciona?
                 </button>
             </div>
-            <form action="#" class="form">
 
-                <!-- El capturador de foto se pinta aquí desde FotoCaptura.js -->
-                <div class="form__group form__group--foto">
-                    <span class="form__label">Foto del elemento</span>
-                    <div class="foto" id="foto"></div>
-                </div>
-
-                <div class="form__group">
-                    <label for="nombre" class="form__label">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" class="form__input" placeholder="E.g. Fórceps superior recto" data-required="true">
-                </div>
-                <div class="form__group">
-                    <label for="categoria" class="form__label">Categoría</label>
-                    <select id="categoria" name="categoria" class="form__input"></select>
-                </div>
-
-                <div class="form__group">
-                    <label for="codigo" class="form__label">Código (barras o QR)</label>
-                    <div class="codigo">
-                        <input type="text" id="codigo" name="codigo" class="form__input" placeholder="Escanea el código del producto o genera uno propio" autocomplete="off">
-                        <div class="codigo__actions">
-                            <button type="button" class="codigo__btn" id="codigo-escanear"><i class="ri-qr-scan-2-line"></i> Escanear</button>
-                            <button type="button" class="codigo__btn" id="codigo-generar"><i class="ri-qr-code-line"></i> Generar QR propio</button>
-                            <button type="button" class="codigo__btn" id="codigo-imprimir" hidden><i class="ri-printer-line"></i> Imprimir etiqueta</button>
+            <form action="#" class="form ficha__form">
+                <section class="tarjeta" aria-labelledby="elemento-titulo">
+                    <div class="tarjeta__cabecera">
+                        <h2 class="tarjeta__titulo" id="elemento-titulo">Elemento</h2>
+                    </div>
+                    <div class="tarjeta__cuerpo ficha__campos">
+                        <!-- El capturador de foto se pinta aquí desde FotoCaptura.js -->
+                        <div class="form__group ficha__campo--completo">
+                            <span class="form__label">Foto</span>
+                            <div class="foto" id="foto"></div>
                         </div>
-                        <img class="codigo__qr" id="codigo-qr" alt="Vista previa del código QR" hidden>
-                    </div>
-                </div>
-                <div class="form__group">
-                    <label for="descripcion" class="form__label">Descripción</label>
-                    <input type="text" id="descripcion" name="descripcion" class="form__input" placeholder="E.g. Acero inoxidable, punta fina">
-                </div>
 
-                <div class="form__row">
-                    <div class="form__group">
-                        <label for="stock" class="form__label">Stock actual</label>
-                        <input type="number" id="stock" name="stock" class="form__input" value="0" min="0" step="1" data-required="true">
-                    </div>
-                    <div class="form__group">
-                        <label for="stock_minimo" class="form__label">Stock mínimo</label>
-                        <input type="number" id="stock_minimo" name="stock_minimo" class="form__input" value="0" min="0" step="1" data-required="true">
-                    </div>
-                    <div class="form__group">
-                        <label for="unidad" class="form__label">Unidad</label>
-                        <select id="unidad" name="unidad" class="form__input"></select>
-                    </div>
-                </div>
+                        <div class="form__group ficha__campo--doble">
+                            <label for="nombre" class="form__label">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" class="form__input" placeholder="Ej. Fórceps superior recto" data-required="true">
+                        </div>
+                        <div class="form__group">
+                            <label for="categoria" class="form__label">Categoría</label>
+                            <select id="categoria" name="categoria" class="form__input form__input--select"></select>
+                        </div>
+                        <div class="form__group">
+                            <label for="estado" class="form__label">Situación</label>
+                            <select id="estado" name="estado" class="form__input form__input--select"></select>
+                        </div>
 
-                <div class="form__row">
-                    <div class="form__group">
-                        <label for="ubicacion" class="form__label">Ubicación</label>
-                        <input type="text" id="ubicacion" name="ubicacion" class="form__input" placeholder="E.g. Gabinete 1, cajón 2">
+                        <div class="form__group ficha__campo--completo">
+                            <label for="codigo" class="form__label">Código (barras o QR)</label>
+                            <div class="codigo">
+                                <div class="codigo__datos">
+                                    <input type="text" id="codigo" name="codigo" class="form__input" placeholder="Escanea el código del producto o genera uno propio" autocomplete="off">
+                                    <div class="codigo__acciones">
+                                        <button type="button" class="boton boton--secundario" id="codigo-escanear"><i class="ri-qr-scan-2-line" aria-hidden="true"></i> Escanear</button>
+                                        <button type="button" class="boton boton--secundario" id="codigo-generar"><i class="ri-qr-code-line" aria-hidden="true"></i> Generar QR propio</button>
+                                        <button type="button" class="boton boton--secundario" id="codigo-imprimir" hidden><i class="ri-printer-line" aria-hidden="true"></i> Imprimir etiqueta</button>
+                                    </div>
+                                </div>
+                                <img class="codigo__qr" id="codigo-qr" alt="Vista previa del código QR" hidden>
+                            </div>
+                        </div>
+                        <div class="form__group ficha__campo--completo">
+                            <label for="descripcion" class="form__label">Descripción</label>
+                            <input type="text" id="descripcion" name="descripcion" class="form__input" placeholder="Ej. Acero inoxidable, punta fina">
+                        </div>
                     </div>
-                    <div class="form__group">
-                        <label for="estado" class="form__label">Situación</label>
-                        <select id="estado" name="estado" class="form__input"></select>
-                    </div>
-                </div>
+                </section>
 
-                <div class="form__row">
-                    <div class="form__group">
-                        <label for="marca" class="form__label">Marca</label>
-                        <input type="text" id="marca" name="marca" class="form__input" placeholder="E.g. Hu-Friedy">
+                <section class="tarjeta" aria-labelledby="stock-titulo">
+                    <div class="tarjeta__cabecera">
+                        <h2 class="tarjeta__titulo" id="stock-titulo">Stock y ubicación</h2>
                     </div>
-                    <div class="form__group">
-                        <label for="modelo" class="form__label">Modelo</label>
-                        <input type="text" id="modelo" name="modelo" class="form__input" placeholder="E.g. FX150">
+                    <div class="tarjeta__cuerpo ficha__campos">
+                        <div class="form__group">
+                            <label for="stock" class="form__label">Stock actual</label>
+                            <input type="number" id="stock" name="stock" class="form__input" value="0" min="0" step="1" data-required="true">
+                        </div>
+                        <div class="form__group">
+                            <label for="stock_minimo" class="form__label">Stock mínimo</label>
+                            <input type="number" id="stock_minimo" name="stock_minimo" class="form__input" value="0" min="0" step="1" data-required="true">
+                        </div>
+                        <div class="form__group">
+                            <label for="unidad" class="form__label">Unidad</label>
+                            <select id="unidad" name="unidad" class="form__input form__input--select"></select>
+                        </div>
+                        <div class="form__group">
+                            <label for="ubicacion" class="form__label">Ubicación</label>
+                            <input type="text" id="ubicacion" name="ubicacion" class="form__input" placeholder="Ej. Gabinete 1, cajón 2">
+                        </div>
                     </div>
-                    <div class="form__group">
-                        <label for="numero_serie" class="form__label">Nº de serie</label>
-                        <input type="text" id="numero_serie" name="numero_serie" class="form__input" placeholder="E.g. SN-00123">
-                    </div>
-                </div>
+                </section>
 
-                <div class="form__row">
-                    <div class="form__group">
-                        <label for="proveedor" class="form__label">Proveedor</label>
-                        <input type="text" id="proveedor" name="proveedor" class="form__input" placeholder="E.g. Dental Ibérica">
+                <section class="tarjeta" aria-labelledby="detalles-titulo">
+                    <div class="tarjeta__cabecera">
+                        <div>
+                            <h2 class="tarjeta__titulo" id="detalles-titulo">Más detalles</h2>
+                            <p class="tarjeta__subtitulo">Opcionales: rellénalos cuando los necesites.</p>
+                        </div>
                     </div>
-                    <div class="form__group">
-                        <label for="precio" class="form__label">Precio (€)</label>
-                        <input type="number" id="precio" name="precio" class="form__input" placeholder="E.g. 45.90" min="0" step="0.01">
+                    <div class="tarjeta__cuerpo ficha__campos">
+                        <div class="form__group">
+                            <label for="marca" class="form__label">Marca</label>
+                            <input type="text" id="marca" name="marca" class="form__input" placeholder="Ej. Hu-Friedy">
+                        </div>
+                        <div class="form__group">
+                            <label for="modelo" class="form__label">Modelo</label>
+                            <input type="text" id="modelo" name="modelo" class="form__input" placeholder="Ej. FX150">
+                        </div>
+                        <div class="form__group ficha__campo--doble">
+                            <label for="numero_serie" class="form__label">Nº de serie</label>
+                            <input type="text" id="numero_serie" name="numero_serie" class="form__input" placeholder="Ej. SN-00123">
+                        </div>
+                        <div class="form__group ficha__campo--doble">
+                            <label for="proveedor" class="form__label">Proveedor</label>
+                            <input type="text" id="proveedor" name="proveedor" class="form__input" placeholder="Ej. Dental Ibérica">
+                        </div>
+                        <div class="form__group">
+                            <label for="precio" class="form__label">Precio (€)</label>
+                            <input type="number" id="precio" name="precio" class="form__input" placeholder="Ej. 45.90" min="0" step="0.01">
+                        </div>
+                        <div class="form__group">
+                            <label for="caducidad" class="form__label">Caducidad</label>
+                            <input type="date" id="caducidad" name="caducidad" class="form__input">
+                        </div>
+                        <div class="form__group ficha__campo--completo">
+                            <label for="notas" class="form__label">Notas</label>
+                            <textarea id="notas" name="notas" class="form__textarea" rows="3" placeholder="Ej. Revisar calibración cada 6 meses"></textarea>
+                        </div>
                     </div>
-                    <div class="form__group">
-                        <label for="caducidad" class="form__label">Caducidad</label>
-                        <input type="date" id="caducidad" name="caducidad" class="form__input">
-                    </div>
-                </div>
+                </section>
 
-                <div class="form__group">
-                    <label for="notas" class="form__label">Notas</label>
-                    <textarea id="notas" name="notas" class="form__input" rows="3" placeholder="E.g. Revisar calibración cada 6 meses"></textarea>
-                </div>
-
-                <div class="form__buttons">
-                    <button type="submit" class="form__submit" data-action="create">Crear Elemento <i class="ri-add-line"></i></button>
-                    <a href="control.html" class="form__return">Regresar</a>
+                <div class="barra-acciones">
+                    <a href="control.html" class="boton boton--fantasma">Cancelar</a>
+                    <button type="submit" class="boton boton--primario form__submit" data-action="create"><i class="ri-add-line" aria-hidden="true"></i> Crear elemento</button>
                 </div>
             </form>
         </main>

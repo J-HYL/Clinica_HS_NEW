@@ -1,15 +1,13 @@
+// agregar.js — Ficha de alta/edicion de un servicio.
 import { configureActionForm, sendForm, validateInput } from "../../modules/funciones.js";
 import { form } from "../../modules/selectores.js";
 
-document.addEventListener("DOMContentLoaded", () => configureActionForm("services"))
+// Si hay ?id=..., carga los datos y pasa a modo edicion.
+document.addEventListener("DOMContentLoaded", () => configureActionForm("services", "Editar servicio"));
 
-//* Selectores Específicos
-const nameInput = document.querySelector("#nombre");
-const descriptionInput = document.querySelector("#descripcion");
-const priceInput = document.querySelector("#precio");
+// Campos que se validan al perder el foco
+["#nombre", "#descripcion", "#precio"].forEach(selector =>
+  document.querySelector(selector).addEventListener("blur", validateInput)
+);
 
-//* Eventos
-form.addEventListener("submit", (e) => sendForm(e, "services"))
-nameInput.addEventListener("blur", validateInput)
-descriptionInput.addEventListener("blur", validateInput)
-priceInput.addEventListener("blur", validateInput)
+form.addEventListener("submit", e => sendForm(e, "services"));

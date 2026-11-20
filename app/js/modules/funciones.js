@@ -123,9 +123,11 @@ function checkFormAction(objectStore) {
 // ---- Fin de integración de checkFormAction ----
 
 //Function to configure the form according to the action (add or edit)
-export function configureActionForm(objectStore) {
+// Con ?id= la ficha pasa a edicion: titulo propio ("Editar paciente"...),
+// "Guardar cambios" y los datos del registro en el formulario.
+export function configureActionForm(objectStore, titulo) {
     const id = getURLId();
-    if (id) UI.showFormEditMode(objectStore, id);
+    if (id) UI.showFormEditMode(objectStore, id, titulo);
 }
 
 export function getURLId() {

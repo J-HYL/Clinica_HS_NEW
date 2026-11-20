@@ -9,34 +9,12 @@
     margin: auto;
 }
 
-/* El formulario de inventario tiene bastantes más campos que los del resto de
-   secciones, así que necesita más ancho que los 550px que fija form.css. */
-.main--ancho{
-    max-width: 760px;
-}
-
-.form__row{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.form__row .form__group{
-    flex: 1 1 160px;
-}
-
-/* --- Botón de ayuda --- */
+/* --- Botón de ayuda (control) --- */
 
 .main__titulo{
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-/* En la ficha el título va suelto (no dentro de .lista__cabecera), así que necesita
-   el mismo margen inferior que tenía el h3 por su cuenta. */
-.main--ancho .main__titulo{
-    margin-bottom: 4px;
 }
 
 .ayuda{
@@ -311,48 +289,39 @@
     fill: var(--red);
 }
 
-/* --- Código escaneable (formulario) --- */
+/* --- Código escaneable (ficha) ---
+   Campo y botones a la izquierda; la vista previa del QR, al lado (debajo en
+   el móvil). */
 
 .codigo{
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 16px;
 }
 
-.codigo__actions{
+.codigo__datos{
+    display: flex;
+    flex: 1 1 280px;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.codigo__acciones{
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.codigo__btn{
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 14px;
-    border: 1px solid #DCE0EA;
-    border-radius: 10px;
-    background-color: #fff;
-    color: var(--dark-gray);
-    font-family: inherit;
-    font-size: 0.875em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color .2s ease, color .2s ease;
-}
-
-.codigo__btn:hover, .codigo__btn:focus-visible{
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
 .codigo__qr{
-    width: 150px;
-    height: 150px;
+    display: block;
+    width: 132px;
+    height: 132px;
     padding: 8px;
-    border: 1px solid #DCE0EA;
-    border-radius: 12px;
-    background-color: #fff;
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio);
+    background-color: var(--hs-superficie);
     /* El QR es un bitmap: sin suavizado los cuadros salen nítidos al escalar. */
     image-rendering: pixelated;
 }
@@ -540,16 +509,23 @@
 
 .foto__preview{
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 112px;
+    height: 112px;
     flex-shrink: 0;
-    border: 1px dashed #DCE0EA;
-    border-radius: 12px;
-    background-color: #fff;
+    border: 1px dashed var(--hs-borde-control);
+    border-radius: var(--hs-radio);
+    background-color: var(--hs-superficie-suave);
     overflow: hidden;
 }
 
+/* Con foto, marco liso: la línea discontinua solo marca el hueco vacío. */
+.foto__preview:has(.foto__img:not([hidden])){
+    border-style: solid;
+    border-color: var(--hs-borde);
+}
+
 .foto__img{
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -563,12 +539,12 @@
     justify-content: center;
     align-items: center;
     gap: 6px;
-    color: var(--pale-gray);
-    font-size: 0.75em;
+    color: var(--hs-texto-tenue);
+    font-size: .75rem;
 }
 
 .foto__placeholder i{
-    font-size: 24px;
+    font-size: 1.5rem;
 }
 
 .foto__actions{
@@ -577,41 +553,9 @@
     gap: 8px;
 }
 
-.foto__btn{
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 14px;
-    border: 1px solid #DCE0EA;
-    border-radius: 10px;
-    background-color: #fff;
-    color: var(--dark-gray);
-    font-size: 0.875em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color .2s ease, color .2s ease;
-}
-
-.foto__btn:hover, .foto__btn:focus-visible{
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.foto__btn--camara{
-    border-color: var(--primary);
-    background-color: var(--primary);
-    color: #fff;
-}
-
-.foto__btn--camara:hover, .foto__btn--camara:focus-visible{
-    background-color: var(--dark-primary);
-    border-color: var(--dark-primary);
-    color: #fff;
-}
-
-.foto__btn--quitar:hover, .foto__btn--quitar:focus-visible{
-    border-color: var(--red);
-    color: var(--red);
+.foto__btn--quitar:hover{
+    background: var(--hs-peligro-suave);
+    color: var(--hs-peligro);
 }
 
 /* --- Modal del lector de códigos (Escaner.js) --- */
@@ -647,13 +591,6 @@
     /* Reserva sitio desde el principio: sin esto el modal pega un salto cuando
        el vídeo empieza a dar imagen. */
     min-height: 200px;
-}
-
-/* El atributo hidden lo pone el JS cuando no hay cámara, pero su display:none
-   pierde contra cualquier display de más abajo (el flex del móvil). Hay que
-   decirlo aquí o el visor sigue ocupando media pantalla estando "oculto". */
-.escaner__camara[hidden]{
-    display: none;
 }
 
 /* El <video> lo crea Escaner.js. Aquí solo se le da tamaño de presentación: se
@@ -962,32 +899,34 @@
     cursor: not-allowed;
 }
 
-/* --- Modal de cámara --- */
+/* --- Modal de cámara (FotoCaptura.js) --- */
 
 .camara{
     width: min(560px, 92vw);
     padding: 16px;
-    border: none;
-    border-radius: 16px;
-    background-color: #fff;
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio-lg);
+    background-color: var(--hs-superficie);
+    box-shadow: var(--hs-sombra-flotante);
 }
 
 .camara::backdrop{
-    background-color: rgba(29, 36, 46, .6);
+    background-color: color-mix(in srgb, var(--hs-texto-fuerte) 55%, transparent);
 }
 
 .camara__video{
+    display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
-    border-radius: 12px;
-    background-color: var(--dark-gray);
+    border-radius: var(--hs-radio);
+    background-color: var(--hs-texto-fuerte);
     object-fit: cover;
 }
 
 .camara__aviso{
     margin-top: 8px;
-    font-size: 0.875em;
-    color: var(--orange-status-text-color);
+    font-size: .8125rem;
+    color: var(--hs-aviso);
 }
 
 .camara__actions{
@@ -996,29 +935,7 @@
     gap: 8px;
 }
 
-.camara__btn{
-    flex-grow: 1;
-    height: 44px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid #DCE0EA;
-    border-radius: 12px;
-    background-color: #fff;
-    color: var(--light-gray);
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.camara__btn--disparar{
-    border-color: var(--primary);
-    background-color: var(--primary);
-    color: #fff;
-}
-
-.camara__btn--disparar:hover, .camara__btn--disparar:focus-visible{
-    background-color: var(--dark-primary);
-    border-color: var(--dark-primary);
+.camara__actions .boton{
+    flex: 1;
+    min-height: 44px;
 }

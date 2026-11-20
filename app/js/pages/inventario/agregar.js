@@ -1,5 +1,6 @@
 import { getFormData, getURLId, goToControlPage, validateForm, validateInput } from "../../modules/funciones.js";
-import { form, formHeading, formSubmit } from "../../modules/selectores.js";
+import { form, formSubmit } from "../../modules/selectores.js";
+import { rotularEdicion } from "../../modules/ficha.js";
 import { initFotoCaptura } from "../../modules/components/FotoCaptura.js";
 import { CATEGORIAS, ESTADOS, UNIDADES, rellenarSelect } from "../../modules/components/inventario.js";
 import { generarCodigoPropio, imprimirEtiqueta, pintarQR } from "../../modules/components/CodigoQR.js";
@@ -96,9 +97,7 @@ function imprimirCodigo() {
 // No se usa UI.showFormEditMode porque aquí hace falta, con una sola lectura,
 // rellenar el formulario Y pintar la foto que ya tenga el elemento.
 async function prepararModoEdicion(id) {
-    formHeading.textContent = "Editar Elemento";
-    formSubmit.innerHTML = 'Guardar Cambios <i class="ri-pencil-fill"></i>';
-    formSubmit.dataset.action = "edit";
+    rotularEdicion("Editar elemento");
 
     try {
         const elemento = await DB.getRecord("inventario", id);

@@ -24,14 +24,14 @@ export function initFotoCaptura(contenedor) {
         <div class="foto__preview">
             <img class="foto__img" alt="Foto del elemento" hidden>
             <div class="foto__placeholder">
-                <i class="ri-camera-off-line"></i>
+                <i class="ri-camera-off-line" aria-hidden="true"></i>
                 <span>Sin foto</span>
             </div>
         </div>
         <div class="foto__actions">
-            <button type="button" class="foto__btn foto__btn--camara"><i class="ri-camera-fill"></i> Hacer foto</button>
-            <button type="button" class="foto__btn foto__btn--archivo"><i class="ri-image-add-fill"></i> Subir imagen</button>
-            <button type="button" class="foto__btn foto__btn--quitar" hidden><i class="ri-delete-bin-fill"></i> Quitar</button>
+            <button type="button" class="boton boton--secundario foto__btn--camara"><i class="ri-camera-line" aria-hidden="true"></i> Hacer foto</button>
+            <button type="button" class="boton boton--secundario foto__btn--archivo"><i class="ri-image-add-line" aria-hidden="true"></i> Subir imagen</button>
+            <button type="button" class="boton boton--fantasma foto__btn--quitar" hidden><i class="ri-delete-bin-line" aria-hidden="true"></i> Quitar</button>
         </div>
         <input type="file" class="foto__file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
     `;
@@ -185,8 +185,8 @@ function crearDialogoCamara() {
         <video class="camara__video" playsinline autoplay muted></video>
         <p class="camara__aviso" hidden>La camara todavia no da imagen, espera un momento.</p>
         <div class="camara__actions">
-            <button type="button" class="camara__btn camara__btn--disparar"><i class="ri-camera-fill"></i> Capturar</button>
-            <button type="button" class="camara__btn camara__btn--cerrar">Cancelar</button>
+            <button type="button" class="boton boton--secundario camara__btn--cerrar">Cancelar</button>
+            <button type="button" class="boton boton--primario camara__btn--disparar"><i class="ri-camera-line" aria-hidden="true"></i> Capturar</button>
         </div>
     `;
     return dialogo;

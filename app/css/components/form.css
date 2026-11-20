@@ -1,9 +1,14 @@
-.main{
-    width: 100%;
-    max-width: 550px;
-    container-type: inline-size;
-    container-name: form;
-}
+/* form.css — Formularios del panel. Los campos (.form__group, .form__label,
+   .form__input...) estan en ui.css: son comunes a todas las pantallas.
+   Aqui va:
+   1) La base de cualquier <form class="form"> (tambien los de los modales de
+      historia clinica, tratamientos, visitas y la vista diaria).
+   2) La FICHA de alta/edicion a pantalla completa (pacientes, servicios,
+      inventario): campos agrupados en tarjetas con rejilla. El marco (.ficha,
+      .ficha__volver, .ficha__cabecera) y la barra de acciones fija
+      (.barra-acciones) son piezas comunes de ui.css. Solo tokens. */
+
+/* ================================================================ Base */
 .form{
     margin-top: 24px;
     display: flex;
@@ -11,94 +16,85 @@
     gap: 24px;
     flex: 1;
 }
-.content-layout {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-  }
-  
-  .content-layout .main,
-  .content-layout aside {
-    flex: 1 1 48%;
-  }
-aside {
-    flex: 1;
-  }
-/* Los campos (.form__group, .form__label, .form__input...) estan en ui.css:
-   son comunes a todas las pantallas, no solo a los formularios de alta. */
+
+/* Mensaje de error que Alert.showInputAlert pone justo detras del campo. */
+.form__input.error + span{
+    font-size: .75rem;
+    font-weight: 500;
+}
+
+/* Botones al pie de un formulario dentro de una tarjeta (vista diaria): en
+   columna y, si la tarjeta (.main) es ancha, en fila. */
+.main{
+    width: 100%;
+    container: form / inline-size;
+}
 
 .form__buttons{
-    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-}
-
-.form__submit, .form__return{
-    flex-grow: 1;
-    height: 48px;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    font-size: 1em;
-    font-weight: 600;
-    line-height: 22px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
-}
-
-.form__submit:hover, .form__return:hover, .form__submit:focus-visible, .form__return:focus-visible{
-    transform: translateY(-2px);
-}
-
-.form__submit i, .form__return i{
-    font-size: 20px;
-}
-
-.form__submit{
-    background-color: var(--primary);
-    color: #fff;
-    box-shadow: 0 8px 18px rgba(43, 128, 247, .28);
-}
-
-.form__submit:hover, .form__submit:focus-visible{
-    background-color: var(--dark-primary);
-    box-shadow: 0 10px 22px rgba(43, 128, 247, .34);
-}
-
-.form__return{
-    background-color: #fff;
-    color: var(--light-gray);
-    border: 1px solid #DCE0EA;
-}
-
-.form__return:hover, .form__return:focus-visible{
-    background-color: var(--background);
-    color: var(--dark-gray);
-    border-color: var(--pale-gray);
+    gap: 12px;
 }
 
 @container form (min-width: 400px){
-    .form__label{
-        font-size: 1em;
-    }
-    
-    .form__input{
-        font-size: 1em;
-    }
-
-    .form__buttons{
-        flex-direction: row;
-        gap: 28px;
-    }
-
-    .form__submit, .form__return{
-        width: 50%;
-        font-size: 1.0625em;
-    }
+    .form__buttons{ flex-direction: row; }
 }
+
+/* ================================================================ Ficha de alta
+   <main class="ficha">
+     <a class="ficha__volver">          <- vuelve a la lista
+     <div class="ficha__cabecera">      <- titulo (h1.page-title) + .ficha__intro
+     <form class="form ficha__form">
+       <section class="tarjeta">        <- un bloque de campos
+         <div class="tarjeta__cuerpo ficha__campos">  <- rejilla
+       <div class="barra-acciones">    <- Cancelar / Guardar, fija abajo
+
+   La ficha llena el alto de la ventana: aunque tenga pocos campos, la barra
+   queda abajo del todo, en el mismo sitio en todas las fichas. */
+.ficha:has(> .ficha__form){
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.wrapper:has(> .ficha > .ficha__form){
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.ficha__form > .barra-acciones{ margin-top: auto; }
+
+.ficha__form{
+    margin-top: 20px;
+    gap: 16px;
+}
+
+/* Campo obligatorio (data-required): asterisco tras la etiqueta. */
+.ficha .form__group:has(> [data-required="true"]) > .form__label::after{
+    content: " *";
+    color: var(--hs-peligro);
+}
+
+/* Rejilla de campos: 1 columna en movil, 2 en tablet y 4 en escritorio. Se mide
+   la ficha (container query), no la ventana: asi da igual que el menu este
+   abierto o no. --doble ocupa dos columnas (toda la fila con 2) y --completo
+   toda la fila. */
+.ficha__campos{
+    display: grid;
+    gap: 16px 20px;
+    align-items: start;
+}
+
+@container ficha (min-width: 560px){
+    .ficha__campos{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ficha__campo--doble,
+    .ficha__campo--completo{ grid-column: 1 / -1; }
+}
+
+@container ficha (min-width: 860px){
+    .ficha__campos{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .ficha__campo--doble{ grid-column: span 2; }
+}
+

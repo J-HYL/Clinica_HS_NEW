@@ -1,5 +1,4 @@
 import { appointmentStateContainer,
-    formHeading, formSubmit,
     inputs,
     modalAppointmentSubmitBtn,
     modalCalendarList,
@@ -8,6 +7,7 @@ import { appointmentStateContainer,
 } from "../selectores.js";
 import { goToControlPage } from "../funciones.js";
 import { hora } from "../formato.js";
+import { rotularEdicion } from "../ficha.js";
 import { startDrag } from "../components/Calendar.js";
 import Alert from "../components/Alert.js";
 // Import actualizado para usar la API PHP/MySQL
@@ -16,10 +16,8 @@ import DB from "./DB_API.js";
 class UI{
     //* AP  P
 
-    showFormEditMode(objectStore, id){
-        formHeading.textContent = "Editar Registro";
-        formSubmit.innerHTML = 'Editar Registro <i class="ri-pencil-fill"></i>';
-        formSubmit.dataset.action = "edit";
+    showFormEditMode(objectStore, id, titulo = "Editar registro"){
+        rotularEdicion(titulo);
         DB.getRecord(objectStore, id)
             .then(info => this.showRecordInfo(info))
             .catch(error => Alert.showStatusAlert("error", "¡Error!", error.message, goToControlPage))
