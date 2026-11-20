@@ -8,22 +8,23 @@
 import DB from "../../modules/classes/DB_API.js";
 import { obtenerTabla } from "../../modules/tablas.js";
 import { setTableEventsListeners } from "../../modules/funciones.js";
+import { escapeHtml } from "../../modules/html.js";
+import { fechaCorta } from "../../modules/formato.js";
 
 const $ = (s) => document.querySelector(s);
 
 // ------------------------------------------------------------------ tabs
+// Pestañas (pieza .segmentado): la activa lleva aria-selected="true" y solo se
+// ve su panel (el de su aria-controls).
 function initTabs() {
-  const botones = document.querySelectorAll(".tab");
-  const paneles = {
-    facturas: $("#panel-facturas"),
-    pagos: $("#panel-pagos"),
-  };
-  botones.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const t = btn.dataset.tab;
-      botones.forEach((b) => b.classList.toggle("tab--active", b === btn));
-      paneles.facturas.hidden = t !== "facturas";
-      paneles.pagos.hidden = t !== "pagos";
+  const pestanas = document.querySelectorAll('[role="tab"]');
+  pestanas.forEach((pestana) => {
+    pestana.addEventListener("click", () => {
+      pestanas.forEach((p) => {
+        const activa = p === pestana;
+        p.setAttribute("aria-selected", String(activa));
+        document.getElementById(p.getAttribute("aria-controls")).hidden = !activa;
+      });
     });
   });
 }
@@ -76,7 +77,7 @@ function initModalPago() {
     clienteId = null;
     inputCliente.value = "";
     lista.classList.remove("show"); lista.innerHTML = "";
-    selTrat.innerHTML = '<option value="">Elige primero un cliente</option>';
+    selTrat.innerHTML = '<option value="">Elige primero un paciente</option>';
     selTrat.disabled = true;
     inputMonto.value = ""; inputNotas.value = ""; selMetodo.value = "Efectivo";
   }
@@ -100,7 +101,7 @@ function initModalPago() {
       .slice(0, 8);
     if (!matches.length) { lista.classList.remove("show"); lista.innerHTML = ""; return; }
     lista.innerHTML = matches
-      .map((c) => `<div class="pago-ac__item" data-id="${c.id}">${escape(c.nombre)}</div>`)
+      .map((c) => `<button type="button" class="pago-ac__item" data-id="${escapeHtml(c.id)}">${escapeHtml(c.nombre)}</button>`)
       .join("");
     lista.classList.add("show");
     lista.querySelectorAll(".pago-ac__item").forEach((el) => {
@@ -121,7 +122,7 @@ function initModalPago() {
         return;
       }
       selTrat.innerHTML = trats
-        .map((t) => `<option value="${t.id}">${escape(t.diagnostico || "Tratamiento")}${t.fecha ? " · " + fmtFecha(t.fecha) : ""}</option>`)
+        .map((t) => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.diagnostico || "Tratamiento")}${t.fecha ? " · " + fechaCorta(t.fecha) : ""}</option>`)
         .join("");
       selTrat.disabled = false;
     } catch (e) {
@@ -156,23 +157,15 @@ function initModalPago() {
     }
   }
 
-  $("#btn-registrar-pago").addEventListener("click", (e) => { e.preventDefault(); abrir(); });
+  $("#btn-registrar-pago").addEventListener("click", abrir);
   $("#pago-cancel").addEventListener("click", () => dlg.close());
+  $("#pago-cerrar").addEventListener("click", () => dlg.close());
   btnGuardar.addEventListener("click", guardar);
   dlg.addEventListener("cancel", (e) => { e.preventDefault(); dlg.close(); });
   // Cerrar el autocompletado al pulsar fuera del input/lista.
   document.addEventListener("click", (e) => {
     if (!inputCliente.contains(e.target) && !lista.contains(e.target)) lista.classList.remove("show");
   });
-}
-
-// ------------------------------------------------------------- helpers
-function escape(v) {
-  return v == null ? "" : String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
-function fmtFecha(s) {
-  const d = new Date(String(s).replace(" ", "T"));
-  return isNaN(d.getTime()) ? "" : d.toLocaleDateString("es-ES");
 }
 
 // ------------------------------------------------------------- arranque
