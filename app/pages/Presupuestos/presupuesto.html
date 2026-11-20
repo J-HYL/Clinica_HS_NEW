@@ -3,115 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generar Presupuesto</title>
+    <title>Presupuesto · HS Dental</title>
 
-    <!-- Scripts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" integrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="/css/pages/agregar.css">
-    <link rel="stylesheet" href="../../css/pages/presupuestos.css">
+    <link rel="stylesheet" href="/css/pages/documentos.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
-    <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-
 </head>
 <body>
     <nav class="sidebar" id="sidebar"></nav>
 
     <div class="wrapper">
-        <h1 class="page-title">Presupuestos</h1>
+        <h1 class="page-title">Nuevo presupuesto</h1>
 
-        <div class="content-layout">
-            <main class="container main">
-                <div class="form">
-                    <div class="form__group">
-                        <label for="clienteNo" id="nombreC" class="form__label">Nombre del cliente:</label>
-                        <input type="text" id="clienteNo" name="nombre" class="form__input" placeholder="Ingrese el nombre del cliente" data-required="true">
+        <!-- Editor: datos, tratamientos, notas y totales -->
+        <form class="documento documento-editor" id="editor" novalidate>
+            <section class="tarjeta documento__seccion" aria-label="Datos del presupuesto">
+                <div class="campos campos--4">
+                    <div class="form__group campo--doble">
+                        <label class="form__label" for="paciente">Paciente</label>
+                        <input class="form__input" id="paciente" list="lista-pacientes" placeholder="Busca un paciente o escribe su nombre" autocomplete="off">
+                        <datalist id="lista-pacientes"></datalist>
                     </div>
-                    <div class="form__group">
-                        <label for="tratamiento" class="form__label">Tratamiento:</label>
-                        <input type="text" id="tratamiento" class="form__input" placeholder="Nombre del tratamiento" data-validate="email" data-required="true">
-                    </div>
-                    <div class="form__group">
-                        <label for="costo" class="form__label">Costo:</label>
-                        <input type="number" id="costo" placeholder="Costo del tratamiento" class="form__input" data-required="true">
-                    </div>
-                    <div class="form__group">
-                        <label for="cantidad"  class="form__label">Cantidad:</label>
-                        <input type="number" id="cantidad" placeholder="Cantidad del tratamiento" class="form__input" data-required="true">
-                    </div>
-                    <div class="form__group">
-                        <label for="dientes" class="form__label">Piezas (dientes):</label>
-                        <input type="text" id="dientes" placeholder="Ej: 1, 2, 3" class="form__input" data-required="true">
-                    </div>
-                    <div class="form__group">
-                        <label for="medico" class="form__label">Médico:</label>
-                        <select id="medico" class="form__input form__input--select" data-required="true">
-                          <option value="Furo Eduardo Lopez Perez">Furo Eduardo Lopez Perez</option>
-                          <option value="Saidi de Franco">Saidi de Franco</option>
-                          <option value="H1">H1</option>
-                          <option value="HJ2">HJ2</option>
+                    <div class="form__group campo--doble">
+                        <label class="form__label" for="profesional">Profesional</label>
+                        <select class="form__input form__input--select" id="profesional">
+                            <option value="Furo Eduardo Lopez Perez">Furo Eduardo Lopez Perez</option>
+                            <option value="Saidi de Franco">Saidi de Franco</option>
+                            <option value="H1">H1</option>
+                            <option value="HJ2">HJ2</option>
                         </select>
                     </div>
                     <div class="form__group">
-                        <label for="observaciones" class="form__label">Observaciones:</label>
-                        <textarea id="observaciones" rows="2" class="form__textarea" placeholder="No hay Observaciones">No hay Observaciones</textarea>
+                        <label class="form__label" for="fecha">Fecha</label>
+                        <input class="form__input" type="date" id="fecha">
                     </div>
-                    <div class="form__buttons">
-                        <button onclick="agregarTratamiento()" class="form__submit">Agregar Tratamiento <i class="ri-add-line"></i></button>
+                    <div class="form__group">
+                        <label class="form__label" for="valido">Válido hasta</label>
+                        <input class="form__input" type="date" id="valido">
                     </div>
                 </div>
-            </main>
+            </section>
 
-            <aside class="container main">
-                <table id="tablaTratamientos">
-                    <thead>
-                      <tr>
-                        <th>Tratamiento</th>
-                        <th>Pieza</th>
-                        <th>Cantidad</th>
-                        <th>Costo</th>
-                        <th>Total</th>
-                        <th class="acciones"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- Filas dinámicas se generarán aquí -->
-                    </tbody>
-                </table>
-                <p class="total" id="total">Total: €0</p>
-                <div class="form__buttons">
-                    <button onclick="imprimirPresupuesto()" class="form__submit">Imprimir Presupuesto<i class="ri-printer-line"></i></button>
+            <section class="tarjeta documento__seccion" aria-labelledby="titulo-lineas">
+                <div class="documento__cabecera-seccion">
+                    <h2 class="documento__titulo" id="titulo-lineas">Tratamientos</h2>
+                    <a class="enlace" href="/pages/servicios/control.html">Catálogo de servicios</a>
                 </div>
-            </aside>
+                <div id="lineas"></div>
+            </section>
 
-            <div class="descuentos">
-                <h3>Tipo de descuento</h3>
-                <input id="noDesc" type="radio" name="desc" value="0" checked>
-                <label for="noDesc">Sin descuento</label>
-                <input id="op1" type="radio" name="desc" value="5">
-                <label for="op1">5%</label>
-                <input id="op2" type="radio" name="desc" value="10">
-                <label for="op2">10%</label>
-                <input id="op3" type="radio" name="desc" value="15">
-                <label for="op3">15%</label>
-                <input id="op3" type="radio" name="desc" value="20">
-                <label for="op3">20%</label>
-                <input id="op3" type="radio" name="desc" value="25">
-                <label for="op3">25%</label>
-              </div>
-        </div>
+            <div class="documento__pie">
+                <div class="form__group">
+                    <label class="form__label" for="notas">Notas para el paciente</label>
+                    <textarea class="form__textarea" id="notas" rows="4" placeholder="Forma de pago, plazos, financiación…"></textarea>
+                </div>
+                <dl class="tarjeta totales" aria-live="polite">
+                    <div class="totales__fila"><dt>Subtotal</dt><dd data-total="subtotal"></dd></div>
+                    <div class="totales__fila" data-fila="descuentos" hidden><dt>Descuentos</dt><dd data-total="descuentos"></dd></div>
+                    <div class="totales__fila"><dt>IVA <span class="totales__nota">(exento)</span></dt><dd>0,00 €</dd></div>
+                    <div class="totales__fila totales__total"><dt>Total</dt><dd data-total="total"></dd></div>
+                </dl>
+            </div>
+
+            <div class="documento__barra">
+                <p class="documento__aviso" id="aviso" role="alert"></p>
+                <button type="button" class="boton boton--fantasma" id="limpiar">Limpiar</button>
+                <button type="submit" class="boton boton--primario"><i class="ri-file-text-line" aria-hidden="true"></i> Ver presupuesto</button>
+            </div>
+        </form>
+
+        <!-- Hoja A4 para imprimir o guardar en PDF -->
+        <section class="documento documento-vista" id="vista" aria-label="Presupuesto" hidden>
+            <div class="documento-vista__acciones">
+                <button type="button" class="boton boton--secundario boton--pequeno" id="editar"><i class="ri-arrow-left-line" aria-hidden="true"></i> Seguir editando</button>
+                <button type="button" class="boton boton--primario boton--pequeno" id="imprimir"><i class="ri-printer-line" aria-hidden="true"></i> Imprimir o PDF</button>
+            </div>
+            <article class="papel" id="papel"></article>
+        </section>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="/js/main.js" type="module"></script>
-    <script src="/js/modules/components/clinica.js"></script>
     <script src="/js/modules/components/odontograma.js"></script>
-    <script src="../../js/modules/components/presupuestos.js"></script>
+    <script src="/js/pages/presupuestos/presupuesto.js" type="module"></script>
 </body>
 </html>

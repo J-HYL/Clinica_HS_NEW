@@ -1,0 +1,6 @@
+@import url("../base/base.css");
+@import url("../components/shell.css");
+@import url("../components/documento.css");
+
+/* Paginas de documentos (presupuesto y factura): editor + hoja A4.
+   Todo lo suyo esta en components/documento.css. */

@@ -1,0 +1,481 @@
+/* documento.css — Documentos que se rellenan e imprimen (presupuesto, factura):
+   el editor (secciones, lineas de LineasDocumento.js, totales, barra de
+   acciones fija) y la hoja A4 ("papel") que se imprime. Solo tokens. */
+
+.documento{ max-width: 1200px; }
+
+.documento__volver{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    color: var(--hs-texto-suave);
+    font-size: .875rem;
+    text-decoration: none;
+}
+.documento__volver:hover{ color: var(--hs-texto-fuerte); }
+
+.documento__seccion{
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.documento__titulo{
+    margin-bottom: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+}
+
+.documento__cabecera-seccion{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-bottom: 16px;
+}
+.documento__cabecera-seccion .documento__titulo{ margin: 0; }
+
+/* Rejilla de campos: 1 columna en movil, 2 en tablet, 4 en escritorio. */
+.campos{
+    display: grid;
+    gap: 16px;
+}
+@media (min-width: 768px){
+    .campos{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px){
+    .campos--4{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .campo--doble{ grid-column: span 2; }
+}
+
+.campo__ayuda{
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
+}
+
+/* ---------------------------------------------------------------- Lineas */
+.lineas{
+    --columnas: minmax(0, 1fr) 5rem 4.5rem 6.5rem 4.5rem 6.5rem 2.25rem;
+}
+.lineas--sin-pieza.lineas--sin-descuento{
+    --columnas: minmax(0, 1fr) 4.5rem 6.5rem 6.5rem 2.25rem;
+}
+
+.lineas__cabecera{
+    display: none;
+    gap: 8px;
+    padding: 0 2px 8px;
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
+}
+
+.lineas__fin{ text-align: right; }
+
+.lineas__lista{
+    display: grid;
+    gap: 12px;
+    list-style: none;
+}
+
+/* Movil: cada linea es una tarjeta (concepto arriba, el resto en 2 columnas). */
+.lineas__fila{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio);
+}
+
+.lineas__campo{
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+.lineas__campo--descripcion{ grid-column: 1 / -1; }
+
+.lineas__etiqueta{
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--hs-texto-suave);
+}
+
+.lineas__campo .form__input{
+    height: 38px;
+    padding: 0 10px;
+}
+
+.lineas__campo--cantidad .form__input,
+.lineas__campo--precio .form__input,
+.lineas__campo--descuento .form__input{
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.lineas__importe{
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding-bottom: 9px;
+    font-size: .875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--hs-texto-fuerte);
+}
+.lineas__importe--error{ color: var(--hs-peligro); }
+
+.lineas__quitar{ align-self: end; justify-self: end; }
+
+.lineas__anadir{ margin-top: 12px; }
+
+@media (min-width: 768px){
+    .lineas__cabecera{
+        display: grid;
+        grid-template-columns: var(--columnas);
+    }
+
+    .lineas__lista{ gap: 8px; }
+
+    .lineas__fila{
+        grid-template-columns: var(--columnas);
+        align-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .lineas__campo--descripcion{ grid-column: auto; }
+    .lineas__etiqueta{
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+    .lineas__importe{ align-items: center; padding-bottom: 0; }
+    .lineas__quitar{ align-self: center; }
+}
+
+/* ---------------------------------------------------------------- Notas y totales */
+.documento__pie{
+    display: grid;
+    gap: 20px;
+    margin-top: 20px;
+}
+@media (min-width: 768px){
+    .documento__pie{ grid-template-columns: minmax(0, 1fr) 20rem; }
+}
+
+.totales{
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: 20px;
+    font-size: .875rem;
+}
+
+.totales__fila{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+.totales__fila dt{ color: var(--hs-texto-suave); }
+.totales__fila dd{ font-variant-numeric: tabular-nums; color: var(--hs-texto); }
+.totales__fila .form__input{ width: auto; padding: 4px 32px 4px 10px; font-size: .8125rem; }
+
+.totales__fila[hidden], .totales__nota[hidden]{ display: none; }
+
+/* Lista de totales cuando la tarjeta lleva ademas notas debajo (factura). */
+.totales__lista{
+    display: grid;
+    gap: 8px;
+}
+
+.totales__total{
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hs-borde);
+}
+.totales__total dt{ font-weight: 600; color: var(--hs-texto-fuerte); }
+.totales__total dd{ font-size: 1.25rem; font-weight: 600; color: var(--hs-texto-fuerte); }
+
+.totales__nota{
+    font-size: .75rem;
+    color: var(--hs-texto-suave);
+}
+.totales__nota--aviso{
+    padding: 8px 10px;
+    border-radius: var(--hs-radio-sm);
+    background: var(--hs-aviso-suave);
+    color: var(--hs-aviso);
+}
+
+/* ---------------------------------------------------------------- Barra de acciones */
+.documento__barra{
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 24px calc(var(--hs-margen-x) * -1) -40px;
+    /* A la derecha, hueco para la burbuja flotante de soporte (Soporte.js). */
+    padding: 12px calc(var(--hs-margen-x) + 64px) 12px var(--hs-margen-x);
+    background: rgba(247, 248, 250, .92);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--hs-borde);
+}
+/* En PRE la marquesina de entorno.js ocupa 34px abajo. */
+body:has(#pre-env-banner) .documento__barra{ bottom: 34px; }
+
+.documento__aviso{
+    margin-right: auto;
+    font-size: .8125rem;
+    color: var(--hs-peligro);
+}
+
+/* Botones sobre la hoja (volver a editar, imprimir). */
+.documento-vista__acciones{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    max-width: 210mm;
+    margin: 20px auto 0;
+}
+
+/* ================================================================ Papel (hoja A4)
+   Lo que se imprime. Medidas en mm/pt para que en pantalla y en papel se vea
+   igual. */
+.papel{
+    display: flex;
+    flex-direction: column;
+    max-width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto 0;
+    padding: 14mm;
+    background: #fff;
+    border: 1px solid var(--hs-borde);
+    box-shadow: var(--hs-sombra-tarjeta);
+    color: var(--hs-texto-fuerte);
+    font-size: 9.5pt;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.papel__membrete{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 6mm;
+    padding-bottom: 5mm;
+    border-bottom: 1px solid var(--hs-acento);
+}
+
+.papel__marca{
+    display: flex;
+    align-items: flex-start;
+    gap: 4mm;
+}
+.papel__logo{ width: auto; height: 15mm; }
+.papel__clinica{
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: var(--hs-texto-suave);
+}
+.papel__clinica strong{
+    display: block;
+    margin-bottom: 1mm;
+    font-size: 10pt;
+    color: var(--hs-texto-fuerte);
+}
+
+.papel__titulo{
+    text-align: right;
+    font-size: 22pt;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -.02em;
+}
+.papel__subtitulo{
+    margin-top: 2.5mm;
+    text-align: right;
+    font-size: 10pt;
+    font-weight: 600;
+    color: var(--hs-acento);
+}
+
+.papel__panel{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10mm;
+    margin-top: 6mm;
+    padding: 4mm 5mm;
+    border-radius: 2mm;
+    background: var(--hs-neutro-suave);
+}
+.papel__datos{ display: flex; gap: 8mm; }
+
+.papel__etiqueta{
+    font-size: 7.5pt;
+    font-weight: 500;
+    color: var(--hs-texto-suave);
+}
+.papel__dato{ margin-top: 1mm; font-weight: 500; font-variant-numeric: tabular-nums; }
+.papel__nombre{ margin-top: 1mm; font-size: 11pt; font-weight: 600; }
+.papel__suave{ color: var(--hs-texto-suave); }
+
+.papel__seccion{
+    margin: 8mm 0 3mm;
+    font-size: 13pt;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.papel__odontograma{ margin-top: 6mm; text-align: center; }
+.papel__odontograma svg{ max-width: 100%; height: auto; max-height: 55mm; }
+
+.papel__tabla{
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.papel__tabla th{
+    padding-bottom: 2mm;
+    border-bottom: 1px solid var(--hs-texto-fuerte);
+    font-size: 7.5pt;
+    font-weight: 500;
+    color: var(--hs-texto-suave);
+}
+.papel__tabla td{
+    padding: 2.5mm 3mm 2.5mm 0;
+    border-bottom: 1px solid var(--hs-borde);
+    vertical-align: top;
+    font-variant-numeric: tabular-nums;
+}
+.papel__tabla .papel__num{ padding-right: 0; text-align: right; white-space: nowrap; }
+.papel__tabla tr{ break-inside: avoid; }
+
+.papel__pieza{
+    display: inline-block;
+    padding: 0 1.8mm;
+    border: 1px solid var(--hs-borde);
+    border-radius: 999px;
+    font-size: 8pt;
+    line-height: 1.6;
+}
+
+.papel__totales{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72mm;
+    align-items: start;
+    gap: 10mm;
+    margin-top: 5mm;
+    break-inside: avoid;
+}
+.papel__desglose{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.2mm 6mm;
+    padding: 0 4mm;
+}
+.papel__desglose dt{ color: var(--hs-texto-suave); }
+.papel__desglose dd{ text-align: right; font-variant-numeric: tabular-nums; }
+.papel__total{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4mm;
+    margin-top: 3mm;
+    padding: 3.2mm 4mm;
+    border-radius: 2mm;
+    background: var(--hs-texto-fuerte);
+    color: #fff;
+}
+.papel__total span:first-child{ font-size: 9pt; font-weight: 500; }
+.papel__total span:last-child{ font-size: 15pt; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+
+.papel__notas{ white-space: pre-line; }
+
+.papel__legal{
+    display: grid;
+    gap: 1.5mm;
+    margin-top: 6mm;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--hs-texto-suave);
+    break-inside: avoid;
+}
+
+.papel__firma{
+    margin-top: 7mm;
+    padding: 4mm 5mm 3mm;
+    border: 1px solid var(--hs-borde);
+    border-radius: 2mm;
+    break-inside: avoid;
+}
+.papel__firma-titulo{ font-size: 11pt; font-weight: 600; line-height: 1; }
+.papel__firma-texto{ margin-top: 1.5mm; font-size: 8.5pt; color: var(--hs-texto-suave); }
+.papel__lineas-firma{
+    display: grid;
+    grid-template-columns: 1fr 50mm;
+    gap: 10mm;
+    margin-top: 14mm;
+    font-size: 8pt;
+    color: var(--hs-texto-suave);
+}
+.papel__lineas-firma p{ padding-top: 1.5mm; border-top: 1px solid var(--hs-texto-tenue); }
+
+.papel__pie{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6mm;
+    margin-top: auto;
+    padding-top: 3mm;
+    border-top: 1px solid var(--hs-borde);
+    font-size: 7.5pt;
+    color: var(--hs-texto-suave);
+    break-inside: avoid;
+}
+.papel__pie p:last-child{ flex-shrink: 0; }
+.papel > :nth-last-child(2){ margin-bottom: 6mm; }
+
+/* En pantalla estrecha la hoja se escala con el ancho en vez de desbordar. */
+@media (max-width: 860px){
+    .papel{ min-height: 0; padding: 6mm; }
+    .papel__panel, .papel__totales{ grid-template-columns: 1fr; gap: 4mm; }
+    .papel__membrete{ grid-template-columns: 1fr; }
+    .papel__titulo, .papel__subtitulo{ text-align: left; }
+}
+
+/* ---------------------------------------------------------------- Impresion
+   Solo sale la hoja: fuera el marco, el editor y los botones flotantes. */
+@media print{
+    @page{ size: A4; margin: 14mm; }
+
+    body{ display: block !important; background: #fff !important; }
+
+    .sidebar, .shell-velo, .topbar, .page-title, .documento__volver, .documento-editor,
+    .documento-vista__acciones, #hs-avisos, #hs-support-root, #pre-env-banner{
+        display: none !important;
+    }
+
+    .wrapper{ padding: 0 !important; }
+
+    .papel{
+        max-width: none;
+        min-height: 266mm;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+    }
+}

@@ -1,171 +1,108 @@
-import { escapeHtml } from "../html.js";
-import { construirFacturaHtml } from "./facturaHtml.js";
+// facturas.js — Pantalla "Nueva factura" (pages/facturas/facturas.html).
+// Mismo editor que el presupuesto (LineasDocumento + documento.css); el PDF lo
+// genera el servidor con la plantilla de facturaHtml.js (no tocar su salida) y
+// el numero real lo asigna DB.php.
 
-const servicios = [];
+import DB from "../classes/DB_API.js";
+import { escapeHtml } from "../html.js";
+import { euros } from "../formato.js";
+import { construirFacturaHtml } from "./facturaHtml.js";
+import LineasDocumento from "./LineasDocumento.js";
 
 // Datos de clinica: fuente UNICA en clinica.js (window.Clinica). No duplicar aqui.
 
-const el = id => document.getElementById(id);
-const tbody = document.querySelector("#servicesTable tbody");
-const previewTotal = el("previewTotal");
+const el = (id) => document.getElementById(id);
+const aviso = el("aviso");
+let pacientes = [];
 
-// --- NUEVO: obtener descuento activo ---
-function getSelectedDiscount() {
-  const radio = document.querySelector('input[name="desc"]:checked');
-  return radio ? parseFloat(radio.value) || 0 : 0;
+// Funcion (no const): LineasDocumento llama a pintarTotales al crearse.
+function descuentoElegido() {
+  return parseFloat(el("descuento").value) || 0;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  autodetectarClinica();
+function pintarTotales() {
+  if (!lineas) return; // primera llamada, desde el constructor del editor
+  const { subtotal, valido } = lineas.totales;
+  const total = Math.round(subtotal * (1 - descuentoElegido() / 100) * 100) / 100;
+  document.querySelector('[data-total="subtotal"]').textContent = valido ? euros(subtotal) : "—";
+  document.querySelector('[data-total="total"]').textContent = valido ? euros(total) : "—";
+  // Normativa: desde 400 € la factura tiene que llevar DNI y domicilio.
+  el("aviso-400").hidden = !(valido && total >= 400);
+}
 
-  el("btnAdd").addEventListener("click", e => {
-    e.preventDefault();
-    agregarServicio();
-  });
-
-  el("btnClear").addEventListener("click", e => {
-    e.preventDefault();
-    limpiarFormulario();
-    servicios.length = 0;
-    actualizarTabla();
-  });
-
-  el("btnPrint").addEventListener("click", e => {
-    e.preventDefault();
-    imprimirFactura();
-  });
-
-  document.querySelectorAll('input[name="desc"]').forEach(r => {
-    r.addEventListener("change", actualizarTabla);
-  });
-
-  ["servicePrice", "serviceQty"].forEach(id => {
-    el(id).addEventListener("keydown", (ev) => {
-      if (ev.key === "Enter") { ev.preventDefault(); agregarServicio(); }
-    });
-  });
-
-  // Delegacion: el boton de borrar servicio ya no usa onclick inline (este archivo
-  // se carga como modulo ES, asi que eliminarServicio no es global).
-  tbody.addEventListener("click", (ev) => {
-    const btn = ev.target.closest(".btn-eliminar-servicio");
-    if (!btn) return;
-    eliminarServicio(parseInt(btn.dataset.index, 10));
-  });
-
-  actualizarTabla();
+let lineas = null;
+lineas = new LineasDocumento(el("lineas"), {
+  pieza: false,
+  descuento: false,
+  concepto: "Servicio",
+  placeholder: "Limpieza dental profesional",
+  alCambiar: pintarTotales,
 });
 
-// Autodetecta la clinica de la SESION (via componente unico window.Clinica) y bloquea
-// el selector, para que la factura sea SIEMPRE de la clinica en la que estas logueado.
+// La factura es SIEMPRE de la clinica de la sesion: se autodetecta y se bloquea.
 async function autodetectarClinica() {
   const sel = el("clinicSelect");
-  if (!sel) return;
   const clinic = await window.Clinica.actual();
   if (clinic) {
     sel.value = clinic.key;
-    sel.disabled = true; // no editable: solo se factura de la clinica en la que estas
-    sel.title = "Detectada automaticamente segun tu sesion";
+    sel.disabled = true;
+    sel.title = "Detectada automáticamente según tu sesión";
   }
 }
 
-function agregarServicio() {
-  const desc = el("serviceDesc").value.trim();
-  const qty = parseInt(el("serviceQty").value, 10);
-  const price = parseFloat(el("servicePrice").value);
-
-  if (!desc || isNaN(qty) || qty <= 0 || isNaN(price) || price < 0) {
-    Swal.fire("Datos incompletos", "Rellena descripción, cantidad y precio válidos.", "warning");
-    return;
-  }
-
-  servicios.push({ descripcion: desc, cantidad: qty, precio: price });
-  el("serviceDesc").value = "";
-  el("serviceQty").value = 1;
-  el("servicePrice").value = "0.00";
-
-  actualizarTabla();
+async function cargarDatos() {
+  const [servicios, clientes] = await Promise.all([
+    DB.getRecords("services").catch(() => []),
+    DB.getRecords("clients").catch(() => []),
+  ]);
+  lineas.cargarCatalogo(servicios.map((s) => ({ id: s.id, nombre: s.nombre, precio: Number(s.precio) || 0 })));
+  pacientes = clientes;
+  el("lista-pacientes").innerHTML = clientes
+    .map((c) => `<option value="${escapeHtml(c.nombre)}">${escapeHtml(c.telefono || "")}</option>`)
+    .join("");
 }
 
-function eliminarServicio(index) {
-  servicios.splice(index, 1);
-  actualizarTabla();
+// Elegir un paciente de la lista rellena su telefono (si el campo esta vacio).
+el("patientName").addEventListener("input", (e) => {
+  e.target.classList.remove("error");
+  const p = pacientes.find((x) => x.nombre.trim().toLowerCase() === e.target.value.trim().toLowerCase());
+  if (p && !el("patientPhone").value) el("patientPhone").value = p.telefono || "";
+});
+
+function limpiar() {
+  ["patientName", "patientDNI", "patientPhone", "patientAddress", "observations"].forEach((id) => { el(id).value = ""; });
+  el("descuento").value = "0";
+  el("patientName").classList.remove("error");
+  aviso.textContent = "";
+  lineas.vaciar();
 }
 
-function actualizarTabla() {
-  tbody.innerHTML = "";
-  let total = 0;
-  servicios.forEach((s, i) => {
-    const tr = document.createElement("tr");
-    const totalLinea = s.cantidad * s.precio;
-    total += totalLinea;
-    tr.innerHTML = `
-      <td>${escapeHtml(s.descripcion)}</td>
-      <td style="text-align:center">${s.cantidad}</td>
-      <td style="text-align:right">€${s.precio.toFixed(2)}</td>
-      <td style="text-align:right">€${totalLinea.toFixed(2)}</td>
-      <td class="actions"><button data-index="${i}" class="btn-eliminar-servicio" title="Eliminar" style="background:#e53935;border:none;color:#fff;padding:6px;border-radius:4px;cursor:pointer"><i class="ri-delete-bin-6-line"></i></button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  const descuento = getSelectedDiscount();
-  let totalConDescuento = total;
-
-  if (descuento > 0) {
-    totalConDescuento = total - (total * descuento / 100);
-    previewTotal.innerText = `Total: €${totalConDescuento.toFixed(2)} (Descuento ${descuento}% aplicado)`;
-  } else {
-    previewTotal.innerText = `Total: €${total.toFixed(2)}`;
-  }
-
-  if (totalConDescuento >= 400) {
-    Swal.fire({
-      icon: "info",
-      title: "Atención",
-      html: "El total de la factura es igual o superior a <strong>400 €</strong>.<br>Debe incluir el <strong>DNI</strong> y el <strong>domicilio</strong> del paciente para cumplir la normativa española.",
-      confirmButtonText: "Entendido",
-    });
-  }
+function validar() {
+  const errores = [];
+  const sinNombre = !el("patientName").value.trim();
+  el("patientName").classList.toggle("error", sinNombre);
+  if (sinNombre) errores.push("El nombre del paciente es obligatorio.");
+  if (!el("clinicSelect").value) errores.push("Elige la clínica.");
+  errores.push(...lineas.errores());
+  aviso.textContent = errores.join(" ");
+  return !errores.length;
 }
 
-function limpiarFormulario() {
-  ["serviceDesc", "serviceQty", "servicePrice"].forEach(id => el(id).value = "");
-  el("serviceQty").value = 1;
-  el("servicePrice").value = "0.00";
-  document.querySelector("#noDesc").checked = true;
-  previewTotal.innerText = "Total: €0.00";
-}
+async function generarFactura() {
+  if (!validar()) return;
 
-async function imprimirFactura() {
-  const patientName = el("patientName").value.trim();
-  if (!patientName) {
-    Swal.fire("Falta el nombre", "El nombre del paciente es obligatorio.", "warning");
-    return;
-  }
-  const key = el("clinicSelect").value;
-  if (key === "#" || key === "" || key === null) {
-    Swal.fire("Selecciona una clínica", "Debes elegir una clínica antes de generar la factura.", "warning");
-    return;
-  }
-
-  const patientDNI = el("patientDNI").value.trim();
-  const patientAddress = el("patientAddress").value.trim();
-  const patientPhone = el("patientPhone").value.trim();
-  const observations = el("observations").value.trim();
-  const paymentMethod = el("paymentMethod").value;
   const clinicKey = el("clinicSelect").value;
   const clinic = window.Clinica.DATOS[clinicKey] || window.Clinica.DATOS.mostoles;
   const prefijoClinica = clinic.inicial || "GEN";
-
-  const descuento = getSelectedDiscount();
-  const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
-  const data = await res.json();
-
-  const ultimoNumero = data.ultimoNumero || 0;
-  const numeroFactura = ultimoNumero + 1;
+  const patientName = el("patientName").value.trim();
+  const boton = el("btnPrint");
+  boton.disabled = true;
 
   try {
+    const res = await fetch("/api/DB.php?table=facturas", { credentials: "include" });
+    const data = await res.json();
+    const numeroFactura = (data.ultimoNumero || 0) + 1;
+
     // Plantilla de factura: fuente UNICA en facturaHtml.js (misma que usa el
     // boton "Generar factura" por pago del panel).
     const facturaHtml = construirFacturaHtml({
@@ -173,26 +110,21 @@ async function imprimirFactura() {
       numeroFactura,
       paciente: {
         nombre: patientName,
-        dni: patientDNI,
-        telefono: patientPhone,
-        domicilio: patientAddress,
+        dni: el("patientDNI").value.trim(),
+        telefono: el("patientPhone").value.trim(),
+        domicilio: el("patientAddress").value.trim(),
       },
-      lineas: servicios,
-      paymentMethod,
-      observaciones: observations,
-      descuento,
+      lineas: lineas.lineas.map((l) => ({ descripcion: l.descripcion, cantidad: l.cantidad, precio: l.precio })),
+      paymentMethod: el("paymentMethod").value,
+      observaciones: el("observations").value.trim(),
+      descuento: descuentoElegido(),
     });
 
     const formData = new FormData();
     formData.append("nombre_paciente", patientName);
     formData.append("html", facturaHtml);
 
-    const resPost = await fetch("/api/DB.php?table=facturas", {
-      method: "POST",
-      body: formData,
-      credentials: "include"
-    });
-
+    const resPost = await fetch("/api/DB.php?table=facturas", { method: "POST", body: formData, credentials: "include" });
     const dataPost = await resPost.json();
     if (!dataPost.success) throw new Error(dataPost.error || "No se pudo guardar la factura");
     // Numero REAL asignado por el servidor (evita desajustes con el calculado en cliente)
@@ -202,5 +134,18 @@ async function imprimirFactura() {
   } catch (err) {
     console.error(err);
     Swal.fire("Error", "No se pudo guardar la factura: " + err.message, "error");
+  } finally {
+    boton.disabled = false;
   }
 }
+
+el("editor").addEventListener("submit", (e) => {
+  e.preventDefault();
+  generarFactura();
+});
+el("btnClear").addEventListener("click", limpiar);
+el("descuento").addEventListener("change", pintarTotales);
+
+autodetectarClinica();
+cargarDatos();
+pintarTotales();
