@@ -5,7 +5,8 @@
 // La lista es la tabla comun del panel (Tabla.js): buscador, orden y paginacion.
 // Aqui queda lo propio: alta (tambien global, con selector de paciente), edicion,
 // borrado, filtro por paciente y rango de fechas, y el total cobrado de lo filtrado.
-// Inyecta su propio modal; requiere Swal (SweetAlert2) y RemixIcon en la pagina.
+// Inyecta su propio modal (el modal comun: la pagina tiene que cargar modal.css);
+// requiere Swal (SweetAlert2) y RemixIcon en la pagina.
 
 import DB from "../classes/DB_API.js";
 import { escapeHtml } from "../html.js";
@@ -30,7 +31,8 @@ const ctx = {
 };
 
 // ---------------- Estilos (una sola vez) ----------------
-// Solo los filtros de fechas y el modal: la lista es la tabla comun (tabla.css).
+// Solo los filtros de fechas: la lista es la tabla comun (tabla.css) y el modal,
+// el comun (modal.css).
 function injectStyles() {
   if (stylesInjected) return;
   stylesInjected = true;
@@ -40,74 +42,59 @@ function injectStyles() {
   .viz-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px; }
   .viz-toolbar .form__input { width:auto; }
   .viz-daterange { display:inline-flex; align-items:center; gap:6px; font-size:.8125rem; color:var(--hs-texto-suave); }
-
-  /* Modal */
-  dialog.viz-modal { border:none; background:transparent; padding:0; margin:0; width:100vw; height:100vh; max-width:100vw; max-height:100vh; }
-  dialog.viz-modal[open] { display:flex; align-items:center; justify-content:center; }
-  dialog.viz-modal::backdrop { background:rgba(0,0,0,.5); }
-  .viz-card { width:92vw; max-width:520px; max-height:92vh; background:#fff; border-radius:12px; box-shadow:0 8px 30px rgba(16,24,64,.25); display:flex; flex-direction:column; overflow:hidden; }
-  .viz-mhead { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid rgba(34,34,38,.08); }
-  .viz-mhead h3 { margin:0; font-size:1.15rem; color:#1f2937; }
-  .viz-close { background:none; border:none; font-size:1.5rem; line-height:1; cursor:pointer; color:#98a2b3; }
-  .viz-body { padding:20px 22px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
-  .viz-field { display:flex; flex-direction:column; gap:6px; }
-  .viz-field label { font-weight:600; font-size:.88rem; color:#344054; }
-  .viz-field input, .viz-field select, .viz-field textarea { width:100%; padding:9px 12px; border:1px solid #d0d5dd; border-radius:8px; font-size:.92rem; font-family:inherit; box-sizing:border-box; }
-  .viz-field textarea { min-height:70px; resize:vertical; }
-  .viz-field input[readonly] { background:#f1f2f6; color:#667085; cursor:not-allowed; }
-  .viz-hint { font-size:.78rem; color:#98a2b3; }
-  .viz-mfoot { display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid rgba(34,34,38,.08); background:#fafbfc; }
-  .viz-mbtn { padding:9px 18px; border-radius:8px; font-size:.9rem; font-weight:600; cursor:pointer; border:1px solid transparent; }
-  .viz-mbtn--cancel { background:#fff; border-color:#d0d5dd; color:#344054; }
-  .viz-mbtn--save { background:#3b82f6; color:#fff; }
-  .viz-mbtn--save:hover { background:#2563eb; }
   `;
   document.head.appendChild(style);
 }
 
 // ---------------- Modal (una sola vez) ----------------
+// Se abre con show() y no con showModal(): con showModal() el <dialog> va a la
+// capa superior y los avisos de Swal (validacion, "Guardando...") quedaban
+// debajo, sin poder pulsarse.
 function ensureModal() {
   if (modalEl) return modalEl;
   const dlg = document.createElement("dialog");
-  dlg.className = "viz-modal";
+  dlg.className = "modal";
   dlg.id = "visita-modal";
+  dlg.setAttribute("aria-labelledby", "viz-mtitle");
   dlg.innerHTML = `
-    <div class="viz-card">
-      <div class="viz-mhead">
-        <h3 id="viz-mtitle">Registrar visita</h3>
-        <button type="button" class="viz-close" data-viz-close aria-label="Cerrar">&times;</button>
-      </div>
-      <div class="viz-body">
-        <div class="viz-field" id="viz-cliente-field" style="display:none;">
-          <label for="viz-cliente">Paciente</label>
-          <select id="viz-cliente"></select>
+    <div class="modal__container">
+      <section class="modal__card">
+        <header class="modal__header">
+          <h2 class="modal__heading" id="viz-mtitle">Registrar visita</h2>
+          <button type="button" class="modal__close" data-viz-close aria-label="Cerrar"><i class="ri-close-line" aria-hidden="true"></i></button>
+        </header>
+        <div class="modal__body">
+          <div class="form__group form__group--hidden" id="viz-cliente-field">
+            <label class="form__label" for="viz-cliente">Paciente</label>
+            <select class="form__input form__input--select" id="viz-cliente"></select>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="viz-fecha">Fecha y hora</label>
+            <input class="form__input" type="datetime-local" id="viz-fecha">
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="viz-tratamiento">Tratamiento</label>
+            <select class="form__input form__input--select" id="viz-tratamiento"></select>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="viz-doctor">Doctor / Profesional</label>
+            <input class="form__input" type="text" id="viz-doctor" maxlength="20" placeholder="Ej: Dr. Pérez">
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="viz-obs">Observaciones</label>
+            <textarea class="form__textarea" id="viz-obs" placeholder="Notas de la visita..."></textarea>
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="viz-pago">Pago (opcional)</label>
+            <input class="form__input" type="number" id="viz-pago" step="0.01" min="0" inputmode="decimal" placeholder="Ej: 50.00">
+            <span class="modal__ayuda" id="viz-pago-hint">Si indicas un importe, se registrará también como pago del tratamiento.</span>
+          </div>
         </div>
-        <div class="viz-field">
-          <label for="viz-fecha">Fecha y hora</label>
-          <input type="datetime-local" id="viz-fecha">
-        </div>
-        <div class="viz-field">
-          <label for="viz-tratamiento">Tratamiento</label>
-          <select id="viz-tratamiento"></select>
-        </div>
-        <div class="viz-field">
-          <label for="viz-doctor">Doctor / Profesional</label>
-          <input type="text" id="viz-doctor" maxlength="20" placeholder="Ej: Dr. Pérez">
-        </div>
-        <div class="viz-field">
-          <label for="viz-obs">Observaciones</label>
-          <textarea id="viz-obs" placeholder="Notas de la visita..."></textarea>
-        </div>
-        <div class="viz-field">
-          <label for="viz-pago">Pago (opcional)</label>
-          <input type="number" id="viz-pago" step="0.01" min="0" placeholder="Ej: 50.00">
-          <span class="viz-hint" id="viz-pago-hint">Si indicas un importe, se registrará también como pago del tratamiento.</span>
-        </div>
-      </div>
-      <div class="viz-mfoot">
-        <button type="button" class="viz-mbtn viz-mbtn--cancel" data-viz-close>Cancelar</button>
-        <button type="button" class="viz-mbtn viz-mbtn--save" id="viz-save">Guardar</button>
-      </div>
+        <footer class="modal__footer">
+          <button type="button" class="boton boton--secundario" data-viz-close>Cancelar</button>
+          <button type="button" class="boton boton--primario" id="viz-save">Guardar</button>
+        </footer>
+      </section>
     </div>
   `;
   document.body.appendChild(dlg);
@@ -257,12 +244,10 @@ function aplicarFiltros() {
 async function openCreate() {
   ctx.editingId = null;
   setTitle("Registrar visita");
-  const clienteField = modalEl.querySelector("#viz-cliente-field");
+  mostrarCampoPaciente(!ctx.clientId);
   if (ctx.clientId) {
-    clienteField.style.display = "none";
     await populateTreatments(ctx.clientId);
   } else {
-    clienteField.style.display = "";
     await populatePatientSelect();
     await populateTreatments(modalEl.querySelector("#viz-cliente").value);
   }
@@ -272,8 +257,8 @@ async function openCreate() {
   const pago = modalEl.querySelector("#viz-pago");
   pago.value = "";
   pago.readOnly = false;
-  modalEl.querySelector("#viz-pago-hint").style.display = "";
-  modalEl.showModal();
+  modalEl.querySelector("#viz-pago-hint").hidden = false;
+  modalEl.show();
 }
 
 async function openEdit(visitId) {
@@ -281,7 +266,7 @@ async function openEdit(visitId) {
   if (!v) return;
   ctx.editingId = v.id;
   setTitle("Editar visita");
-  modalEl.querySelector("#viz-cliente-field").style.display = "none";
+  mostrarCampoPaciente(false);
   await populateTreatments(v.client_id);
   modalEl.querySelector("#viz-fecha").value = toLocalInput(v.fecha);
   modalEl.querySelector("#viz-tratamiento").value = String(v.treatment_id);
@@ -291,8 +276,8 @@ async function openEdit(visitId) {
   const tiene = v.pago_de_visita !== null && v.pago_de_visita !== undefined && v.pago_de_visita !== "";
   pago.value = tiene ? parseFloat(v.pago_de_visita).toFixed(2) : "";
   pago.readOnly = true; // El pago no se edita aquí (se gestiona en Pagos del tratamiento).
-  modalEl.querySelector("#viz-pago-hint").style.display = "none";
-  modalEl.showModal();
+  modalEl.querySelector("#viz-pago-hint").hidden = true;
+  modalEl.show();
 }
 
 async function getPatients() {
@@ -438,6 +423,11 @@ async function onDelete(visitId) {
 
 // ---------------- Helpers ----------------
 function setTitle(t) { modalEl.querySelector("#viz-mtitle").textContent = t; }
+
+// El selector de paciente solo sale en el alta desde la vista global.
+function mostrarCampoPaciente(mostrar) {
+  modalEl.querySelector("#viz-cliente-field").classList.toggle("form__group--hidden", !mostrar);
+}
 
 function nowLocal() {
   const d = new Date();

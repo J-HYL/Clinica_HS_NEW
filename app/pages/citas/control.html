@@ -17,13 +17,6 @@
     <link rel="shortcut icon" href="assets/favicon/favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-    <style>
-        .modal__card{
-            padding-right: 1rem;
-            padding-left: 1rem;
-
-        }
-    </style>
 </head>
 <body>
     <nav class="sidebar" id="sidebar"></nav>
@@ -51,7 +44,7 @@
                 <button type="button" class="modal__close" aria-label="Cerrar Modal"><i class="ri-close-line"></i></button>
             </header>
             
-            <form class="modal__form">
+            <form class="modal__body">
                 <div class="form__group">
                     <label for="estado" class="form__label">Estado</label>
                     <select name="estado" id="estado" class="form__input form__input--select form__input--modal"> 
@@ -81,7 +74,7 @@
                     </button>
                 </header>
 
-                <form class="modal__form">
+                <form class="modal__body">
                     <div class="form__group">
                     <label for="medico" class="form__label">Gabinete</label>
                     <select name="medico" id="medico"
@@ -113,7 +106,7 @@
                     </button>
                 </header>
 
-                <form action="#" class="form">
+                <form action="#" class="form modal__body">
                     <div class="form__group">
                     <label for="edit-servicio" class="form__label">Paciente</label>
                     <input

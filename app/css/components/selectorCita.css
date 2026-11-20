@@ -1,0 +1,178 @@
+/* selectorCita.css — Interior del selector de fecha y hora (SelectorCita.js):
+   calendario del mes con un punto en los dias con citas, rejilla de horas y
+   lista de citas de un dia. El marco (velo, tarjeta, cabecera y pie) es el
+   modal comun (modal.css). Solo tokens. */
+
+.selc .modal__body{ gap: 20px; }
+
+/* ---------------------------------------------------------------- Mes */
+.selc__calh{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.selc__mes{
+    font-size: .9375rem;
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+    text-transform: capitalize;
+}
+
+.selc__nav{
+    display: inline-flex;
+    gap: 6px;
+}
+
+.selc__grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.selc__dow{
+    padding: 4px 0;
+    font-size: .6875rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--hs-texto-tenue);
+}
+
+.selc__d{
+    position: relative;
+    height: 40px;
+    border: 0;
+    border-radius: var(--hs-radio-sm);
+    background: transparent;
+    color: var(--hs-texto-fuerte);
+    font-size: .875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.selc__d:not(:disabled):hover{ background: var(--hs-acento-mas-suave); }
+
+.selc__d:disabled{
+    color: var(--hs-texto-tenue);
+    opacity: .5;
+    cursor: default;
+}
+
+.selc__d[aria-pressed="true"]{
+    background: var(--hs-acento);
+    color: #fff;
+}
+
+/* Punto de "ese dia ya tiene citas". */
+.selc__dot{
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--hs-aviso-marca);
+    transform: translateX(-50%);
+}
+
+.selc__d[aria-pressed="true"] .selc__dot{ background: #fff; }
+
+/* ---------------------------------------------------------------- Dia */
+.selc__day{
+    padding-top: 16px;
+    border-top: 1px solid var(--hs-borde-suave);
+}
+
+.selc__hint{
+    font-size: .8125rem;
+    color: var(--hs-texto-suave);
+}
+
+.selc__vercitas{
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    color: var(--hs-acento);
+}
+
+.selc__dtitle{
+    margin: 4px 0 8px;
+    font-size: .6875rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--hs-texto-suave);
+}
+
+.selc__slots{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 6px;
+}
+
+.selc__slot{
+    min-height: 36px;
+    padding: 0 4px;
+    border: 1px solid var(--hs-borde-control);
+    border-radius: var(--hs-radio-sm);
+    background: var(--hs-superficie);
+    color: var(--hs-texto);
+    font-size: .8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.selc__slot:not(:disabled):hover{ background: var(--hs-hover); }
+
+.selc__slot:disabled{
+    opacity: .4;
+    text-decoration: line-through;
+    cursor: default;
+}
+
+.selc__slot[aria-pressed="true"]{
+    border-color: var(--hs-acento);
+    background: var(--hs-acento);
+    color: #fff;
+}
+
+/* ---------------------------------------------------------------- Citas de un dia */
+.selc-citas__lista{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+}
+
+.selc__cita{
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: .8125rem;
+    color: var(--hs-texto);
+}
+
+.selc__cita-hora{
+    flex: 0 0 auto;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--hs-texto-fuerte);
+}
+
+.selc__cita-nombre{
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.selc__cita-gabinete{
+    flex: 0 0 auto;
+    font-size: .6875rem;
+    color: var(--hs-texto-suave);
+}
