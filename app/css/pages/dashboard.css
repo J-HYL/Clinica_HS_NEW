@@ -182,8 +182,6 @@
     cursor: pointer;
 }
 
-.agenda__hoy[hidden]{ display: none; }
-
 .agenda__lista{
     display: flex;
     flex-direction: column;

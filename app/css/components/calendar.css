@@ -1,50 +1,9 @@
 /* calendar.css — Piezas comunes de las tres vistas del calendario de citas
-   (Mes, Semana y Día): control segmentado, leyenda de estados, color de cada
-   cita segun su ESTADO y distintivo de gabinete. Solo tokens (tokens.css).
+   (Mes, Semana y Día): leyenda de estados, color de cada cita segun su
+   ESTADO y distintivo de gabinete (el control segmentado esta en ui.css).
+   Solo tokens (tokens.css).
    Lo propio de cada vista va en pages/calendario.css (Mes y Semana) y en
    pages/vistaDiaria.css (Día). */
-
-/* ---------------------------------------------------------------- Control segmentado
-   Opciones excluyentes en una sola pieza. La activa se marca con el atributo
-   accesible que toque: aria-current="page" (enlaces Mes/Semana/Día),
-   aria-pressed="true" (filtro de gabinete) o aria-selected="true" (pestañas
-   Cita/Bloquear de la vista diaria). */
-.segmentado{
-    display: inline-flex;
-    gap: 2px;
-    padding: 3px;
-    background: var(--hs-fondo);
-    border: 1px solid var(--hs-borde-suave);
-    border-radius: var(--hs-radio);
-}
-
-.segmentado__opcion{
-    display: inline-flex;
-    flex: 1 1 0;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-height: 32px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: var(--hs-radio-sm);
-    background: transparent;
-    color: var(--hs-texto-suave);
-    font-size: .8125rem;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
-}
-
-.segmentado__opcion:hover{ color: var(--hs-texto); }
-
-.segmentado__opcion:is([aria-current="page"], [aria-pressed="true"], [aria-selected="true"]){
-    background: var(--hs-superficie);
-    color: var(--hs-acento);
-    box-shadow: 0 0 0 1px var(--hs-borde), var(--hs-sombra-tarjeta);
-}
 
 /* ---------------------------------------------------------------- Color por estado
    El color de una cita va SIEMPRE ligado a su estado (mismo criterio que la
@@ -100,49 +59,6 @@
     height: 8px;
     border-radius: 50%;
     background: var(--estado-marca);
-}
-
-/* ---------------------------------------------------------------- Modales del calendario
-   Tarjeta de los <dialog> de citas (lista del dia en la vista Mes, editar cita
-   en la vista Día) con el aspecto de .tarjeta. El marco (fondo, centrado,
-   animacion) sigue siendo el comun de modal.css; esto solo ajusta su tarjeta. */
-
-/* Con showModal() el navegador limita el <dialog> a "100% - 2em" y el velo
-   no llegaba a los bordes derecho e inferior. */
-.modal--calendario{
-    max-width: none;
-    max-height: none;
-}
-
-.modal--calendario .modal__card{
-    overflow: hidden;
-    border: 1px solid var(--hs-borde);
-    border-radius: var(--hs-radio-lg);
-    box-shadow: var(--hs-sombra-flotante);
-}
-
-.modal--calendario .modal__header{
-    gap: 12px;
-    padding: 14px 12px 14px 20px;
-    border-bottom: 1px solid var(--hs-borde-suave);
-}
-
-.modal--calendario .modal__heading{
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--hs-texto-fuerte);
-}
-
-.modal--calendario .modal__close{
-    font-size: 1.25rem;
-    color: var(--hs-texto-suave);
-}
-
-.modal--calendario .modal__footer{
-    flex-wrap: wrap;
-    padding: 14px 20px;
-    border-top: 1px solid var(--hs-borde-suave);
 }
 
 /* ---------------------------------------------------------------- Gabinete

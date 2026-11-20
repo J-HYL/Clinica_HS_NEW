@@ -58,6 +58,8 @@
     --hs-sombra-tarjeta: 0 4px 18px rgba(26, 35, 50, .03);
     --hs-sombra-boton: 0 5px 14px rgba(71, 118, 151, .22);
     --hs-sombra-flotante: 0 18px 50px rgba(26, 35, 50, .16);
+    /* Velo detras de los modales. */
+    --hs-velo: rgba(30, 40, 53, .45);
     --hs-foco: 0 0 0 3px rgba(71, 118, 151, .28);
 
     /* Tipografia */

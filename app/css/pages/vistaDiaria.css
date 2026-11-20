@@ -75,9 +75,6 @@
   color: var(--hs-texto-suave);
 }
 
-/* El atributo [hidden] debe ocultar aunque .form__group ponga display:flex. */
-.form__group[hidden]{ display: none; }
-
 /* Interruptor "Bloquear el día completo" */
 .form__switch{
   display: inline-flex;

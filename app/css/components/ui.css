@@ -227,3 +227,140 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- Control segmentado
+   Opciones excluyentes en una sola pieza. La activa se marca con el atributo
+   accesible que toque: aria-current="page" (enlaces Mes/Semana/Día del calendario),
+   aria-pressed="true" (filtro de gabinete) o aria-selected="true" (pestañas
+   Cita/Bloquear de la vista diaria, Facturas/Pagos del Admin). */
+.segmentado{
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--hs-fondo);
+    border: 1px solid var(--hs-borde-suave);
+    border-radius: var(--hs-radio);
+}
+
+.segmentado__opcion{
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--hs-radio-sm);
+    background: transparent;
+    color: var(--hs-texto-suave);
+    font-size: .8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.segmentado__opcion:hover{ color: var(--hs-texto); }
+
+.segmentado__opcion:is([aria-current="page"], [aria-pressed="true"], [aria-selected="true"]){
+    background: var(--hs-superficie);
+    color: var(--hs-acento);
+    box-shadow: 0 0 0 1px var(--hs-borde), var(--hs-sombra-tarjeta);
+}
+
+/* ---------------------------------------------------------------- Ficha
+   Pantalla de UNA entidad: fichas de alta/edicion (form.css), ficha del
+   paciente y del tratamiento (pages/ficha.css).
+   <main class="ficha">
+     <a class="ficha__volver">       <- vuelve a la pantalla de arriba
+     <div class="ficha__cabecera">   <- h1.page-title (+ .ficha__intro) y acciones */
+.ficha{
+    max-width: 1120px;
+    container: ficha / inline-size;
+}
+
+/* align-self: dentro de una .ficha flex no ocupa todo el ancho (la fila
+   entera seria clicable). */
+.ficha__volver{
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    margin-top: 24px;
+    color: var(--hs-texto-suave);
+    font-size: .8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color .15s ease;
+}
+.ficha__volver:hover{ color: var(--hs-texto-fuerte); }
+.ficha__volver i{ font-size: 1rem; }
+
+.ficha__cabecera{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+    margin-top: 8px;
+}
+
+.ficha .page-title{
+    margin-top: 0;
+    overflow-wrap: anywhere;
+}
+
+.ficha__intro{
+    margin-top: 6px;
+    font-size: .8125rem;
+    color: var(--hs-texto-suave);
+}
+
+@media (min-width: 1024px){
+    .ficha__volver{ margin-top: 32px; }
+}
+
+/* ---------------------------------------------------------------- Barra de acciones
+   Cancelar / Guardar fija abajo mientras se rellena un formulario (fichas de
+   alta, presupuesto, factura); al final de la pagina se queda en su sitio.
+   Ocupa todo el ancho del contenido y llega al borde inferior. A la derecha
+   deja sitio a la burbuja de soporte (Soporte.js: 60px a 16-24px del borde).
+   .barra-acciones__aviso: mensaje a la izquierda (lo que falta por rellenar). */
+.barra-acciones{
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 24px calc(var(--hs-margen-x) * -1) 0;
+    padding: 12px calc(var(--hs-margen-x) + 76px) calc(12px + env(safe-area-inset-bottom)) var(--hs-margen-x);
+    background: color-mix(in srgb, var(--hs-fondo) 92%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--hs-borde);
+}
+
+.wrapper:has(.barra-acciones){ padding-bottom: 0; }
+
+/* En PRE la marquesina de entorno.js ocupa 34px abajo. */
+body:has(#pre-env-banner) .barra-acciones{ bottom: 34px; }
+
+.barra-acciones .boton{ min-height: 44px; }
+
+.barra-acciones__aviso{
+    margin-right: auto;
+    font-size: .8125rem;
+    color: var(--hs-peligro);
+}
+
+/* Movil: los botones se reparten el ancho (el principal, mas). */
+@media (max-width: 639px){
+    .barra-acciones .boton{ flex: 1 1 auto; }
+    .barra-acciones .boton--primario{ flex-grow: 2; }
+}

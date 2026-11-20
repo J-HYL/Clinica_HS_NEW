@@ -33,6 +33,10 @@
     padding: 0;
 }
 
+/* Lo que el JS oculta con el atributo hidden se oculta siempre, aunque su
+   clase le de display (.boton, .estado-vacio, .form__group...). */
+[hidden]{ display: none !important; }
+
 body{
     min-height: 100vh;
     background-color: var(--hs-fondo);

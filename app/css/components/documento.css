@@ -1,19 +1,8 @@
 /* documento.css — Documentos que se rellenan e imprimen (presupuesto, factura):
-   el editor (secciones, lineas de LineasDocumento.js, totales, barra de
-   acciones fija) y la hoja A4 ("papel") que se imprime. Solo tokens. */
+   el editor (secciones, lineas de LineasDocumento.js, totales; la barra de
+   acciones fija es .barra-acciones de ui.css) y la hoja A4 ("papel") que se imprime. Solo tokens. */
 
 .documento{ max-width: 1200px; }
-
-.documento__volver{
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 20px;
-    color: var(--hs-texto-suave);
-    font-size: .875rem;
-    text-decoration: none;
-}
-.documento__volver:hover{ color: var(--hs-texto-fuerte); }
 
 .documento__seccion{
     margin-top: 20px;
@@ -186,7 +175,6 @@
 .totales__fila dd{ font-variant-numeric: tabular-nums; color: var(--hs-texto); }
 .totales__fila .form__input{ width: auto; padding: 4px 32px 4px 10px; font-size: .8125rem; }
 
-.totales__fila[hidden], .totales__nota[hidden]{ display: none; }
 
 /* Lista de totales cuando la tarjeta lleva ademas notas debajo (factura). */
 .totales__lista{
@@ -213,32 +201,9 @@
     color: var(--hs-aviso);
 }
 
-/* ---------------------------------------------------------------- Barra de acciones */
-.documento__barra{
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin: 24px calc(var(--hs-margen-x) * -1) -40px;
-    /* A la derecha, hueco para la burbuja flotante de soporte (Soporte.js). */
-    padding: 12px calc(var(--hs-margen-x) + 64px) 12px var(--hs-margen-x);
-    background: rgba(247, 248, 250, .92);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    border-top: 1px solid var(--hs-borde);
-}
-/* En PRE la marquesina de entorno.js ocupa 34px abajo. */
-body:has(#pre-env-banner) .documento__barra{ bottom: 34px; }
-
-.documento__aviso{
-    margin-right: auto;
-    font-size: .8125rem;
-    color: var(--hs-peligro);
-}
+/* Con la barra de acciones (ui.css) el .wrapper no deja margen abajo: la
+   hoja lo pone. */
+.documento-vista{ padding-bottom: 40px; }
 
 /* Botones sobre la hoja (volver a editar, imprimir). */
 .documento-vista__acciones{
@@ -463,7 +428,7 @@ body:has(#pre-env-banner) .documento__barra{ bottom: 34px; }
 
     body{ display: block !important; background: #fff !important; }
 
-    .sidebar, .shell-velo, .topbar, .page-title, .documento__volver, .documento-editor,
+    .sidebar, .shell-velo, .topbar, .page-title, .documento-editor,
     .documento-vista__acciones, #hs-avisos, #hs-support-root, #pre-env-banner{
         display: none !important;
     }

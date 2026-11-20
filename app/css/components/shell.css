@@ -165,7 +165,6 @@ body:has(#pre-env-banner) .sidebar{
     font-weight: 600;
     text-align: center;
 }
-.sidebar__contador[hidden]{ display: none; }
 
 /* Secciones que solo funcionan en ordenador (TAC): fuera del menu en movil y
    tablet. MISMA condicion que esEscritorio() en tac/utilidades.js y que el
@@ -183,7 +182,6 @@ body:has(#pre-env-banner) .sidebar{
     padding: 16px 8px 0;
     border-top: 1px solid var(--hs-borde-suave);
 }
-.sidebar__pie[hidden]{ display: none; }
 
 .sidebar__pie-icono{
     display: flex;
