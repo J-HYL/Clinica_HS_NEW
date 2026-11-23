@@ -1,0 +1,390 @@
+@import url("../base/tokens.css");
+@import url("../components/ui.css");
+@import url("../components/modal.css");
+@import url("../components/soporte.css");
+
+/* consultorio.css — Vista interna de gabinete "Panel Médico"
+   (pages/client/vista-consultorio.html). Solo tokens (tokens.css).
+
+   Disposicion FIJA de 800x470 px (pantalla pequeña del gabinete): arriba
+   Paciente | Plan de tratamiento (160 px) y abajo el historial, cada bloque con
+   su scroll interno. No carga base.css a proposito: su body y su rejilla son
+   para el marco con menu lateral y romperian esta disposicion. Por eso aqui se
+   reponen la fuente, el fondo y el foco que base.css da al resto del panel.
+
+   Los modales de esta pantalla son <div class="modal"> que el JS abre y cierra
+   con style.display (no <dialog>): modal.css les da el velo y aqui se ocultan
+   de partida. Botones: .boton de ui.css; campos: .form__input/.form__label. */
+
+*{ box-sizing: border-box; }
+
+body{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--hs-fondo);
+    color: var(--hs-texto);
+    font-family: var(--hs-fuente);
+    -webkit-font-smoothing: antialiased;
+}
+
+input, label, button, select, textarea{ font-family: var(--hs-fuente); }
+
+:focus-visible{
+    outline: 2px solid var(--hs-acento-claro);
+    outline-offset: 2px;
+}
+
+h2, h3, h4{
+    font-weight: 600;
+    color: var(--hs-texto-fuerte);
+}
+
+strong{ color: var(--hs-texto-fuerte); }
+
+/* soporte.css cuenta con el reset de base.css (margin/padding a 0), que aqui no
+   se carga: se repone solo dentro de la burbuja y sin especificidad, para que
+   sus propias reglas sigan mandando. */
+:where(#hs-support-root *){
+    margin: 0;
+    padding: 0;
+}
+
+/* ---------------------------------------------------------------- Disposicion */
+.container{
+    width: 800px;
+    height: 470px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 6px;
+}
+
+.top-section{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    flex-shrink: 0;
+    height: 160px; /* Altura fija para la sección superior */
+}
+
+/* Bloques: mismo aspecto que .tarjeta (ui.css). */
+.box,
+.bottom-section{
+    background: var(--hs-superficie);
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio);
+    box-shadow: var(--hs-sombra-tarjeta);
+    overflow: hidden; /* Importante para que el scroll interno funcione */
+    display: flex;
+    flex-direction: column;
+}
+
+.box{
+    position: relative;
+    padding: 10px;
+    height: 100%; /* Ocupa toda la altura disponible en su padre (top-section) */
+}
+
+.box h3{
+    margin: 0 0 10px;
+    flex-shrink: 0;
+}
+
+.scrollable{
+    overflow-y: auto;
+    flex-grow: 1;
+    min-height: 0;
+    padding-bottom: 50px; /* Espacio al final para que el botón no tape contenido */
+}
+
+.bottom-section{
+    flex-grow: 1;
+    min-height: 0;
+}
+
+/* Botones de cada bloque, arriba a la derecha (sobre el titulo). */
+.top-right-buttons{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+/* Algo mas bajos que .boton--pequeno/--icono: comparten fila con el titulo
+   y "Guardar cambios" no debe pisarlo. */
+.top-right-buttons .boton{ min-height: 28px; }
+.top-right-buttons .boton--icono{ width: 28px; }
+
+/* "Guardar cambios" del plan: solo se ve cuando se marca/desmarca una pieza
+   (el JS le pone display al cambiar una casilla). */
+.save-btn{
+    display: none;
+    z-index: 5;
+}
+
+/* Cabecera del historial: titulo + acciones. */
+.bottom-section .head{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    flex-shrink: 0;
+}
+
+.bottom-section .head h3{ margin: 0; }
+
+.action-buttons-top{
+    display: flex;
+    gap: 8px;
+}
+
+/* Botones a todo el ancho del pie del historial y de los modales. */
+.button-container{
+    display: flex;
+    width: 100%;
+    margin-top: auto;
+}
+
+.action-button{
+    flex: 1;
+    margin: 0 4px;
+}
+.action-button:first-child{ margin-left: 0; }
+.action-button:last-child{ margin-right: 0; }
+
+/* ---------------------------------------------------------------- Tabla del historial */
+table{
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td{
+    padding: 8px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+    text-align: left;
+}
+
+thead th{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom-color: var(--hs-borde);
+    background: var(--hs-superficie-suave);
+    color: var(--hs-texto-suave);
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- Plan de tratamiento
+   Cada pieza es una casilla oculta y su numero; la pieza COMPLETADA
+   (casilla marcada, piece_status 0) se tacha con el color de su estado. */
+.checkbox-wrapper-52 input[type="checkbox"]{
+    visibility: hidden;
+    display: none;
+}
+
+.checkbox-wrapper-52 label{
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    vertical-align: baseline;
+    line-height: 1;
+}
+
+.checkbox-wrapper-52 .item .cbx{ display: none; }
+
+.checkbox-wrapper-52 .item .cbx-lbl{
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: color .3s ease;
+}
+
+.checkbox-wrapper-52 .item .cbx-lbl::after{
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--hs-exito-marca);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+.checkbox-wrapper-52 .item input:checked ~ .cbx-lbl{ color: var(--hs-exito); }
+
+.checkbox-wrapper-52 .item input:checked ~ .cbx-lbl::after{
+    transform: scaleX(1);
+    transition: transform .4s ease;
+}
+
+/* ---------------------------------------------------------------- Modales */
+.modal{
+    display: none; /* El JS lo abre con display:flex */
+    z-index: 1000; /* Por debajo de SweetAlert2, que avisa con el modal abierto */
+    overflow: auto;
+}
+
+/* Con un modal abierto la burbuja de soporte no tapa sus botones (como hace
+   modal.css con los <dialog>; aqui "abierto" es el display:flex del JS). */
+body:has(.modal[style*="flex"]) .hs-support-fab,
+body:has(.modalBuscador[style*="flex"]) .hs-support-fab{ display: none; }
+
+/* Tarjeta del modal: mismo aspecto que .modal__card (modal.css). */
+.modal-content,
+.modal-content2{
+    padding: 20px;
+    overflow-y: auto;
+    background: var(--hs-superficie);
+    border: 1px solid var(--hs-borde);
+    border-radius: var(--hs-radio-lg);
+    box-shadow: var(--hs-sombra-flotante);
+}
+
+.modal-content{
+    width: 90%;
+    max-height: 90vh;
+}
+
+/* Historial completo: mas ancho para la tabla. */
+#fullTableModal .modal-content{
+    width: 95%;
+    max-width: 1200px;
+}
+
+#fullTableModal table{ font-size: .9em; }
+
+.modal-content__cerrar{ margin-top: 20px; }
+
+/* Acciones al pie de los formularios de los modales. */
+.modal-content__pie{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Campo con aire debajo (como estaba en estos formularios). */
+.campo{ margin-bottom: 10px; }
+
+/* "Otro..." en el tratamiento: el JS lo enseña con display:block. */
+.tratamiento-otro{
+    display: none;
+    margin-top: 10px;
+}
+
+/* Buscador de paciente: se abre solo (el JS le pone display:flex) si la URL
+   no trae ?id. */
+.modalBuscador{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    background: var(--hs-velo);
+}
+
+.modal-content2{
+    width: 400px;
+    max-height: 80vh;
+}
+
+#listaResultados li{
+    padding: 10px;
+    border-bottom: 1px solid var(--hs-borde-suave);
+    cursor: pointer;
+}
+
+#listaResultados li:hover{ background: var(--hs-hover); }
+
+/* ---------------------------------------------------------------- Odontograma (asignar tratamiento)
+   Casillas con el numero de la pieza; marcada = elegida (acento), como el
+   selector de piezas del panel (.pieza de ficha.css). */
+.odontograma{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+/* Contenedor scroll para cada fila: a 800 px una fila de 16 piezas no cabe en
+   el modal y es la fila la que hace scroll, no el modal entero. */
+.odontograma-scroll{
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.odontograma-row{
+    display: flex;
+    gap: 10px; /* importante para que el scroll detecte el ancho real */
+}
+
+.tooth{
+    position: relative;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0; /* que no se reduzcan */
+}
+
+.tooth input[type="checkbox"]{
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--hs-borde-control);
+    border-radius: var(--hs-radio-sm);
+    background-color: var(--hs-superficie);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+    transition: background-color .2s ease, border-color .2s ease;
+}
+
+.tooth input[type="checkbox"]::before{
+    content: attr(data-num);
+    display: block;
+    text-align: center;
+    line-height: 28px;
+    color: var(--hs-texto-suave);
+}
+
+.tooth input[type="checkbox"]:not(:disabled):hover{ border-color: var(--hs-acento-claro); }
+
+.tooth input[type="checkbox"]:checked{
+    background-color: var(--hs-acento);
+    border-color: var(--hs-acento);
+}
+
+.tooth input[type="checkbox"]:checked::before{ color: #fff; }
+
+.tooth input[type="checkbox"]:focus-visible{
+    outline: none;
+    box-shadow: var(--hs-foco);
+}
+
+/* Con "General" marcado las piezas sueltas se desactivan. */
+.tooth input[type="checkbox"]:disabled{
+    opacity: .45;
+    cursor: default;
+}
+
+/* "General" es mas ancho que una pieza. */
+.tooth--general input[type="checkbox"]{ width: fit-content; }
+
+/* Odontograma del modal "Agregar piezas" (lo pinta el JS): casillas nativas. */
+.tooth-label input[type="checkbox"]{ accent-color: var(--hs-acento); }

@@ -4,494 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" xintegrity="sha512-XcIsjKMcuVe0Ucj/xgIXQnytNwBttJbNjltBV18IOnru2lDPe9KRRyvCXw6Y5H415vbBLRm8+q6fmLUU7DfO6Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="../../css/components/modal.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap">
+  <link rel="stylesheet" href="/css/pages/consultorio.css">
   <title>Panel Médico</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .container {
-      width: 800px;
-      height: 470px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 6px;
-    }
-    .top-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      flex-shrink: 0;
-      height: 160px; /* Altura fija para la sección superior */
-    }
-    .box {
-      background: #fff;
-      padding: 10px;
-      position: relative;
-      border-radius: 8px;
-      overflow: hidden; /* Importante para que el scroll interno funcione */
-      display: flex;
-      flex-direction: column;
-      height: 100%; /* Ocupa toda la altura disponible en su padre (top-section) */
-    }
-    .box h3 {
-      margin: 0 0 10px;
-      flex-shrink: 0;
-    }
-    .expand-btn {
-      background: #18cda6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 2px 6px;
-      font-size: 14px;
-    }
-    .scrollable {
-      overflow-y: auto;
-      flex-grow: 1;
-      min-height: 0;
-      padding-bottom: 50px; /* Añade un poco de espacio al final para que el botón no tape contenido */
-    }
-    .bottom-section {
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      min-height: 0;
-    }
-
-    /* Estilos para el nuevo head del historial */
-    .bottom-section .head {
-      display: flex;
-      justify-content: space-between; /* Espacia los elementos */
-      align-items: center; /* Alinea verticalmente */
-      padding: 0 10px 10px 10px; /* Añade padding para el contenido */
-      flex-shrink: 0; /* Evita que se encoja */
-    }
-    .bottom-section .head h3 {
-      margin: 0; /* Elimina el margen por defecto del h3 */
-    }
-    .bottom-section .head .action-buttons-top {
-      display: flex;
-      gap: 8px; /* Espacio entre los botones */
-    }
-    .bottom-section .head .action-buttons-top button {
-      background-color: #18cda6;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-    }
-    .bottom-section .head .action-buttons-top button:hover {
-      background-color: #14a68c;
-    }
-
-    .edit-btn {
-      background: #f39c12; /* Un color amarillo/naranja para el lápiz */
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 2px 6px;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-    }
-
-    .edit-btn:hover {
-      background-color: #e67e22;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th, td {
-      padding: 8px;
-      border-bottom: 1px solid #ccc;
-      text-align: left;
-    }
-    thead th {
-      background: #eee;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    .checkbox-wrapper-52 input[type="checkbox"] {
-      visibility: hidden;
-      display: none;
-    }
-    .checkbox-wrapper-52 label {
-      margin: 0;
-      padding: 0;
-      font-size: 100%;
-      font: inherit;
-      vertical-align: baseline;
-      line-height: 1;
-    }
-    .checkbox-wrapper-52 *,
-    .checkbox-wrapper-52 ::after,
-    .checkbox-wrapper-52 ::before {
-      box-sizing: border-box;
-    }
-    .checkbox-wrapper-52 .item .cbx {
-      display: none;
-    }
-    .checkbox-wrapper-52 .item .cbx-lbl {
-      position: relative;
-      cursor: pointer;
-      transition: color 0.3s ease;
-      display: inline-block;
-      margin-right: 10px;
-    }
-    .checkbox-wrapper-52 .item .cbx-lbl:after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: #9098a9;
-    }
-    .checkbox-wrapper-52 .item input:checked ~ .cbx-lbl {
-      color: #9098a9;
-    }
-    .checkbox-wrapper-52 .item input:checked ~ .cbx-lbl:after {
-      width: 100%;
-      transition: all 0.4s ease;
-    }
-    .checkbox-wrapper-52 .item .cbx svg {
-      position: relative;
-      top: -1px;
-      transform: scale(0);
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .checkbox-wrapper-52 .item input:checked + .cbx svg {
-      transform: scale(1);
-      opacity: 1;
-      transition: all 0.4s ease;
-      transition-delay: 0.1s;
-    }
-    .save-btn {
-      background: #18cda6;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: none;
-      margin-top: 10px;
-      z-index: 5;
-    }
-    .modal {
-      display: none; /* Hidden by default */
-      position: fixed; /* Stay in place */
-      z-index: 1000; /* Sit on top */
-      left: 0;
-      top: 0;
-      width: 100%; /* Full width */
-      height: 100%; /* Full height */
-      overflow: auto; /* Enable scroll if needed */
-      background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-      align-items: center; /* Center vertically */
-      justify-content: center; /* Center horizontally */
-    }
-    .modal-content {
-      background: white;
-      padding: 20px;
-      max-height: 90vh;
-      overflow-y: auto;
-      border-radius: 8px;
-      width: 90%;
-    }
-    .button-container {
-        display: flex;
-        width: 100%;
-        margin-top: auto;
-    }
-    .action-button {
-        flex: 1;
-        padding: 10px 0;
-        background-color: #18cda6;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-        margin: 0 4px;
-    }
-    .action-button:first-child {
-        margin-left: 0;
-    }
-    .action-button:last-child {
-        margin-right: 0;
-    }
-    .action-button:hover {
-        background-color: #14a68c;
-    }
-
-    /* Estilos específicos para el modal de la tabla completa */
-    #fullTableModal .modal-content {
-        width: 95%; /* Haz el modal más ancho para la tabla */
-        max-width: 1200px; /* Ancho máximo para no desbordar */
-    }
-    #fullTableModal table {
-        font-size: 0.9em; /* Ajusta el tamaño de la fuente si es necesario */
-    }
-    #fullTableModal thead th {
-        background: #eee; /* Fondo para encabezados pegajosos */
-    }
-
-
-  .modalBuscador {
-    position: fixed; top: 0; left: 0; width: 100%;
-    height: 100%; background: rgba(0,0,0,0.5);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 9999;
-  }
-  .modal-content2 {
-    background: white; padding: 20px; border-radius: 10px;
-    width: 400px; max-height: 80vh; overflow-y: auto;
-  }
-  #listaResultados li {
-    padding: 10px; border-bottom: 1px solid #ccc;
-    cursor: pointer;
-  }
-  #listaResultados li:hover {
-    background: #eee;
-  }
-  .top-right-buttons {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-  }
-  .action-button-top-Patient {
-    background-color: #cd2d18;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-  }
-  .action-button-top-Patient:hover {
-    background-color: #14a68c;
-  }
-
-    /* Estilos del modal de asignar tratamiento */
-    .modal__card {
-        display: flex;
-        flex-direction: column; 
-    }
-    .modal__body {
-        overflow-y: auto; /* Permite el desplazamiento vertical solo en el cuerpo del modal */
-        padding: 0 1rem;
-    }
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .modal.show {
-        display: flex;
-    }
-
-    .modal__container {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 90%;
-        max-width: 600px;
-    }
-
-    .modal__card {
-        display: flex;
-        flex-direction: column;
-        height: auto;
-    }
-
-    .modal__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
-    }
-
-    .modal__heading {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    .modal__close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #888;
-    }
-
-    .modal__footer {
-        display: flex;
-        justify-content: flex-end;
-        padding: 1rem;
-        border-top: 1px solid #eee;
-        gap: 10px;
-    }
-
-    .modal__button {
-        padding: 0.75rem 1.5rem;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .modal__button--close {
-        background-color: #f4f4f4;
-        border: 1px solid #ddd;
-        color: #333;
-    }
-
-    .modal__button--primary {
-        background-color: #007bff;
-        border: 1px solid #007bff;
-        color: white;
-    }
-
-    .form__group {
-        margin-bottom: 1rem;
-    }
-
-    .form__label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: bold;
-    }
-
-    .form__input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-    .form__input--select {
-        appearance: none;
-    }
-    .odontograma {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        margin: 20px 0;
-        font-family: sans-serif;
-        width: 100%;
-    }
-
-    /* Contenedor scroll para cada fila */
-    .odontograma-scroll {
-        width: 100%;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Aquí van las filas con flex para los checkboxes */
-    .odontograma-row {
-        display: flex;
-        gap: 10px; /* importante para que el scroll detecte el ancho real */
-    }
-
-    /* Dientes */
-    .tooth {
-        position: relative;
-        width: 32px;
-        height: 32px;
-        flex-shrink: 0; /* que no se reduzcan */
-    }
-
-    /* El input con los estilos que pusiste */
-    .tooth input[type="checkbox"] {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 100%;
-        height: 100%;
-        border: 2px solid #ccc;
-        border-radius: 6px;
-        background-color: #f0f0f0;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 12px;
-        text-align: center;
-        transition: 0.2s;
-    }
-
-    .tooth input[type="checkbox"]::before {
-        content: attr(data-num);
-        display: block;
-        text-align: center;
-        line-height: 28px;
-        color: #333;
-    }
-
-    .tooth input[type="checkbox"]:checked {
-        background-color: #70b3fa;
-        color: white;
-        border-color: #70b3fa;
-    }
-    .modal__card{
-        padding-right: 1rem;
-        padding-left: 1rem;
-    }
-    .paciente-info h2 {
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-    }
-
-    .datos-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        font-size: 1rem;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
     <div class="top-section">
       <div class="box" id="pacienteBox">
         <div class="top-right-buttons">
-          <button class="action-button-top-Patient" onclick="changePatient()" style="height: min-content;" id="btncambiar">Cambiar paciente</button>
-          <button class="expand-btn" onclick="openModal('paciente')" style="height: min-content;">⛶</button>
+          <button class="action-button-top-Patient boton boton--secundario boton--pequeno" onclick="changePatient()" id="btncambiar">Cambiar paciente</button>
+          <button class="expand-btn boton boton--secundario boton--icono" onclick="openModal('paciente')" aria-label="Ampliar paciente">⛶</button>
         </div>
         <h3>Paciente</h3>
         <div class="scrollable">
@@ -502,14 +25,14 @@
       </div>
       <div class="box" id="tratamientoBox">
           <div class="top-right-buttons">
-            <button class="save-btn" id="saveBtn">Guardar cambios</button>
-            <button class="edit-btn"><i class="ri-pencil-fill"></i></button>
-            <button class="expand-btn" onclick="openModal('tratamiento')" >⛶</button>
+            <button class="save-btn boton boton--primario boton--pequeno" id="saveBtn">Guardar cambios</button>
+            <button class="edit-btn boton boton--secundario boton--icono" aria-label="Agregar piezas"><i class="ri-pencil-fill"></i></button>
+            <button class="expand-btn boton boton--secundario boton--icono" onclick="openModal('tratamiento')" aria-label="Ampliar plan de tratamiento">⛶</button>
           </div>
 
           <h3>Plan de tratamiento</h3>
           <div class="scrollable">
-            <div class="checkbox-wrapper-52">        
+            <div class="checkbox-wrapper-52">
             </div>
           </div>
       </div>
@@ -518,8 +41,8 @@
       <div class="head">
           <h3>Historial del Paciente</h3>
           <div class="action-buttons-top">
-            <button onclick="openAddTreatmentModal()"><i class="ri-add-line"></i></button>
-            <button onclick="openFullHistoryModal()" >⛶</button>
+            <button class="boton boton--primario boton--icono" onclick="openAddTreatmentModal()" aria-label="Añadir visita"><i class="ri-add-line"></i></button>
+            <button class="boton boton--secundario boton--icono" onclick="openFullHistoryModal()" aria-label="Ampliar historial">⛶</button>
           </div>
       </div>
       <div class="scrollable">
@@ -539,8 +62,8 @@
         </table>
         </div>
         <div class="button-container">
-            <button class="action-button">Dar Citas</button>
-            <button class="action-button" onclick="addTreatment()">Asignar Tratamiento</button>
+            <button class="action-button boton boton--primario">Dar Citas</button>
+            <button class="action-button boton boton--primario" onclick="addTreatment()">Asignar Tratamiento</button>
         </div>
     </div>
   </div>
@@ -553,7 +76,7 @@
       <h2>Historial Completo del Paciente</h2>
       <div id="fullTableContent">
         </div>
-      <button onclick="closeModal('fullTableModal')" style="margin-top: 20px; background-color: #f44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Cerrar</button>
+      <button onclick="closeModal('fullTableModal')" class="boton boton--secundario modal-content__cerrar">Cerrar</button>
     </div>
   </div>
   <!--MODAL VISITA-->
@@ -562,33 +85,33 @@
           <h2>Añadir Nuevo Registro de visita</h2>
           <form>
               <p>
-                  <label for="newTreatmentSelect">Tratamiento:</label><br>
-                  <select id="newTreatmentSelect" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;"></select>
+                  <label for="newTreatmentSelect" class="form__label">Tratamiento:</label><br>
+                  <select id="newTreatmentSelect" class="form__input form__input--select campo"></select>
               </p>
               <p>
-                  <label for="newObservaciones">Observaciones:</label><br>
-                  <textarea id="newObservaciones" placeholder="Añade aquí las observaciones..." style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                  <label for="newObservaciones" class="form__label">Observaciones:</label><br>
+                  <textarea id="newObservaciones" class="form__textarea campo" placeholder="Añade aquí las observaciones..."></textarea>
               </p>
               <p>
-                  <label for="newAC">Pago (A cuenta):</label><br>
-                  <input type="number" id="newAC" step="0.01" placeholder="Ej: 80.00" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                  <label for="newAC" class="form__label">Pago (A cuenta):</label><br>
+                  <input type="number" id="newAC" class="form__input campo" step="0.01" placeholder="Ej: 80.00">
               </p>
               <p>
-                  <label for="newDoctor">Doctor:</label><br>
-                  <input type="text" id="newDoctor" placeholder="Ej: Dr. Pérez" style="width: 100%; padding: 8px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px;">
+                  <label for="newDoctor" class="form__label">Doctor:</label><br>
+                  <input type="text" id="newDoctor" class="form__input" placeholder="Ej: Dr. Pérez">
               </p>
-              <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                  <button type="button" onclick="handleNewVisit()" class="action-button" style="background-color: #18cda6;">Guardar</button>
-                  <button type="button" onclick="closeModal('addTreatmentModal')" class="action-button" style="background-color: #f44336;">Cancelar</button>
+              <div class="modal-content__pie">
+                  <button type="button" onclick="handleNewVisit()" class="action-button boton boton--primario">Guardar</button>
+                  <button type="button" onclick="closeModal('addTreatmentModal')" class="action-button boton boton--secundario">Cancelar</button>
               </div>
           </form>
       </div>
   </div>
   <!--BUSCADOR-->
-  <div id="modalBuscador" class="modalBuscador" style="display:none;">
+  <div id="modalBuscador" class="modalBuscador">
     <div class="modal-content2">
       <h2>Buscar Paciente</h2>
-      <input type="text" id="busquedaPaciente" placeholder="Nombre del paciente..." style="width: 100%;">
+      <input type="text" id="busquedaPaciente" class="form__input" placeholder="Nombre del paciente...">
       <ul id="listaResultados"></ul>
     </div>
   </div>
@@ -598,28 +121,18 @@
     <div class="modal-content">
       <h2>Agregar Piezas a Tratamiento</h2>
       <p>
-        <label for="editTreatmentSelect">Seleccionar Tratamiento:</label><br />
-        <select
-          id="editTreatmentSelect"
-          style="
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-          "
-        ></select>
+        <label for="editTreatmentSelect" class="form__label">Seleccionar Tratamiento:</label><br />
+        <select id="editTreatmentSelect" class="form__input form__input--select campo"></select>
       </p>
 
       <div id="odontogramaContainer"></div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+      <div class="modal-content__pie">
 
         <button
           type="button"
           onclick="closeModal('editPiecesModal')"
-          class="action-button"
-          style="background-color: #f44336"
+          class="action-button boton boton--secundario"
         >
           Cerrar
         </button>
@@ -627,8 +140,7 @@
         <button
           type="button"
           id="savePiecesBtn"
-          class="action-button"
-          style="background-color: #4caf50"
+          class="action-button boton boton--primario"
         >
           Guardar cambios
         </button>
@@ -640,11 +152,11 @@
   <div class="modal" id="agregarTratamiento">
     <div class="modal-content">
       <h2>Asignar Tratamiento</h2>
-      
-      <form id="addTreatmentForm"> 
+
+      <form id="addTreatmentForm">
         <p>
-          <label for="diagnostico">Tratamiento</label>
-            <select name="diagnostico" id="diagnostico" style="width: 100%; padding: 8px;border: 1px solid #ccc; border-radius: 4px;" required>
+          <label for="diagnostico" class="form__label">Tratamiento</label>
+            <select name="diagnostico" id="diagnostico" class="form__input form__input--select" required>
                 <option value="Extracción">Extracción</option>
                 <option value="Empaste simple">Empaste simple</option>
                 <option value="Empaste compuesto">Empaste compuesto</option>
@@ -660,25 +172,25 @@
             </select>
         </p>
 
-      <div id="customTreatmentWrapper" style="display: none; margin-top: 10px;">
-        <label for="customTreatmentInput">tratamiento</label>
-        <input type="text" id="customTreatmentInput" placeholder="Especifica el tratamiento" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
+      <div id="customTreatmentWrapper" class="tratamiento-otro">
+        <label for="customTreatmentInput" class="form__label">tratamiento</label>
+        <input type="text" id="customTreatmentInput" class="form__input" placeholder="Especifica el tratamiento" />
       </div>
         <p>
-          <label for="observaciones">Observaciones</label><br>
-          <input type="text" id="observaciones" placeholder="Observaciones" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <label for="observaciones" class="form__label">Observaciones</label><br>
+          <input type="text" id="observaciones" class="form__input" placeholder="Observaciones">
         </p>
 
         <p>
-          <label for="monto_total">Monto total</label><br>
-          <input type="number" id="monto_total" placeholder="Monto total" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <label for="monto_total" class="form__label">Monto total</label><br>
+          <input type="number" id="monto_total" class="form__input" placeholder="Monto total">
         </p>
 
         <p>
-          <label for="monto_pagado">Abonado</label><br>
-          <input type="number" id="monto_pagado" placeholder="Abonado" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <label for="monto_pagado" class="form__label">Abonado</label><br>
+          <input type="number" id="monto_pagado" class="form__input" placeholder="Abonado">
         </p>
-        <div class="tooth"><input type="checkbox" name="piezas[]" value="general" data-num="  General  " style="width: fit-content;"></div>
+        <div class="tooth tooth--general"><input type="checkbox" name="piezas[]" value="general" data-num="  General  "></div>
         <div class="odontograma">
           <div class="odontograma-label">Piezas superiores</div>
             <div class="odontograma-scroll">
@@ -724,22 +236,20 @@
           </div>
         </div>
       </form> <!-- CERRAR ETIQUETA FORM AQUÍ -->
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+      <div class="modal-content__pie">
 
         <button
           type="button"
           onclick="closeModal('agregarTratamiento')"
-          class="action-button"
-          style="background-color: #f44336"
+          class="action-button boton boton--secundario"
         >
           Cerrar
         </button>
 
         <button
           type="button"
-          id="saveNewTreatmentBtn" 
-          class="action-button"
-          style="background-color: #4caf50"
+          id="saveNewTreatmentBtn"
+          class="action-button boton boton--primario"
         >
           Guardar cambios
         </button>
