@@ -364,3 +364,78 @@ body:has(#pre-env-banner) .barra-acciones{ bottom: 34px; }
     .barra-acciones .boton{ flex: 1 1 auto; }
     .barra-acciones .boton--primario{ flex-grow: 2; }
 }
+
+/* ---------------------------------------------------------------- Filtros de una lista
+   Fila de filtros sobre una tabla (inventario, visitas). Los campos son los
+   comunes (.form__label + .form__input); esto solo los coloca. Escrito de movil
+   hacia arriba a proposito: dos columnas y, desde 601px, todos en fila (al
+   reves, una regla que cayera mas abajo podria reventar el movil sin que se
+   note en el escritorio).
+   .filtros__group--ancho ocupa la fila entera en el movil. --buscar tambien, y
+   ademas crece en escritorio y esconde su etiqueta en el movil (el placeholder
+   ya dice lo que hace; la etiqueta sigue para lectores de pantalla). */
+.filtros{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: 12px 8px;
+    margin-top: 20px;
+}
+
+.filtros__group{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;   /* sin esto un item de la rejilla no baja de su contenido y desborda */
+}
+
+.filtros__group--ancho,
+.filtros__group--buscar,
+.filtros__check{ grid-column: 1 / -1; }
+
+.filtros__group--buscar .form__label{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.filtros__check{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--hs-texto);
+    font-size: .875rem;
+    cursor: pointer;
+}
+
+.filtros__check input{
+    width: 16px;
+    height: 16px;
+    accent-color: var(--hs-acento);
+    cursor: pointer;
+}
+
+@media (min-width: 601px){
+    .filtros{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 16px;
+    }
+
+    .filtros__group--buscar{ flex: 1 1 240px; }
+
+    .filtros__group--buscar .form__label{
+        position: static;
+        width: auto;
+        height: auto;
+        clip-path: none;
+    }
+
+    .filtros .form__input{ min-width: 200px; }
+
+    .filtros__check{ padding-bottom: 10px; }
+}

@@ -13,7 +13,6 @@ import { escapeHtml } from "../html.js";
 import { euros } from "../formato.js";
 import Tabla from "./Tabla.js";
 
-let stylesInjected = false;
 let modalEl = null;
 const wiredContainers = new WeakSet();
 
@@ -29,22 +28,6 @@ const ctx = {
   dateFrom: "",
   dateTo: ""
 };
-
-// ---------------- Estilos (una sola vez) ----------------
-// Solo los filtros de fechas: la lista es la tabla comun (tabla.css) y el modal,
-// el comun (modal.css).
-function injectStyles() {
-  if (stylesInjected) return;
-  stylesInjected = true;
-  const style = document.createElement("style");
-  style.id = "visitas-styles";
-  style.textContent = `
-  .viz-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px; }
-  .viz-toolbar .form__input { width:auto; }
-  .viz-daterange { display:inline-flex; align-items:center; gap:6px; font-size:.8125rem; color:var(--hs-texto-suave); }
-  `;
-  document.head.appendChild(style);
-}
 
 // ---------------- Modal (una sola vez) ----------------
 // Se abre con show() y no con showModal(): con showModal() el <dialog> va a la
@@ -110,7 +93,6 @@ function ensureModal() {
 // ---------------- Montaje ----------------
 export async function mountVisitas({ container, clientId = null } = {}) {
   if (!container) return;
-  injectStyles();
   ensureModal();
   ctx.clientId = clientId ? String(clientId) : null;
   ctx.container = container;
@@ -123,10 +105,19 @@ export async function mountVisitas({ container, clientId = null } = {}) {
 function renderShell() {
   const isPatient = !!ctx.clientId;
   const filtros = isPatient ? "" : `
-      <div class="viz-toolbar">
-        <select class="form__input form__input--select" id="viz-patient-filter" aria-label="Filtrar por paciente"><option value="">Todos los pacientes</option></select>
-        <label class="viz-daterange">Desde <input type="date" class="form__input" id="viz-date-from"></label>
-        <label class="viz-daterange">Hasta <input type="date" class="form__input" id="viz-date-to"></label>
+      <div class="filtros">
+        <div class="filtros__group filtros__group--ancho">
+          <label class="form__label" for="viz-patient-filter">Paciente</label>
+          <select class="form__input form__input--select" id="viz-patient-filter"><option value="">Todos los pacientes</option></select>
+        </div>
+        <div class="filtros__group">
+          <label class="form__label" for="viz-date-from">Desde</label>
+          <input type="date" class="form__input" id="viz-date-from">
+        </div>
+        <div class="filtros__group">
+          <label class="form__label" for="viz-date-to">Hasta</label>
+          <input type="date" class="form__input" id="viz-date-to">
+        </div>
       </div>`;
   ctx.container.innerHTML = `
     <div class="lista__cabecera">
