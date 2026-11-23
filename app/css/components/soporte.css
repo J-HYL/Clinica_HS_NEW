@@ -53,7 +53,12 @@
     z-index: 99999;
     width: 360px;
     max-width: calc(100vw - 32px);
-    overflow: hidden;
+    /* En pantallas bajas (el gabinete tiene 480 px) el panel no cabe entero:
+       se corta por debajo de su borde superior y hace scroll dentro. */
+    max-height: calc(100vh - 112px);
+    max-height: calc(100dvh - 112px);
+    overflow-x: hidden;
+    overflow-y: auto;
     background: var(--hs-superficie);
     border: 1px solid var(--hs-borde);
     border-radius: var(--hs-radio-lg);
