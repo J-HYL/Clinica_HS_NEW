@@ -76,16 +76,18 @@ window.addEventListener('DOMContentLoaded', async () => {
                     pieces.forEach(piece => {
                         //console.log('Depuración de Pieza:', { id: piece.id, tooth_number: piece.tooth_number, status: piece.status, typeOfStatus: typeof piece.status }); 
                         // Según tu lógica de renderizado: piece_status == 0 significa 'checked' (completado)
-                        const isChecked = piece.piece_status == 0 ? 'checked' : ''; 
+                        const isChecked = piece.piece_status == 0 ? 'checked' : '';
+                        const pieza = escapeHtml(piece.tooth_number);
+                        const idCasilla = `t${pieza}_${escapeHtml(treatment.id)}`;
                         innerTreatmentsHtml += `
                             <label class="item">
-                                <input type="checkbox" id="t${piece.tooth_number}_${treatment.id}" data-piece-id="${piece.id}" ${isChecked} />
-                                <label class="cbx" for="t${piece.tooth_number}_${treatment.id}">
+                                <input type="checkbox" id="${idCasilla}" data-piece-id="${escapeHtml(piece.id)}" ${isChecked} />
+                                <label class="cbx" for="${idCasilla}">
                                     <svg width="14px" height="12px" viewBox="0 0 14 12">
                                         <polyline points="1 7.6 5 11 13 1"></polyline>
                                     </svg>
                                 </label>
-                                <label class="cbx-lbl" for="t${piece.tooth_number}_${treatment.id}">${piece.tooth_number}</label>
+                                <label class="cbx-lbl" for="${idCasilla}">${pieza}</label>
                             </label>
                         `;
                     });
