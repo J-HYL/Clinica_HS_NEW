@@ -1,7 +1,10 @@
+/* La burbuja de soporte (Soporte.js, la carga main.js) es parte del marco. */
+@import url("soporte.css");
+
 /* shell.css — Marco COMUN de todas las pantallas del panel: menu lateral,
-   barra superior, titulo de pagina y campana de avisos. El HTML lo pinta
-   AppShell.js (y la campana Notificaciones.js); aqui solo va su aspecto.
-   Sustituye a los antiguos sidebar.css y header.css. */
+   barra superior, titulo de pagina, campana de avisos y burbuja de soporte.
+   El HTML lo pintan AppShell.js, Notificaciones.js y Soporte.js; aqui solo va
+   su aspecto. Sustituye a los antiguos sidebar.css y header.css. */
 
 /* ================================================================ Menu lateral
    Movil/tablet: panel que entra desde la izquierda (boton de la barra).
