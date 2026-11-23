@@ -268,7 +268,6 @@ async function invitarPortal(clientId) {
       showCancelButton: true,
       confirmButtonText: "Guardar y continuar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#5671eb",
       inputValidator: (v) => (!v || !emailValido(v.trim()) ? "Introduce un email válido" : undefined),
     });
     if (!nuevo) return;
@@ -287,7 +286,6 @@ async function invitarPortal(clientId) {
     showCancelButton: true,
     confirmButtonText: "Enviar invitación",
     cancelButtonText: "Cancelar",
-    confirmButtonColor: "#5671eb",
   });
   if (!conf.isConfirmed) return;
 
@@ -361,7 +359,6 @@ async function generarFacturaDePago(paymentId) {
       showCancelButton: true,
       confirmButtonText: "Generar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#5671eb",
     });
     if (!conf.isConfirmed) return;
   }
@@ -405,7 +402,6 @@ async function generarFacturaDePago(paymentId) {
     showCancelButton: true,
     confirmButtonText: "Sí, avisar",
     cancelButtonText: "No",
-    confirmButtonColor: "#34c759",
   });
 
   // Registrar SIEMPRE la generacion (marca la solicitud del portal como 'generada'

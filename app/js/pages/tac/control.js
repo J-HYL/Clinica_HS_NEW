@@ -141,7 +141,7 @@ async function confirmarBorrado(estudio) {
         showCancelButton: true,
         confirmButtonText: "Borrar",
         cancelButtonText: "Cancelar",
-        confirmButtonColor: "#DE5753",
+        confirmButtonColor: "var(--hs-peligro)",
     });
     if (!isConfirmed) return;
 

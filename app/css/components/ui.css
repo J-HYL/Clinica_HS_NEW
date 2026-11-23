@@ -439,3 +439,54 @@ body:has(#pre-env-banner) .barra-acciones{ bottom: 34px; }
 
     .filtros__check{ padding-bottom: 10px; }
 }
+
+/* ---------------------------------------------------------------- Avisos (SweetAlert2)
+   Tema comun de los Swal del panel. SweetAlert2 (11.2x) se tematiza con sus
+   variables --swal2-*, que define en :root; aqui se les dan los tokens en
+   .swal2-container, asi que el color que pase una llamada con
+   confirmButtonColor (lo pone Swal en el propio boton) sigue mandando.
+   Confirmar = acento; cancelar = como .boton--secundario. Las llamadas NO ponen
+   confirmButtonColor salvo las que borran o rechazan ("var(--hs-peligro)") o
+   confirman algo positivo ("var(--hs-exito)"). */
+.swal2-container{
+    --swal2-backdrop: var(--hs-velo);
+    --swal2-border-radius: var(--hs-radio-lg);
+    --swal2-color: var(--hs-texto);
+    --swal2-outline: var(--hs-foco);
+    --swal2-input-border: 1px solid var(--hs-borde-control);
+    --swal2-input-border-radius: var(--hs-radio-sm);
+    --swal2-input-focus-border: 1px solid var(--hs-acento);
+    --swal2-input-focus-box-shadow: var(--hs-foco);
+    --swal2-validation-message-background: var(--hs-peligro-suave);
+    --swal2-validation-message-color: var(--hs-peligro);
+    --swal2-footer-border-color: var(--hs-borde-suave);
+    --swal2-close-button-color: var(--hs-texto-tenue);
+    --swal2-timer-progress-bar-background: var(--hs-acento-claro);
+    --swal2-confirm-button-background-color: var(--hs-acento);
+    --swal2-confirm-button-border-radius: var(--hs-radio);
+    --swal2-confirm-button-box-shadow: var(--hs-sombra-boton);
+    --swal2-deny-button-background-color: var(--hs-peligro);
+    --swal2-deny-button-border-radius: var(--hs-radio);
+    --swal2-cancel-button-background-color: var(--hs-superficie);
+    --swal2-cancel-button-color: var(--hs-texto);
+    --swal2-cancel-button-border-radius: var(--hs-radio);
+    --swal2-cancel-button-box-shadow: inset 0 0 0 1px var(--hs-borde);
+}
+
+.swal2-popup{ font-family: var(--hs-fuente); }
+
+.swal2-title{
+    color: var(--hs-texto-fuerte);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.swal2-html-container{
+    color: var(--hs-texto-suave);
+    font-size: .9375rem;
+}
+
+.swal2-styled{
+    font-size: .875rem;
+    font-weight: 600;
+}

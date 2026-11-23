@@ -397,7 +397,7 @@ async function onDelete(visitId) {
     text: "Se eliminará el registro de la visita. (El pago asociado, si lo hubo, se gestiona aparte en Pagos.)",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#ef4444",
+    confirmButtonColor: "var(--hs-peligro)",
     confirmButtonText: "Sí, borrar",
     cancelButtonText: "Cancelar"
   });

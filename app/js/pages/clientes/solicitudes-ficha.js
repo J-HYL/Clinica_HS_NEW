@@ -101,7 +101,7 @@ async function aceptar(sid) {
   const { value: medico } = await Swal.fire({
     title: "Confirmar cita", text: "¿En qué gabinete?", input: "select",
     inputOptions: { med1: "Gabinete 1", med2: "Gabinete 2" }, inputValue: "med1",
-    showCancelButton: true, confirmButtonText: "Confirmar cita", cancelButtonText: "Cancelar", confirmButtonColor: "#34c759",
+    showCancelButton: true, confirmButtonText: "Confirmar cita", cancelButtonText: "Cancelar", confirmButtonColor: "var(--hs-exito)",
   });
   if (!medico) return;
   await enviar("aceptar", { solicitud_id: Number(sid), medico });
@@ -110,7 +110,7 @@ async function aceptar(sid) {
 async function rechazar(sid) {
   const r = await Swal.fire({
     title: "Rechazar solicitud", input: "text", inputPlaceholder: "Motivo (opcional, lo verá el paciente)",
-    showCancelButton: true, confirmButtonText: "Rechazar", cancelButtonText: "Cancelar", confirmButtonColor: "#c62a22",
+    showCancelButton: true, confirmButtonText: "Rechazar", cancelButtonText: "Cancelar", confirmButtonColor: "var(--hs-peligro)",
   });
   if (!r.isConfirmed) return;
   await enviar("rechazar", { solicitud_id: Number(sid), motivo: r.value || "" });

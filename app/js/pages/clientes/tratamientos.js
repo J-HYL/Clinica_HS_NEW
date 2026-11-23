@@ -347,8 +347,7 @@ function pintarPresupuesto(file) {
       text: "Esta acción no se puede deshacer",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: "var(--hs-peligro)",
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     });
